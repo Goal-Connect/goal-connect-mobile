@@ -1,6 +1,8 @@
+import 'package:goal_connect/features/auth/domain/entities/User.dart';
+
 class Highlight {
   final String id;
-  final String playerId;
+  final User player;
   final String videoUrl;
   final String caption;
   final int likes;
@@ -8,7 +10,7 @@ class Highlight {
 
   Highlight({
     required this.id,
-    required this.playerId,
+    required this.player,
     required this.videoUrl,
     required this.caption,
     required this.likes,
