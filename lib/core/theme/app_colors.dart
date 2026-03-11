@@ -13,4 +13,6 @@ class AppColors {
   static const Color lightText = Color(0xFF1A1A1A);
 
   static const Color gray = Color(0xFF9E9E9E);
+  static const Color cardGrey = Color(0xFF1A1A1A);
+  static const Color habeshaRed = Color(0xFFEF4444);
 }

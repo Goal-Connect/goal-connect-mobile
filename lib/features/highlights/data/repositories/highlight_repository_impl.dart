@@ -64,4 +64,5 @@ class HighlightRepositoryImpl implements HighlightRepository {
       return Left(ServerFailure());
     }
   }
+  
 }

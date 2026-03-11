@@ -1,5 +1,4 @@
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
-
 import '../models/highlight_model.dart';
 
 abstract class HighlightRemoteDataSource {
@@ -16,7 +15,9 @@ abstract class HighlightRemoteDataSource {
   Future<List<HighlightModel>> getPlayerHighlights(String playerId);
 }
 
+
 class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
+
   final List<HighlightModel> _highlights = [];
 
   @override

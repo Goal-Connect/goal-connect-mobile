@@ -3,9 +3,9 @@ import 'package:goal_connect/core/error/fialures.dart';
 import 'package:goal_connect/features/onboarding/domain/entities/onboarding_info.dart';
 import 'package:goal_connect/features/onboarding/domain/repositories/onboarding_repository.dart';
 
-class GetOnboardingStatus {
+class GetOnboardingStatusUsecase {
   final OnboardingRepository repository;
-  GetOnboardingStatus(this.repository);
+  GetOnboardingStatusUsecase(this.repository);
 
   Future<Either<Failure, OnboardingInfo>> call() {
     return repository.getOnboardingStatus();

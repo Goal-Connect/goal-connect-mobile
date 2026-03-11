@@ -7,5 +7,5 @@ void main() async {
 
   await di.init();
 
-  runApp(const App());
+  runApp(App());
 }

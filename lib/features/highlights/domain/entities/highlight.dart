@@ -1,4 +1,4 @@
-import 'package:goal_connect/features/auth/domain/entities/User.dart';
+import 'package:goal_connect/features/auth/domain/entities/user.dart';
 
 class Highlight {
   final String id;

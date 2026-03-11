@@ -1,13 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:goal_connect/core/error/fialures.dart';
-import 'package:goal_connect/features/onboarding/domain/entities/onboarding_info.dart';
 import 'package:goal_connect/features/onboarding/domain/repositories/onboarding_repository.dart';
 
-class GetOnboardingStatus {
+class SetOnboardingShownUsecase {
   final OnboardingRepository repository;
-  GetOnboardingStatus(this.repository);
+  SetOnboardingShownUsecase(this.repository);
 
-  Future<Either<Failure, OnboardingInfo>> call() {
-    return repository.getOnboardingStatus();
+  Future<Either<Failure, void>> call() {
+    return repository.setOnboardingShown();
   }
 }
