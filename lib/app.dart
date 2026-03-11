@@ -5,6 +5,8 @@ import 'package:goal_connect/core/theme/theme_state.dart';
 import 'package:goal_connect/core/theme/app_theme.dart';
 import 'package:goal_connect/features/auth/domain/usecases/login_usecase.dart';
 import 'package:goal_connect/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:goal_connect/features/highlights/presentation/bloc/highlight_bloc.dart';
+import 'package:goal_connect/features/highlights/presentation/pages/highlight_feed_page.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_status_usecase.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
@@ -26,6 +28,7 @@ class App extends StatelessWidget {
           ),
         ),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
+        BlocProvider(create: (_) => sl<HighlightBloc>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
@@ -34,7 +37,7 @@ class App extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: state.themeMode,
-            home: OnboardingPage(),
+            home: HighlightFeedPage(),
           );
         },
       ),
