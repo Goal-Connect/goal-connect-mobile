@@ -5,6 +5,7 @@ import '../bloc/highlight_event.dart';
 import '../bloc/highlight_state.dart';
 import '../widgets/video_feed_item.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'upload_highlight_page.dart';
 
 class HighlightFeedPage extends StatefulWidget {
   const HighlightFeedPage({super.key});
@@ -23,6 +24,25 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 80),
+        child: FloatingActionButton.extended(
+          backgroundColor: AppColors.primaryGreen,
+          elevation: 8,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const UploadHighlightPage()),
+          ),
+
+          label: Icon(Icons.add_box_rounded, color: Colors.black, size: 22),
+        ),
+      ),
       body: Stack(
         children: [
           BlocBuilder<HighlightBloc, HighlightState>(
@@ -52,13 +72,19 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.menu_rounded, color: Colors.white, size: 30),
-                  Row(
-                    children: [
-                      _tabText("For You", true),
-                      const SizedBox(width: 20),
-                      _tabText("Following", false),
-                    ],
+                  const Icon(
+                    Icons.blur_on_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  Text(
+                    "DISCOVER",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 3,
+                      fontSize: 12,
+                    ),
                   ),
                   const Icon(
                     Icons.search_rounded,
@@ -69,54 +95,8 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
               ),
             ),
           ),
-
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 2,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primaryGreen.withOpacity(0),
-                    AppColors.primaryGreen,
-                    AppColors.primaryGreen.withOpacity(0),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
-
-  Widget _tabText(String title, bool active) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text(
-        title,
-        style: TextStyle(
-          color: active ? Colors.white : Colors.white54,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-          shadows: [
-            if (active)
-              const Shadow(color: AppColors.primaryGreen, blurRadius: 15),
-          ],
-        ),
-      ),
-      if (active)
-        Container(
-          margin: const EdgeInsets.only(top: 4),
-          height: 2,
-          width: 20,
-          decoration: BoxDecoration(
-            color: AppColors.primaryGreen,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-    ],
-  );
 }
