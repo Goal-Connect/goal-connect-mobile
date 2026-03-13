@@ -16,10 +16,12 @@ class VideoFeedItem extends StatefulWidget {
 }
 
 class _VideoFeedItemState extends State<VideoFeedItem>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late VideoPlayerController _controller;
   late AnimationController _rotationController;
   bool _isInitialized = false;
+  bool _isPaused = false;
+  bool _showPauseIcon = false;
 
   late bool _isLiked;
   late int _likeCount;
@@ -37,11 +39,13 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     _controller =
         VideoPlayerController.networkUrl(Uri.parse(widget.highlight.videoUrl))
           ..initialize().then((_) {
-            setState(() {
-              _isInitialized = true;
-              _controller.play();
-              _controller.setLooping(true);
-            });
+            if (mounted) {
+              setState(() {
+                _isInitialized = true;
+                _controller.play();
+                _controller.setLooping(true);
+              });
+            }
           });
   }
 
@@ -50,6 +54,35 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     _controller.dispose();
     _rotationController.dispose();
     super.dispose();
+  }
+
+  void _pauseVideo() {
+    if (_isInitialized && _controller.value.isPlaying) {
+      _controller.pause();
+      _rotationController.stop();
+      setState(() => _isPaused = true);
+    }
+  }
+
+  void _resumeVideo() {
+    if (_isInitialized && !_controller.value.isPlaying) {
+      _controller.play();
+      _rotationController.repeat();
+      setState(() => _isPaused = false);
+    }
+  }
+
+  void _togglePlayPause() {
+    HapticFeedback.lightImpact();
+    if (_controller.value.isPlaying) {
+      _pauseVideo();
+    } else {
+      _resumeVideo();
+    }
+    setState(() => _showPauseIcon = true);
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) setState(() => _showPauseIcon = false);
+    });
   }
 
   void _toggleLike() {
@@ -73,6 +106,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
 
   void _openOptions() {
     HapticFeedback.lightImpact();
+    _pauseVideo();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -82,7 +116,18 @@ class _VideoFeedItemState extends State<VideoFeedItem>
         playerUsername: widget.highlight.player.username,
         videoUrl: widget.highlight.videoUrl,
       ),
-    );
+    ).then((_) => _resumeVideo());
+  }
+
+  Future<void> _navigateAway(Widget page) async {
+    _pauseVideo();
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    _resumeVideo();
+  }
+
+  void _onBottomSheetOpened(Future<void> sheetFuture) {
+    _pauseVideo();
+    sheetFuture.then((_) => _resumeVideo());
   }
 
   @override
@@ -120,6 +165,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
         ),
 
         GestureDetector(
+          onTap: _togglePlayPause,
           onDoubleTap: _onDoubleTap,
           onLongPress: _openOptions,
           behavior: HitTestBehavior.translucent,
@@ -133,10 +179,39 @@ class _VideoFeedItemState extends State<VideoFeedItem>
           likeCount: _likeCount,
           onLikeTap: _toggleLike,
           onOptionsTap: _openOptions,
+          onNavigateAway: _navigateAway,
+          onBottomSheetOpened: _onBottomSheetOpened,
         ),
 
         if (_showHeart) const _HeartAnimation(),
+
+        if (_showPauseIcon) _buildPauseOverlay(),
       ],
+    );
+  }
+
+  Widget _buildPauseOverlay() {
+    return Center(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 200),
+        builder: (_, value, child) => Opacity(
+          opacity: value > 0.5 ? (2.0 - value * 2).clamp(0.0, 1.0) : value * 2,
+          child: child,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.5),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            _isPaused ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            color: Colors.white,
+            size: 50,
+          ),
+        ),
+      ),
     );
   }
 }

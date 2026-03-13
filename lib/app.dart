@@ -144,7 +144,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   bool _notificationsEnabled = true;
   bool _publicProfile = true;
   bool _autoPlayVideos = true;
-  int _selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -422,15 +421,28 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-        // Tab header
+        // Section header
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                _tabButton("Highlights", 0, isDark, textColor),
-                const SizedBox(width: 8),
-                _tabButton("Achievements", 1, isDark, textColor),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGreen.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
+                  ),
+                  child: const Text(
+                    "Highlights",
+                    style: TextStyle(
+                      color: AppColors.primaryGreen,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -480,7 +492,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                   ],
                 ),
               ),
-              childCount: _selectedTab == 0 ? 6 : 3,
+              childCount: 6,
             ),
           ),
         ),
@@ -515,33 +527,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           const SizedBox(height: 2),
           Text(label, style: const TextStyle(color: AppColors.gray, fontSize: 11)),
         ],
-      ),
-    );
-  }
-
-  Widget _tabButton(String label, int index, bool isDark, Color textColor) {
-    final selected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-        decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primaryGreen.withOpacity(0.12)
-              : (isDark ? Colors.white : Colors.black).withOpacity(0.04),
-          borderRadius: BorderRadius.circular(10),
-          border: selected
-              ? Border.all(color: AppColors.primaryGreen.withOpacity(0.3))
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? AppColors.primaryGreen : AppColors.gray,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            fontSize: 13,
-          ),
-        ),
       ),
     );
   }

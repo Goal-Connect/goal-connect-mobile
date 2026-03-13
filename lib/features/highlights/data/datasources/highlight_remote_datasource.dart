@@ -68,7 +68,7 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
           videoUrl: mockVideos[i],
           caption: captions[i % captions.length],
           likes: (i * 15) + 10,
-          commentCount: 5 + (i * 7) % 20,
+          commentCount: 12,
           createdAt: DateTime.now().subtract(Duration(hours: i * 3)),
         ),
       );

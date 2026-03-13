@@ -8,6 +8,7 @@ import '../../../chat/domain/entities/conversation.dart';
 import '../../../highlights/presentation/bloc/highlight_bloc.dart';
 import '../../../highlights/presentation/bloc/highlight_event.dart';
 import '../../../highlights/presentation/bloc/highlight_state.dart';
+import '../../../highlights/presentation/pages/single_highlight_page.dart';
 import '../../domain/entities/player_profile.dart';
 import '../../domain/entities/player_stats.dart';
 import '../bloc/player_profile_bloc.dart';
@@ -675,57 +676,67 @@ class _PlayerProfileView extends StatelessWidget {
                 ),
                 itemBuilder: (_, i) {
                   final h = state.highlights[i];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SingleHighlightPage(highlight: h),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+                        ),
                       ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Icon(Icons.play_circle_fill_rounded,
-                              color: AppColors.primaryGreen.withOpacity(0.4), size: 36),
-                        ),
-                        Positioned(
-                          bottom: 8, left: 8, right: 8,
-                          child: Text(
-                            h.caption,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: (isDark ? Colors.white : Colors.black).withOpacity(0.5),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Icon(Icons.play_circle_fill_rounded,
+                                color: AppColors.primaryGreen.withOpacity(0.4), size: 36),
+                          ),
+                          Positioned(
+                            bottom: 8, left: 8, right: 8,
+                            child: Text(
+                              h.caption,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: (isDark ? Colors.white : Colors.black).withOpacity(0.5),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 8, right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.favorite_rounded,
-                                    color: Colors.white, size: 10),
-                                const SizedBox(width: 3),
-                                Text(
-                                  '${h.likes}',
-                                  style: const TextStyle(
-                                    color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600),
-                                ),
-                              ],
+                          Positioned(
+                            top: 8, right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.favorite_rounded,
+                                      color: Colors.white, size: 10),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    '${h.likes}',
+                                    style: const TextStyle(
+                                      color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

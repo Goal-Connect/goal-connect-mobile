@@ -16,6 +16,8 @@ class VideoOverlayContent extends StatelessWidget {
   final int likeCount;
   final VoidCallback onLikeTap;
   final VoidCallback onOptionsTap;
+  final Future<void> Function(Widget page) onNavigateAway;
+  final void Function(Future<void> sheetFuture) onBottomSheetOpened;
 
   const VideoOverlayContent({
     super.key,
@@ -25,6 +27,8 @@ class VideoOverlayContent extends StatelessWidget {
     required this.likeCount,
     required this.onLikeTap,
     required this.onOptionsTap,
+    required this.onNavigateAway,
+    required this.onBottomSheetOpened,
   });
 
   @override
@@ -188,19 +192,16 @@ class VideoOverlayContent extends StatelessWidget {
   }
 
   void _openProfile(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PlayerProfilePage(
-          playerId: highlight.player.id,
-          heroTag: 'avatar_${highlight.player.id}',
-        ),
+    onNavigateAway(
+      PlayerProfilePage(
+        playerId: highlight.player.id,
+        heroTag: 'avatar_${highlight.player.id}',
       ),
     );
   }
 
   void _openComments(BuildContext context, String highlightId) {
-    showModalBottomSheet(
+    final future = showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -209,6 +210,7 @@ class VideoOverlayContent extends StatelessWidget {
         child: CommentSheet(highlightId: highlightId),
       ),
     );
+    onBottomSheetOpened(future.then((_) {}));
   }
 
   String _formatCount(int count) {
