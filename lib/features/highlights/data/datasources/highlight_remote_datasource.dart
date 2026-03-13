@@ -19,16 +19,16 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   final List<HighlightModel> _highlights = [];
 
   final List<String> mockVideos = [
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
   ];
 
   MockHighlightRemoteDataSource() {
@@ -54,7 +54,7 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
             email: "player${i % 10}@test.com",
             role: "player",
             username: "EthioStar_${i % 10}",
-            profileImage: "https://i.pravatar.cc/150?u=player${i % 10}",
+            profileImage: "https://ui-avatars.com/api/?name=EthioStar+${i % 10}&background=00D084&color=000&size=150",
             position: i % 2 == 0 ? "Forward" : "Midfielder",
             age: 15 + (i % 4),
             country: "Ethiopia",

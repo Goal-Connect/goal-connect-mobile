@@ -5,20 +5,22 @@ import 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
   final SharedPreferences prefs;
-  static const String key = 'theme_mode';
+  static const String key = 'theme_mode_index';
 
   ThemeCubit({required this.prefs})
     : super(
-        ThemeState(
-          prefs.getBool(key) ?? true ? ThemeMode.light : ThemeMode.dark,
-        ),
+        ThemeState(ThemeMode.values[prefs.getInt(key) ?? ThemeMode.dark.index]),
       );
+
+  void setTheme(ThemeMode mode) {
+    prefs.setInt(key, mode.index);
+    emit(ThemeState(mode));
+  }
 
   void toggleTheme() {
     final newMode = state.themeMode == ThemeMode.light
         ? ThemeMode.dark
         : ThemeMode.light;
-    prefs.setBool(key, newMode == ThemeMode.light);
-    emit(ThemeState(newMode));
+    setTheme(newMode);
   }
 }

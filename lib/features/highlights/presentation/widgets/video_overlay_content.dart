@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/highlight.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../injection_container.dart';
+import '../../../comments/presentation/bloc/comment_bloc.dart';
+import '../../../comments/presentation/bloc/comment_event.dart';
+import '../../../comments/presentation/widgets/comment_sheet.dart';
 import 'fancy_glass_button.dart';
 
 class VideoOverlayContent extends StatelessWidget {
@@ -54,7 +59,7 @@ class VideoOverlayContent extends StatelessWidget {
                 const SizedBox(height: 10),
 
                 Text(
-                  highlight.player.position?.toUpperCase() ?? "TOP PROSPECT",
+                  highlight.player.position.toUpperCase(),
                   style: TextStyle(
                     color: AppColors.primaryGreen.withOpacity(0.9),
                     fontWeight: FontWeight.bold,
@@ -97,7 +102,7 @@ class VideoOverlayContent extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        highlight.player.country ?? "Global",
+                        highlight.player.country,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -136,7 +141,7 @@ class VideoOverlayContent extends StatelessWidget {
                     radius: 28,
                     backgroundColor: Colors.black,
                     backgroundImage: NetworkImage(
-                      highlight.player.profileImage ?? "",
+                      highlight.player.profileImage,
                     ),
                   ),
                 ),
@@ -152,10 +157,10 @@ class VideoOverlayContent extends StatelessWidget {
               const SizedBox(height: 20),
               FancyGlassButton(
                 icon: Icons.chat_bubble_rounded,
-                label: "Connect",
+                label: "Comments",
                 color: AppColors.primaryGreen,
                 isPulsing: true,
-                onTap: () {},
+                onTap: () => _openComments(context, highlight.id),
               ),
               const SizedBox(height: 20),
               FancyGlassButton(
@@ -166,6 +171,19 @@ class VideoOverlayContent extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _openComments(BuildContext context, String highlightId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider(
+        create: (_) =>
+            sl<CommentBloc>()..add(GetCommentsEvent(highlightId)),
+        child: CommentSheet(highlightId: highlightId),
       ),
     );
   }
