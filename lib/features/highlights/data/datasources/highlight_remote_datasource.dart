@@ -13,10 +13,16 @@ abstract class HighlightRemoteDataSource {
   Future<List<HighlightModel>> getHighlightsFeed();
 
   Future<List<HighlightModel>> getPlayerHighlights(String playerId);
+
+  Future<bool> toggleLike(String highlightId);
+
+  bool isLiked(String highlightId);
 }
 
 class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   final List<HighlightModel> _highlights = [];
+  final Set<String> _likedHighlightIds = {};
+  final Map<String, int> _likeCounts = {};
 
   final List<String> mockVideos = [
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
@@ -62,6 +68,7 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
           videoUrl: mockVideos[i],
           caption: captions[i % captions.length],
           likes: (i * 15) + 10,
+          commentCount: 5 + (i * 7) % 20,
           createdAt: DateTime.now().subtract(Duration(hours: i * 3)),
         ),
       );
@@ -112,4 +119,25 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
     await Future.delayed(const Duration(milliseconds: 500));
     return _highlights.where((h) => h.player.id == playerId).toList();
   }
+
+  @override
+  Future<bool> toggleLike(String highlightId) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    final highlight = _highlights.firstWhere((h) => h.id == highlightId,
+        orElse: () => throw Exception('Highlight not found'));
+    _likeCounts.putIfAbsent(highlightId, () => highlight.likes);
+
+    if (_likedHighlightIds.contains(highlightId)) {
+      _likedHighlightIds.remove(highlightId);
+      _likeCounts[highlightId] = (_likeCounts[highlightId]! - 1).clamp(0, 999999);
+      return false;
+    } else {
+      _likedHighlightIds.add(highlightId);
+      _likeCounts[highlightId] = _likeCounts[highlightId]! + 1;
+      return true;
+    }
+  }
+
+  @override
+  bool isLiked(String highlightId) => _likedHighlightIds.contains(highlightId);
 }

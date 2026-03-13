@@ -22,8 +22,7 @@ class CommentsLoaded extends CommentState {
 class CommentPosting extends CommentState {
   final List<Comment> currentComments;
   final String highlightId;
-  const CommentPosting(
-      {required this.currentComments, required this.highlightId});
+  const CommentPosting({required this.currentComments, required this.highlightId});
   @override
   List<Object?> get props => [currentComments, highlightId];
 }

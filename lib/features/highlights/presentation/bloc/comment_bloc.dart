@@ -29,8 +29,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
 
     on<AddCommentEvent>((event, emit) async {
       final current = state;
-      final currentComments =
-          current is CommentsLoaded ? current.comments : [];
+      final currentComments = current is CommentsLoaded ? current.comments : <Comment>[];
 
       emit(CommentPosting(
         currentComments: List.from(currentComments),
@@ -49,8 +48,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
         (failure) => emit(const CommentError('Failed to post comment')),
         (newComment) {
           final updated = <Comment>[newComment, ...currentComments];
-          emit(CommentsLoaded(
-              comments: updated, highlightId: event.highlightId));
+          emit(CommentsLoaded(comments: updated, highlightId: event.highlightId));
         },
       );
     });
@@ -64,8 +62,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
           (_) {
             final updated =
                 current.comments.where((c) => c.id != event.commentId).toList();
-            emit(CommentsLoaded(
-                comments: updated, highlightId: current.highlightId));
+            emit(CommentsLoaded(comments: updated, highlightId: current.highlightId));
           },
         );
       }

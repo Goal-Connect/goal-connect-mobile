@@ -29,57 +29,59 @@ class MessageBubble extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-        left: isMine ? 48 : 12,
-        right: isMine ? 12 : 48,
-        top: 2,
-        bottom: 2,
+        left: isMine ? 56 : 12,
+        right: isMine ? 12 : 56,
+        top: 3,
+        bottom: 3,
       ),
       child: Column(
-        crossAxisAlignment:
-            isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment:
-                isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (!isMine && showAvatar) ...[
                 CircleAvatar(
-                  radius: 14,
-                  backgroundColor: AppColors.primaryGreen.withOpacity(0.2),
-                  backgroundImage:
-                      avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+                  radius: 15,
+                  backgroundColor: AppColors.primaryGreen.withOpacity(0.15),
+                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
                   child: avatarUrl == null
-                      ? const Icon(Icons.person, size: 14,
-                          color: AppColors.primaryGreen)
+                      ? const Icon(Icons.person, size: 14, color: AppColors.primaryGreen)
                       : null,
                 ),
                 const SizedBox(width: 8),
               ] else if (!isMine) ...[
-                const SizedBox(width: 36),
+                const SizedBox(width: 38),
               ],
-
-              // ─── Bubble ───
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                   decoration: BoxDecoration(
+                    gradient: isMine
+                        ? const LinearGradient(
+                            colors: [AppColors.primaryGreen, Color(0xFF00C278)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
                     color: isMine
-                        ? AppColors.primaryGreen
+                        ? null
                         : isDark
-                            ? const Color(0xFF2A2A2A)
-                            : const Color(0xFFEEEEEE),
+                            ? const Color(0xFF222228)
+                            : const Color(0xFFF0F0F2),
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(18),
-                      topRight: const Radius.circular(18),
-                      bottomLeft: Radius.circular(isMine ? 18 : 4),
-                      bottomRight: Radius.circular(isMine ? 4 : 18),
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: Radius.circular(isMine ? 20 : 6),
+                      bottomRight: Radius.circular(isMine ? 6 : 20),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 4,
+                        color: isMine
+                            ? AppColors.primaryGreen.withOpacity(0.12)
+                            : Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -87,7 +89,7 @@ class MessageBubble extends StatelessWidget {
                   child: Text(
                     message.text,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.5,
                       height: 1.4,
                       color: isMine
                           ? Colors.black
@@ -100,14 +102,26 @@ class MessageBubble extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 2),
           Padding(
             padding: EdgeInsets.only(
-              left: !isMine && showAvatar ? 44 : !isMine ? 44 : 0,
+              left: !isMine ? 46 : 0,
+              top: 4,
+              bottom: 2,
             ),
-            child: Text(
-              _formatTime(message.createdAt),
-              style: const TextStyle(fontSize: 10, color: AppColors.gray),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                Text(
+                  _formatTime(message.createdAt),
+                  style: TextStyle(fontSize: 10, color: AppColors.gray.withOpacity(0.7)),
+                ),
+                if (isMine) ...[
+                  const SizedBox(width: 4),
+                  Icon(Icons.done_all_rounded,
+                      size: 14, color: AppColors.primaryGreen.withOpacity(0.6)),
+                ],
+              ],
             ),
           ),
         ],

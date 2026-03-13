@@ -58,11 +58,19 @@ class HighlightRepositoryImpl implements HighlightRepository {
   }) async {
     try {
       final result = await remoteDataSource.getPlayerHighlights(playerId);
-
       return Right(result);
     } catch (e) {
       return Left(ServerFailure());
     }
   }
-  
+
+  @override
+  Future<Either<Failure, bool>> toggleLike({required String highlightId}) async {
+    try {
+      final result = await remoteDataSource.toggleLike(highlightId);
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
 }

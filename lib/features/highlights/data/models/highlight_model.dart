@@ -8,6 +8,7 @@ class HighlightModel extends Highlight {
     required super.videoUrl,
     required super.caption,
     required super.likes,
+    super.commentCount,
     required super.createdAt,
   });
 

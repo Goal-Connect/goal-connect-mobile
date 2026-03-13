@@ -3,19 +3,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/highlight.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection_container.dart';
-import '../../../comments/presentation/bloc/comment_bloc.dart';
-import '../../../comments/presentation/bloc/comment_event.dart';
-import '../../../comments/presentation/widgets/comment_sheet.dart';
+import '../bloc/comment_bloc.dart';
+import '../bloc/comment_event.dart';
+import 'comment_sheet.dart';
+import '../../../profile/presentation/pages/player_profile_page.dart';
 import 'fancy_glass_button.dart';
 
 class VideoOverlayContent extends StatelessWidget {
   final Highlight highlight;
   final Animation<double> rotationAnimation;
+  final bool isLiked;
+  final int likeCount;
+  final VoidCallback onLikeTap;
+  final VoidCallback onOptionsTap;
 
   const VideoOverlayContent({
     super.key,
     required this.highlight,
     required this.rotationAnimation,
+    required this.isLiked,
+    required this.likeCount,
+    required this.onLikeTap,
+    required this.onOptionsTap,
   });
 
   @override
@@ -30,34 +39,36 @@ class VideoOverlayContent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      "@${highlight.player.username.toLowerCase()}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 20,
-                        letterSpacing: 0.5,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black54,
-                            blurRadius: 10,
-                            offset: Offset(2, 2),
-                          ),
-                        ],
+                GestureDetector(
+                  onTap: () => _openProfile(context),
+                  child: Row(
+                    children: [
+                      Text(
+                        "@${highlight.player.username.toLowerCase()}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20,
+                          letterSpacing: 0.5,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black54,
+                              blurRadius: 10,
+                              offset: Offset(2, 2),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Icon(
-                      Icons.verified_rounded,
-                      color: AppColors.primaryGreen,
-                      size: 18,
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.verified_rounded,
+                        color: AppColors.primaryGreen,
+                        size: 18,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 10),
-
                 Text(
                   highlight.player.position.toUpperCase(),
                   style: TextStyle(
@@ -68,7 +79,6 @@ class VideoOverlayContent extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 Text(
                   highlight.caption,
                   style: const TextStyle(
@@ -81,12 +91,8 @@ class VideoOverlayContent extends StatelessWidget {
                   maxLines: 3,
                 ),
                 const SizedBox(height: 20),
-
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(30),
@@ -95,11 +101,7 @@ class VideoOverlayContent extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.location_on_rounded,
-                        color: Colors.white,
-                        size: 14,
-                      ),
+                      const Icon(Icons.location_on_rounded, color: Colors.white, size: 14),
                       const SizedBox(width: 6),
                       Text(
                         highlight.player.country,
@@ -119,29 +121,33 @@ class VideoOverlayContent extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              RotationTransition(
-                turns: rotationAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.primaryGreen.withOpacity(0.8),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryGreen.withOpacity(0.4),
-                        blurRadius: 15,
-                        spreadRadius: 2,
+              GestureDetector(
+                onTap: () => _openProfile(context),
+                child: RotationTransition(
+                  turns: rotationAnimation,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.primaryGreen.withOpacity(0.8),
+                        width: 2,
                       ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.black,
-                    backgroundImage: NetworkImage(
-                      highlight.player.profileImage,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryGreen.withOpacity(0.4),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Hero(
+                      tag: 'avatar_${highlight.player.id}',
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.black,
+                        backgroundImage: NetworkImage(highlight.player.profileImage),
+                      ),
                     ),
                   ),
                 ),
@@ -149,18 +155,24 @@ class VideoOverlayContent extends StatelessWidget {
               const SizedBox(height: 30),
 
               FancyGlassButton(
-                icon: Icons.favorite_rounded,
-                label: _formatCount(highlight.likes),
-                color: Colors.redAccent,
-                onTap: () {},
+                icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                label: _formatCount(likeCount),
+                color: isLiked ? Colors.redAccent : Colors.white,
+                onTap: onLikeTap,
               ),
               const SizedBox(height: 20),
               FancyGlassButton(
                 icon: Icons.chat_bubble_rounded,
-                label: "Comments",
+                label: _formatCount(highlight.commentCount),
                 color: AppColors.primaryGreen,
                 isPulsing: true,
                 onTap: () => _openComments(context, highlight.id),
+              ),
+              const SizedBox(height: 20),
+              FancyGlassButton(
+                icon: Icons.more_horiz_rounded,
+                label: "More",
+                onTap: onOptionsTap,
               ),
               const SizedBox(height: 20),
               FancyGlassButton(
@@ -175,14 +187,25 @@ class VideoOverlayContent extends StatelessWidget {
     );
   }
 
+  void _openProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PlayerProfilePage(
+          playerId: highlight.player.id,
+          heroTag: 'avatar_${highlight.player.id}',
+        ),
+      ),
+    );
+  }
+
   void _openComments(BuildContext context, String highlightId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => BlocProvider(
-        create: (_) =>
-            sl<CommentBloc>()..add(GetCommentsEvent(highlightId)),
+        create: (_) => sl<CommentBloc>()..add(GetCommentsEvent(highlightId)),
         child: CommentSheet(highlightId: highlightId),
       ),
     );

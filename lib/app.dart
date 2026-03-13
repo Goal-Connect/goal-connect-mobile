@@ -138,12 +138,13 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _notificationsEnabled = true;
   bool _publicProfile = true;
   bool _autoPlayVideos = true;
+  int _selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -153,27 +154,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.scaffoldBackgroundColor,
-        elevation: 0,
-        title: Text(
-          "PROFILE",
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2,
-            fontSize: 14,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings_outlined,
-                color: theme.colorScheme.onSurface),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-          ),
-        ],
-      ),
       endDrawer: _buildSettingsDrawer(context, isDark),
       body: _buildProfileBody(context, theme),
     );
@@ -183,149 +163,388 @@ class _ProfilePageState extends State<ProfilePage> {
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     final textColor = isDark ? Colors.white : AppColors.lightText;
-    final subColor = AppColors.gray;
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-
-          // Avatar
-          CircleAvatar(
-            radius: 48,
-            backgroundColor: AppColors.primaryGreen.withOpacity(0.15),
-            child: const Icon(
-              Icons.person_rounded,
-              size: 52,
-              color: AppColors.primaryGreen,
-            ),
+    return CustomScrollView(
+      slivers: [
+        // Gradient header
+        SliverToBoxAdapter(
+          child: Stack(
+            children: [
+              Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primaryGreen.withOpacity(isDark ? 0.25 : 0.15),
+                      isDark ? const Color(0xFF0A0A12) : AppColors.lightBg,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.settings_rounded,
+                              color: theme.colorScheme.onSurface.withOpacity(0.6), size: 20),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Avatar
+              SafeArea(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primaryGreen.withOpacity(0.4),
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryGreen.withOpacity(0.15),
+                                blurRadius: 24,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 48,
+                            backgroundColor: AppColors.primaryGreen.withOpacity(0.12),
+                            child: const Icon(Icons.person_rounded,
+                                size: 48, color: AppColors.primaryGreen),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          "EthioStar_10",
+                          style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.w900, color: textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryGreen.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                "Forward",
+                                style: TextStyle(
+                                  color: AppColors.primaryGreen,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Ethiopia 🇪🇹",
+                              style: TextStyle(color: AppColors.gray, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 14),
+        ),
 
-          Text(
-            "EthioStar_10",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Forward · Ethiopia 🇪🇹",
-            style: TextStyle(color: subColor, fontSize: 14),
-          ),
-          const SizedBox(height: 20),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-          // Stats row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+        // Stats cards
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _statItem("12", "Highlights", textColor, subColor),
-                _divider(isDark),
-                _statItem("348", "Likes", textColor, subColor),
-                _divider(isDark),
-                _statItem("19", "Age", textColor, subColor),
+                Expanded(
+                  child: _statCard(
+                    "12", "Highlights", Icons.play_circle_rounded,
+                    isDark, textColor,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _statCard(
+                    "348", "Likes", Icons.favorite_rounded,
+                    isDark, textColor,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _statCard(
+                    "19", "Age", Icons.cake_rounded,
+                    isDark, textColor,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 28),
+        ),
 
-          // Edit profile button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.primaryGreen),
-                minimumSize: const Size(double.infinity, 44),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+        // Action buttons
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primaryGreen, Color(0xFF00C278)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryGreen.withOpacity(0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {},
+                        child: const Center(
+                          child: Text(
+                            "Edit Profile",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  height: 46,
+                  width: 46,
+                  decoration: BoxDecoration(
+                    color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.share_rounded,
+                        color: theme.colorScheme.onSurface.withOpacity(0.5), size: 20),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+        // Bio card
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
                 ),
               ),
-              child: const Text(
-                "Edit Profile",
-                style: TextStyle(
-                  color: AppColors.primaryGreen,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline_rounded,
+                          color: AppColors.primaryGreen.withOpacity(0.6), size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        "About",
+                        style: TextStyle(
+                          color: textColor.withOpacity(0.5),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Young forward from Addis Ababa with a passion for the beautiful game. Dream: play in the top leagues.",
+                    style: TextStyle(
+                      color: textColor.withOpacity(0.7),
+                      fontSize: 13.5,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 28),
+        ),
 
-          // Highlights grid placeholder
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "My Highlights",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: textColor,
-                ),
-              ),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+        // Tab header
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                _tabButton("Highlights", 0, isDark, textColor),
+                const SizedBox(width: 8),
+                _tabButton("Achievements", 1, isDark, textColor),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 6,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-              ),
-              itemBuilder: (_, i) => Container(
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 14)),
+
+        // Grid
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 6,
+              childAspectRatio: 0.75,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (_, i) => Container(
                 decoration: BoxDecoration(
                   color: surfaceColor,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+                  ),
                 ),
-                child: const Icon(
-                  Icons.play_circle_fill_rounded,
-                  color: AppColors.primaryGreen,
-                  size: 32,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Icon(Icons.play_circle_fill_rounded,
+                          color: AppColors.primaryGreen.withOpacity(0.4), size: 36),
+                    ),
+                    Positioned(
+                      bottom: 8, left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          "0:24",
+                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              childCount: _selectedTab == 0 ? 6 : 3,
             ),
           ),
-          const SizedBox(height: 32),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+      ],
+    );
+  }
+
+  Widget _statCard(
+    String value, String label, IconData icon, bool isDark, Color textColor,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      decoration: BoxDecoration(
+        color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: AppColors.primaryGreen.withOpacity(0.5), size: 20),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22, fontWeight: FontWeight.w900, color: textColor,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(color: AppColors.gray, fontSize: 11)),
         ],
       ),
     );
   }
 
-  Widget _statItem(
-      String value, String label, Color textColor, Color subColor) {
-    return Column(
-      children: [
-        Text(
-          value,
+  Widget _tabButton(String label, int index, bool isDark, Color textColor) {
+    final selected = _selectedTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedTab = index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primaryGreen.withOpacity(0.12)
+              : (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+          borderRadius: BorderRadius.circular(10),
+          border: selected
+              ? Border.all(color: AppColors.primaryGreen.withOpacity(0.3))
+              : null,
+        ),
+        child: Text(
+          label,
           style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: textColor,
+            color: selected ? AppColors.primaryGreen : AppColors.gray,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 13,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(label, style: TextStyle(color: subColor, fontSize: 12)),
-      ],
+      ),
     );
   }
-
-  Widget _divider(bool isDark) => Container(
-        height: 32,
-        width: 1,
-        color: isDark ? Colors.white12 : Colors.black12,
-      );
-
 
   Widget _buildSettingsDrawer(BuildContext context, bool isDark) {
     final theme = Theme.of(context);
@@ -335,6 +554,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Drawer(
       backgroundColor: theme.scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(left: Radius.circular(24)),
+      ),
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,35 +564,53 @@ class _ProfilePageState extends State<ProfilePage> {
             // Header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
               decoration: BoxDecoration(
-                color: AppColors.primaryGreen,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryGreen,
+                    AppColors.primaryGreen.withOpacity(0.85),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryGreen.withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.settings_rounded,
-                      color: Colors.black, size: 28),
-                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.settings_rounded, color: Colors.black, size: 22),
+                  ),
+                  const SizedBox(height: 14),
                   const Text(
                     "Settings",
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w900,
-                      fontSize: 22,
-                      letterSpacing: 1,
+                      fontSize: 24,
+                      letterSpacing: 0.5,
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     "Customise your experience",
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.6),
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.black.withOpacity(0.55), fontSize: 13),
                   ),
                 ],
               ),
@@ -378,129 +618,132 @@ class _ProfilePageState extends State<ProfilePage> {
 
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 children: [
-                  // ── Appearance ──
                   _sectionHeader("Appearance", textColor),
-
-                  _themeOption(
-                    context: context,
-                    label: "Light",
-                    icon: Icons.light_mode_rounded,
-                    mode: ThemeMode.light,
-                    currentMode: currentMode,
-                    surfaceColor: surfaceColor,
-                    textColor: textColor,
-                  ),
-                  _themeOption(
-                    context: context,
-                    label: "Dark",
-                    icon: Icons.dark_mode_rounded,
-                    mode: ThemeMode.dark,
-                    currentMode: currentMode,
-                    surfaceColor: surfaceColor,
-                    textColor: textColor,
-                  ),
-                  _themeOption(
-                    context: context,
-                    label: "System default",
-                    icon: Icons.phone_android_rounded,
-                    mode: ThemeMode.system,
-                    currentMode: currentMode,
-                    surfaceColor: surfaceColor,
-                    textColor: textColor,
-                  ),
-
-                  const SizedBox(height: 8),
-                  Divider(color: isDark ? Colors.white10 : Colors.black12),
-
-                  // ── Preferences ──
-                  _sectionHeader("Preferences", textColor),
-
-                  _switchTile(
-                    icon: Icons.notifications_outlined,
-                    label: "Notifications",
-                    subtitle: "Get match & scout alerts",
-                    value: _notificationsEnabled,
-                    textColor: textColor,
-                    surfaceColor: surfaceColor,
-                    onChanged: (v) =>
-                        setState(() => _notificationsEnabled = v),
-                  ),
-                  _switchTile(
-                    icon: Icons.public_rounded,
-                    label: "Public Profile",
-                    subtitle: "Let scouts find you",
-                    value: _publicProfile,
-                    textColor: textColor,
-                    surfaceColor: surfaceColor,
-                    onChanged: (v) => setState(() => _publicProfile = v),
-                  ),
-                  _switchTile(
-                    icon: Icons.play_arrow_rounded,
-                    label: "Auto-play Videos",
-                    subtitle: "Play highlights automatically",
-                    value: _autoPlayVideos,
-                    textColor: textColor,
-                    surfaceColor: surfaceColor,
-                    onChanged: (v) => setState(() => _autoPlayVideos = v),
-                  ),
-
-                  const SizedBox(height: 8),
-                  Divider(color: isDark ? Colors.white10 : Colors.black12),
-
-                  // ── Account ──
-                  _sectionHeader("Account", textColor),
-
-                  _actionTile(
-                    icon: Icons.language_rounded,
-                    label: "Language",
-                    trailing: "English",
-                    textColor: textColor,
-                    surfaceColor: surfaceColor,
-                    onTap: () {},
-                  ),
-                  _actionTile(
-                    icon: Icons.privacy_tip_outlined,
-                    label: "Privacy Policy",
-                    textColor: textColor,
-                    surfaceColor: surfaceColor,
-                    onTap: () {},
-                  ),
-                  _actionTile(
-                    icon: Icons.info_outline_rounded,
-                    label: "About GoalConnect",
-                    trailing: "v1.0.0",
-                    textColor: textColor,
-                    surfaceColor: surfaceColor,
-                    onTap: () {},
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Sign out
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: OutlinedButton.icon(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.habeshaRed),
-                        minimumSize: const Size(double.infinity, 44),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
                         ),
                       ),
-                      icon: const Icon(Icons.logout_rounded,
-                          color: AppColors.habeshaRed, size: 18),
-                      label: const Text(
-                        "Sign Out",
-                        style: TextStyle(
-                          color: AppColors.habeshaRed,
-                          fontWeight: FontWeight.w600,
+                      child: Column(
+                        children: [
+                          _themeOption(context: context, label: "Light", icon: Icons.light_mode_rounded,
+                            mode: ThemeMode.light, currentMode: currentMode, surfaceColor: surfaceColor, textColor: textColor, isFirst: true),
+                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
+                          _themeOption(context: context, label: "Dark", icon: Icons.dark_mode_rounded,
+                            mode: ThemeMode.dark, currentMode: currentMode, surfaceColor: surfaceColor, textColor: textColor),
+                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
+                          _themeOption(context: context, label: "System default", icon: Icons.phone_android_rounded,
+                            mode: ThemeMode.system, currentMode: currentMode, surfaceColor: surfaceColor, textColor: textColor, isLast: true),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                  _sectionHeader("Preferences", textColor),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          _switchTile(icon: Icons.notifications_outlined, label: "Notifications",
+                            subtitle: "Get match & scout alerts", value: _notificationsEnabled,
+                            textColor: textColor, surfaceColor: surfaceColor,
+                            onChanged: (v) => setState(() => _notificationsEnabled = v)),
+                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
+                          _switchTile(icon: Icons.public_rounded, label: "Public Profile",
+                            subtitle: "Let scouts find you", value: _publicProfile,
+                            textColor: textColor, surfaceColor: surfaceColor,
+                            onChanged: (v) => setState(() => _publicProfile = v)),
+                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
+                          _switchTile(icon: Icons.play_arrow_rounded, label: "Auto-play Videos",
+                            subtitle: "Play highlights automatically", value: _autoPlayVideos,
+                            textColor: textColor, surfaceColor: surfaceColor,
+                            onChanged: (v) => setState(() => _autoPlayVideos = v)),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                  _sectionHeader("Account", textColor),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          _actionTile(icon: Icons.language_rounded, label: "Language", trailing: "English",
+                            textColor: textColor, surfaceColor: surfaceColor, onTap: () {}),
+                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
+                          _actionTile(icon: Icons.privacy_tip_outlined, label: "Privacy Policy",
+                            textColor: textColor, surfaceColor: surfaceColor, onTap: () {}),
+                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
+                          _actionTile(icon: Icons.info_outline_rounded, label: "About GoalConnect", trailing: "v1.0.0",
+                            textColor: textColor, surfaceColor: surfaceColor, onTap: () {}),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.habeshaRed.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.habeshaRed.withOpacity(0.12)),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () {},
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.logout_rounded, color: AppColors.habeshaRed, size: 18),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  "Sign Out",
+                                  style: TextStyle(
+                                    color: AppColors.habeshaRed,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -511,13 +754,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _sectionHeader(String label, Color textColor) => Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
         child: Text(
           label.toUpperCase(),
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             letterSpacing: 1.5,
             color: AppColors.primaryGreen,
           ),
@@ -532,49 +774,43 @@ class _ProfilePageState extends State<ProfilePage> {
     required ThemeMode currentMode,
     required Color surfaceColor,
     required Color textColor,
+    bool isFirst = false,
+    bool isLast = false,
   }) {
     final isSelected = currentMode == mode;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-      child: Material(
-        color: isSelected
-            ? AppColors.primaryGreen.withOpacity(0.12)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: () => context.read<ThemeCubit>().setTheme(mode),
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            child: Row(
-              children: [
-                Icon(icon,
-                    color: isSelected
-                        ? AppColors.primaryGreen
-                        : AppColors.gray,
-                    size: 22),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w400,
-                      color: isSelected
-                          ? AppColors.primaryGreen
-                          : textColor,
-                    ),
-                  ),
+    return InkWell(
+      borderRadius: BorderRadius.vertical(
+        top: isFirst ? const Radius.circular(14) : Radius.zero,
+        bottom: isLast ? const Radius.circular(14) : Radius.zero,
+      ),
+      onTap: () => context.read<ThemeCubit>().setTheme(mode),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        child: Row(
+          children: [
+            Icon(icon,
+                color: isSelected ? AppColors.primaryGreen : AppColors.gray, size: 20),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                  color: isSelected ? AppColors.primaryGreen : textColor,
                 ),
-                if (isSelected)
-                  const Icon(Icons.check_circle_rounded,
-                      color: AppColors.primaryGreen, size: 20),
-              ],
+              ),
             ),
-          ),
+            if (isSelected)
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: AppColors.primaryGreen,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check_rounded, color: Colors.black, size: 14),
+              ),
+          ],
         ),
       ),
     );
@@ -590,26 +826,27 @@ class _ProfilePageState extends State<ProfilePage> {
     required ValueChanged<bool> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.gray, size: 22),
-        title: Text(
-          label,
-          style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(fontSize: 12, color: AppColors.gray),
-        ),
-        trailing: Switch.adaptive(
-          value: value,
-          onChanged: onChanged,
-          activeColor: AppColors.primaryGreen,
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.gray, size: 20),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.gray)),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppColors.primaryGreen,
+          ),
+        ],
       ),
     );
   }
@@ -622,26 +859,23 @@ class _ProfilePageState extends State<ProfilePage> {
     required Color surfaceColor,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.gray, size: 22),
-        title: Text(
-          label,
-          style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.gray, size: 20),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor)),
+            ),
+            if (trailing != null)
+              Text(trailing, style: const TextStyle(color: AppColors.gray, fontSize: 12))
+            else
+              const Icon(Icons.chevron_right_rounded, color: AppColors.gray, size: 20),
+          ],
         ),
-        trailing: trailing != null
-            ? Text(trailing,
-                style: const TextStyle(
-                    color: AppColors.gray, fontSize: 13))
-            : const Icon(Icons.chevron_right_rounded,
-                color: AppColors.gray),
-        onTap: onTap,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

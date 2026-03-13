@@ -9,8 +9,7 @@ class CommentRepositoryImpl implements CommentRepository {
   CommentRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, List<Comment>>> getComments(
-      String highlightId) async {
+  Future<Either<Failure, List<Comment>>> getComments(String highlightId) async {
     try {
       final result = await remoteDataSource.getComments(highlightId);
       return Right(result);

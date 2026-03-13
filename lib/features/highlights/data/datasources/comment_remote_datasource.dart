@@ -125,12 +125,11 @@ class MockCommentRemoteDataSource implements CommentRemoteDataSource {
       final c = entry.value;
       return CommentModel(
         id: 'comment_${highlightId}_$i',
-        userId: c['userId'],
-        username: c['username'],
-        profileImage: c['profileImage'],
-        text: c['text'],
-        createdAt:
-            DateTime.now().subtract(Duration(hours: c['hoursAgo'] as int)),
+        userId: c['userId'] as String,
+        username: c['username'] as String,
+        profileImage: c['profileImage'] as String?,
+        text: c['text'] as String,
+        createdAt: DateTime.now().subtract(Duration(hours: c['hoursAgo'] as int)),
         likes: c['likes'] as int,
       );
     }).toList();

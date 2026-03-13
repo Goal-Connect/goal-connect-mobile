@@ -16,4 +16,6 @@ abstract class HighlightRepository {
   Future<Either<Failure, List<Highlight>>> getPlayerHighlights({
     required String playerId,
   });
+
+  Future<Either<Failure, bool>> toggleLike({required String highlightId});
 }

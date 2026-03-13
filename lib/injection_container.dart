@@ -25,16 +25,17 @@ import 'features/highlights/domain/usecases/delete_highlight_usecase.dart';
 import 'features/highlights/domain/usecases/get_highlights_feed_usecase.dart';
 import 'features/highlights/domain/usecases/get_player_highlights_usecase.dart';
 import 'features/highlights/domain/usecases/upload_highlight_usecase.dart';
+import 'features/highlights/domain/usecases/toggle_like_highlight_usecase.dart';
 import 'features/highlights/presentation/bloc/highlight_bloc.dart';
 
-// ── Comments ──────────────────────────────────────────────────────────────────
-import 'features/comments/data/datasources/comment_remote_datasource.dart';
-import 'features/comments/data/repositories/comment_repository_impl.dart';
-import 'features/comments/domain/repositories/comment_repository.dart';
-import 'features/comments/domain/usecases/get_comments_usecase.dart';
-import 'features/comments/domain/usecases/add_comment_usecase.dart';
-import 'features/comments/domain/usecases/delete_comment_usecase.dart';
-import 'features/comments/presentation/bloc/comment_bloc.dart';
+// ── Comments (inside highlights) ──────────────────────────────────────────────
+import 'features/highlights/data/datasources/comment_remote_datasource.dart';
+import 'features/highlights/data/repositories/comment_repository_impl.dart';
+import 'features/highlights/domain/repositories/comment_repository.dart';
+import 'features/highlights/domain/usecases/get_comments_usecase.dart';
+import 'features/highlights/domain/usecases/add_comment_usecase.dart';
+import 'features/highlights/domain/usecases/delete_comment_usecase.dart';
+import 'features/highlights/presentation/bloc/comment_bloc.dart';
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
 import 'features/chat/data/datasources/chat_remote_datasource.dart';
@@ -44,6 +45,14 @@ import 'features/chat/domain/usecases/get_conversations_usecase.dart';
 import 'features/chat/domain/usecases/get_messages_usecase.dart';
 import 'features/chat/domain/usecases/send_message_usecase.dart';
 import 'features/chat/presentation/bloc/chat_bloc.dart';
+
+// ── Profile (Player Profile) ─────────────────────────────────────────────────
+import 'features/profile/data/datasources/player_profile_remote_datasource.dart';
+import 'features/profile/data/repositories/player_profile_repository_impl.dart';
+import 'features/profile/domain/repositories/player_profile_repository.dart';
+import 'features/profile/domain/usecases/get_player_profile_usecase.dart';
+import 'features/profile/domain/usecases/toggle_follow_usecase.dart';
+import 'features/profile/presentation/bloc/player_profile_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -86,6 +95,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeleteHighlightUsecase(sl()));
   sl.registerLazySingleton(() => GetHighlightsFeedUsecase(sl()));
   sl.registerLazySingleton(() => GetPlayerHighlightsUsecase(sl()));
+  sl.registerLazySingleton(() => ToggleLikeHighlightUsecase(sl()));
   sl.registerFactory(
     () => HighlightBloc(
       uploadHighlight: sl(),
@@ -95,7 +105,7 @@ Future<void> init() async {
     ),
   );
 
-  // ── Comments ─────────────────────────────────────────────────────────────────
+  // ── Comments (inside highlights feature) ────────────────────────────────────
   sl.registerLazySingleton<CommentRemoteDataSource>(
     () => MockCommentRemoteDataSource(),
   );
@@ -128,6 +138,22 @@ Future<void> init() async {
       getConversations: sl(),
       getMessages: sl(),
       sendMessage: sl(),
+    ),
+  );
+
+  // ── Player Profile ────────────────────────────────────────────────────────
+  sl.registerLazySingleton<PlayerProfileRemoteDataSource>(
+    () => MockPlayerProfileRemoteDataSource(),
+  );
+  sl.registerLazySingleton<PlayerProfileRepository>(
+    () => PlayerProfileRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetPlayerProfileUsecase(sl()));
+  sl.registerLazySingleton(() => ToggleFollowUsecase(sl()));
+  sl.registerFactory(
+    () => PlayerProfileBloc(
+      getPlayerProfile: sl(),
+      toggleFollow: sl(),
     ),
   );
 }

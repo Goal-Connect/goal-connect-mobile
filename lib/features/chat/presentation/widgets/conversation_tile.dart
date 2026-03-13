@@ -34,31 +34,61 @@ class ConversationTile extends StatelessWidget {
     }
   }
 
+  Color _roleColor(String role) {
+    switch (role) {
+      case 'scout':
+        return AppColors.primaryGreen;
+      case 'coach':
+        return const Color(0xFF6C63FF);
+      case 'agent':
+        return AppColors.accentGold;
+      default:
+        return AppColors.gray;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final hasUnread = conversation.unreadCount > 0;
+    final roleClr = _roleColor(conversation.participantRole);
 
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: hasUnread
+              ? (isDark
+                  ? AppColors.primaryGreen.withOpacity(0.04)
+                  : AppColors.primaryGreen.withOpacity(0.03))
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Row(
           children: [
-            // ─── Avatar ───
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: AppColors.primaryGreen.withOpacity(0.15),
-                  backgroundImage: conversation.participantImage != null
-                      ? NetworkImage(conversation.participantImage!)
-                      : null,
-                  child: conversation.participantImage == null
-                      ? const Icon(Icons.person_rounded,
-                          color: AppColors.primaryGreen, size: 28)
-                      : null,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: hasUnread
+                        ? Border.all(color: AppColors.primaryGreen.withOpacity(0.4), width: 2)
+                        : null,
+                  ),
+                  child: CircleAvatar(
+                    radius: 26,
+                    backgroundColor: roleClr.withOpacity(0.12),
+                    backgroundImage: conversation.participantImage != null
+                        ? NetworkImage(conversation.participantImage!)
+                        : null,
+                    child: conversation.participantImage == null
+                        ? Icon(Icons.person_rounded, color: roleClr, size: 26)
+                        : null,
+                  ),
                 ),
                 Positioned(
                   bottom: 0,
@@ -66,25 +96,20 @@ class ConversationTile extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
+                      color: roleClr,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isDark ? AppColors.darkBg : AppColors.lightBg,
                         width: 2,
                       ),
                     ),
-                    child: Icon(
-                      _roleIcon(conversation.participantRole),
-                      size: 10,
-                      color: Colors.black,
-                    ),
+                    child: Icon(_roleIcon(conversation.participantRole),
+                        size: 9, color: Colors.black),
                   ),
                 ),
               ],
             ),
             const SizedBox(width: 14),
-
-            // ─── Content ───
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,24 +121,19 @@ class ConversationTile extends StatelessWidget {
                           conversation.participantName,
                           style: TextStyle(
                             fontSize: 15,
-                            fontWeight: hasUnread
-                                ? FontWeight.w800
-                                : FontWeight.w500,
+                            fontWeight: hasUnread ? FontWeight.w800 : FontWeight.w500,
                             color: theme.colorScheme.onSurface,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         _timeAgo(conversation.updatedAt),
                         style: TextStyle(
                           fontSize: 12,
-                          color: hasUnread
-                              ? AppColors.primaryGreen
-                              : AppColors.gray,
-                          fontWeight: hasUnread
-                              ? FontWeight.w700
-                              : FontWeight.normal,
+                          color: hasUnread ? AppColors.primaryGreen : AppColors.gray,
+                          fontWeight: hasUnread ? FontWeight.w700 : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -121,38 +141,53 @@ class ConversationTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: roleClr.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          conversation.participantRole.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: roleClr,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           conversation.lastMessage,
                           style: TextStyle(
                             fontSize: 13,
                             color: hasUnread
-                                ? theme.colorScheme.onSurface
-                                    .withOpacity(0.85)
+                                ? theme.colorScheme.onSurface.withOpacity(0.8)
                                 : AppColors.gray,
-                            fontWeight: hasUnread
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                            fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (hasUnread) ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
+                          width: 22, height: 22,
+                          decoration: const BoxDecoration(
                             color: AppColors.primaryGreen,
-                            borderRadius: BorderRadius.circular(12),
+                            shape: BoxShape.circle,
                           ),
-                          child: Text(
-                            '${conversation.unreadCount}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                          child: Center(
+                            child: Text(
+                              '${conversation.unreadCount}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ),
