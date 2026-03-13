@@ -11,10 +11,14 @@ import 'package:goal_connect/features/highlights/presentation/pages/highlight_fe
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
+import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
+import 'package:goal_connect/features/highlights/presentation/bloc/highlight_state.dart';
+import 'package:goal_connect/features/highlights/presentation/pages/single_highlight_page.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_status_usecase.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
 import 'injection_container.dart';
+import 'package:goal_connect/features/profile/presentation/pages/settings_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -69,7 +73,11 @@ class _MainPageState extends State<MainPage> {
       case 2:
         return const ChatListPage();
       case 3:
-        return const ProfilePage();
+        return BlocProvider(
+          create: (_) => sl<HighlightBloc>()
+            ..add(const GetPlayerHighlightsEvent('current_user')),
+          child: const ProfilePage(),
+        );
       default:
         return const HighlightFeedPage();
     }
@@ -138,22 +146,13 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  bool _notificationsEnabled = true;
-  bool _publicProfile = true;
-  bool _autoPlayVideos = true;
-
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: theme.scaffoldBackgroundColor,
-      endDrawer: _buildSettingsDrawer(context, isDark),
       body: _buildProfileBody(context, theme),
     );
   }
@@ -189,7 +188,25 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
+                        onTap: () => Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (_, __, ___) => const SettingsPage(),
+                            transitionsBuilder: (_, animation, __, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0, 1),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutCubic,
+                                )),
+                                child: child,
+                              );
+                            },
+                            transitionDuration: const Duration(milliseconds: 400),
+                          ),
+                        ),
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
@@ -272,39 +289,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                 ),
               ),
             ],
-          ),
-        ),
-
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-        // Stats cards
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _statCard(
-                    "12", "Highlights", Icons.play_circle_rounded,
-                    isDark, textColor,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _statCard(
-                    "348", "Likes", Icons.favorite_rounded,
-                    isDark, textColor,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _statCard(
-                    "19", "Age", Icons.cake_rounded,
-                    isDark, textColor,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
 
@@ -421,78 +405,148 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-        // Section header
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGreen.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
-                  ),
-                  child: const Text(
-                    "Highlights",
-                    style: TextStyle(
-                      color: AppColors.primaryGreen,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
+            child: Text(
+              "My Highlights",
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
             ),
           ),
         ),
 
         const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
-        // Grid
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 6,
-              crossAxisSpacing: 6,
-              childAspectRatio: 0.75,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (_, i) => Container(
-                decoration: BoxDecoration(
-                  color: surfaceColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: BlocBuilder<HighlightBloc, HighlightState>(
+              builder: (context, state) {
+                if (state is HighlightLoading) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(
+                          color: AppColors.primaryGreen),
+                    ),
+                  );
+                }
+                if (state is HighlightLoaded &&
+                    state.highlights.isNotEmpty) {
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: state.highlights.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 6,
+                      crossAxisSpacing: 6,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemBuilder: (_, i) {
+                      final h = state.highlights[i];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  SingleHighlightPage(highlight: h),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: surfaceColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: (isDark ? Colors.white : Colors.black)
+                                  .withOpacity(0.04),
+                            ),
+                          ),
+                          child: Stack(
+                            children: [
+                              Center(
+                                child: Icon(
+                                    Icons.play_circle_fill_rounded,
+                                    color: AppColors.primaryGreen
+                                        .withOpacity(0.4),
+                                    size: 36),
+                              ),
+                              Positioned(
+                                bottom: 8,
+                                left: 8,
+                                right: 8,
+                                child: Text(
+                                  h.caption,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color:
+                                        (isDark ? Colors.white : Colors.black)
+                                            .withOpacity(0.5),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.favorite_rounded,
+                                          color: Colors.white, size: 10),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        '${h.likes}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      children: [
+                        Icon(Icons.videocam_off_rounded,
+                            color: AppColors.gray.withOpacity(0.3),
+                            size: 40),
+                        const SizedBox(height: 12),
+                        const Text('No highlights yet',
+                            style: TextStyle(
+                                color: AppColors.gray, fontSize: 13)),
+                      ],
+                    ),
                   ),
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Icon(Icons.play_circle_fill_rounded,
-                          color: AppColors.primaryGreen.withOpacity(0.4), size: 36),
-                    ),
-                    Positioned(
-                      bottom: 8, left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          "0:24",
-                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              childCount: 6,
+                );
+              },
             ),
           ),
         ),
@@ -502,366 +556,4 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 
-  Widget _statCard(
-    String value, String label, IconData icon, bool isDark, Color textColor,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: AppColors.primaryGreen.withOpacity(0.5), size: 20),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w900, color: textColor,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: AppColors.gray, fontSize: 11)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsDrawer(BuildContext context, bool isDark) {
-    final theme = Theme.of(context);
-    final currentMode = context.watch<ThemeCubit>().state.themeMode;
-    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-    final textColor = isDark ? Colors.white : AppColors.lightText;
-
-    return Drawer(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(left: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primaryGreen,
-                    AppColors.primaryGreen.withOpacity(0.85),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryGreen.withOpacity(0.2),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.settings_rounded, color: Colors.black, size: 22),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    "Settings",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 24,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Customise your experience",
-                    style: TextStyle(color: Colors.black.withOpacity(0.55), fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                children: [
-                  _sectionHeader("Appearance", textColor),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          _themeOption(context: context, label: "Light", icon: Icons.light_mode_rounded,
-                            mode: ThemeMode.light, currentMode: currentMode, surfaceColor: surfaceColor, textColor: textColor, isFirst: true),
-                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
-                          _themeOption(context: context, label: "Dark", icon: Icons.dark_mode_rounded,
-                            mode: ThemeMode.dark, currentMode: currentMode, surfaceColor: surfaceColor, textColor: textColor),
-                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
-                          _themeOption(context: context, label: "System default", icon: Icons.phone_android_rounded,
-                            mode: ThemeMode.system, currentMode: currentMode, surfaceColor: surfaceColor, textColor: textColor, isLast: true),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  _sectionHeader("Preferences", textColor),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          _switchTile(icon: Icons.notifications_outlined, label: "Notifications",
-                            subtitle: "Get match & scout alerts", value: _notificationsEnabled,
-                            textColor: textColor, surfaceColor: surfaceColor,
-                            onChanged: (v) => setState(() => _notificationsEnabled = v)),
-                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
-                          _switchTile(icon: Icons.public_rounded, label: "Public Profile",
-                            subtitle: "Let scouts find you", value: _publicProfile,
-                            textColor: textColor, surfaceColor: surfaceColor,
-                            onChanged: (v) => setState(() => _publicProfile = v)),
-                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
-                          _switchTile(icon: Icons.play_arrow_rounded, label: "Auto-play Videos",
-                            subtitle: "Play highlights automatically", value: _autoPlayVideos,
-                            textColor: textColor, surfaceColor: surfaceColor,
-                            onChanged: (v) => setState(() => _autoPlayVideos = v)),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  _sectionHeader("Account", textColor),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          _actionTile(icon: Icons.language_rounded, label: "Language", trailing: "English",
-                            textColor: textColor, surfaceColor: surfaceColor, onTap: () {}),
-                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
-                          _actionTile(icon: Icons.privacy_tip_outlined, label: "Privacy Policy",
-                            textColor: textColor, surfaceColor: surfaceColor, onTap: () {}),
-                          Divider(height: 1, indent: 48, color: (isDark ? Colors.white : Colors.black).withOpacity(0.04)),
-                          _actionTile(icon: Icons.info_outline_rounded, label: "About GoalConnect", trailing: "v1.0.0",
-                            textColor: textColor, surfaceColor: surfaceColor, onTap: () {}),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.habeshaRed.withOpacity(0.06),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.habeshaRed.withOpacity(0.12)),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(14),
-                          onTap: () {},
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.logout_rounded, color: AppColors.habeshaRed, size: 18),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  "Sign Out",
-                                  style: TextStyle(
-                                    color: AppColors.habeshaRed,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String label, Color textColor) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
-        child: Text(
-          label.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.5,
-            color: AppColors.primaryGreen,
-          ),
-        ),
-      );
-
-  Widget _themeOption({
-    required BuildContext context,
-    required String label,
-    required IconData icon,
-    required ThemeMode mode,
-    required ThemeMode currentMode,
-    required Color surfaceColor,
-    required Color textColor,
-    bool isFirst = false,
-    bool isLast = false,
-  }) {
-    final isSelected = currentMode == mode;
-    return InkWell(
-      borderRadius: BorderRadius.vertical(
-        top: isFirst ? const Radius.circular(14) : Radius.zero,
-        bottom: isLast ? const Radius.circular(14) : Radius.zero,
-      ),
-      onTap: () => context.read<ThemeCubit>().setTheme(mode),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        child: Row(
-          children: [
-            Icon(icon,
-                color: isSelected ? AppColors.primaryGreen : AppColors.gray, size: 20),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                  color: isSelected ? AppColors.primaryGreen : textColor,
-                ),
-              ),
-            ),
-            if (isSelected)
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryGreen,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check_rounded, color: Colors.black, size: 14),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _switchTile({
-    required IconData icon,
-    required String label,
-    required String subtitle,
-    required bool value,
-    required Color textColor,
-    required Color surfaceColor,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.gray, size: 20),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor)),
-                const SizedBox(height: 2),
-                Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.gray)),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeColor: AppColors.primaryGreen,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _actionTile({
-    required IconData icon,
-    required String label,
-    String? trailing,
-    required Color textColor,
-    required Color surfaceColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.gray, size: 20),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor)),
-            ),
-            if (trailing != null)
-              Text(trailing, style: const TextStyle(color: AppColors.gray, fontSize: 12))
-            else
-              const Icon(Icons.chevron_right_rounded, color: AppColors.gray, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
 }

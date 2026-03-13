@@ -38,15 +38,15 @@ class PlayerProfileBloc extends Bloc<PlayerProfileEvent, PlayerProfileState> {
     emit(FollowToggling(current.profile));
 
     final result = await toggleFollow(playerId: event.playerId);
-    result.fold(
+    if (result.isLeft()) {
+      emit(PlayerProfileLoaded(current.profile));
+      return;
+    }
+
+    final refreshed = await getPlayerProfile(playerId: event.playerId);
+    refreshed.fold(
       (failure) => emit(PlayerProfileLoaded(current.profile)),
-      (_) async {
-        final refreshed = await getPlayerProfile(playerId: event.playerId);
-        refreshed.fold(
-          (failure) => emit(PlayerProfileLoaded(current.profile)),
-          (profile) => emit(PlayerProfileLoaded(profile)),
-        );
-      },
+      (profile) => emit(PlayerProfileLoaded(profile)),
     );
   }
 }

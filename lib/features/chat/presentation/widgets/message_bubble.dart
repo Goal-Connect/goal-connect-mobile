@@ -24,104 +24,128 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: EdgeInsets.only(
-        left: isMine ? 56 : 12,
-        right: isMine ? 12 : 56,
-        top: 3,
-        bottom: 3,
+        left: isMine ? 64 : 12,
+        right: isMine ? 12 : 64,
+        top: showAvatar ? 10 : 2,
+        bottom: 2,
       ),
-      child: Column(
-        crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment:
+            isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Row(
-            mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (!isMine && showAvatar) ...[
-                CircleAvatar(
-                  radius: 15,
-                  backgroundColor: AppColors.primaryGreen.withOpacity(0.15),
-                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-                  child: avatarUrl == null
-                      ? const Icon(Icons.person, size: 14, color: AppColors.primaryGreen)
-                      : null,
-                ),
-                const SizedBox(width: 8),
-              ] else if (!isMine) ...[
-                const SizedBox(width: 38),
-              ],
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-                  decoration: BoxDecoration(
-                    gradient: isMine
-                        ? const LinearGradient(
-                            colors: [AppColors.primaryGreen, Color(0xFF00C278)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )
-                        : null,
-                    color: isMine
-                        ? null
-                        : isDark
-                            ? const Color(0xFF222228)
-                            : const Color(0xFFF0F0F2),
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20),
-                      bottomLeft: Radius.circular(isMine ? 20 : 6),
-                      bottomRight: Radius.circular(isMine ? 6 : 20),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isMine
-                            ? AppColors.primaryGreen.withOpacity(0.12)
-                            : Colors.black.withOpacity(0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+          if (!isMine && showAvatar) ...[
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
-                  child: Text(
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
+                backgroundImage:
+                    avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+                child: avatarUrl == null
+                    ? const Icon(Icons.person,
+                        size: 14, color: AppColors.primaryGreen)
+                    : null,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ] else if (!isMine) ...[
+            const SizedBox(width: 40),
+          ],
+          Flexible(
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: isMine
+                    ? const LinearGradient(
+                        colors: [Color(0xFF00D084), Color(0xFF00E896)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                color: isMine
+                    ? null
+                    : isDark
+                        ? const Color(0xFF1A1A24)
+                        : Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(20),
+                  topRight: const Radius.circular(20),
+                  bottomLeft: Radius.circular(isMine ? 20 : 6),
+                  bottomRight: Radius.circular(isMine ? 6 : 20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isMine
+                        ? AppColors.primaryGreen.withOpacity(0.2)
+                        : Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: isMine
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
+                  Text(
                     message.text,
                     style: TextStyle(
                       fontSize: 14.5,
-                      height: 1.4,
+                      height: 1.45,
                       color: isMine
-                          ? Colors.black
+                          ? Colors.black.withOpacity(0.85)
                           : isDark
-                              ? Colors.white
+                              ? Colors.white.withOpacity(0.9)
                               : AppColors.lightText,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: !isMine ? 46 : 0,
-              top: 4,
-              bottom: 2,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
-              children: [
-                Text(
-                  _formatTime(message.createdAt),
-                  style: TextStyle(fontSize: 10, color: AppColors.gray.withOpacity(0.7)),
-                ),
-                if (isMine) ...[
-                  const SizedBox(width: 4),
-                  Icon(Icons.done_all_rounded,
-                      size: 14, color: AppColors.primaryGreen.withOpacity(0.6)),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _formatTime(message.createdAt),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMine
+                              ? Colors.black.withOpacity(0.35)
+                              : AppColors.gray.withOpacity(0.5),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (isMine) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          message.isRead
+                              ? Icons.done_all_rounded
+                              : Icons.done_rounded,
+                          size: 14,
+                          color: message.isRead
+                              ? Colors.black.withOpacity(0.45)
+                              : Colors.black.withOpacity(0.25),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
-              ],
+              ),
             ),
           ),
         ],

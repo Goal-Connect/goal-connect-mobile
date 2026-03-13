@@ -122,69 +122,75 @@ class VideoOverlayContent extends StatelessWidget {
             ),
           ),
 
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              GestureDetector(
-                onTap: () => _openProfile(context),
-                child: RotationTransition(
-                  turns: rotationAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primaryGreen.withOpacity(0.8),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryGreen.withOpacity(0.4),
-                          blurRadius: 15,
-                          spreadRadius: 2,
+          SizedBox(
+            width: 64,
+            child: SingleChildScrollView(
+              reverse: true,
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () => _openProfile(context),
+                    child: RotationTransition(
+                      turns: rotationAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.primaryGreen.withOpacity(0.8),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryGreen.withOpacity(0.4),
+                              blurRadius: 15,
+                              spreadRadius: 2,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Hero(
-                      tag: 'avatar_${highlight.player.id}',
-                      child: CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.black,
-                        backgroundImage: NetworkImage(highlight.player.profileImage),
+                        child: Hero(
+                          tag: 'avatar_${highlight.player.id}',
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: Colors.black,
+                            backgroundImage: NetworkImage(highlight.player.profileImage),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  FancyGlassButton(
+                    icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    label: _formatCount(likeCount),
+                    color: isLiked ? Colors.redAccent : Colors.white,
+                    onTap: onLikeTap,
+                  ),
+                  const SizedBox(height: 14),
+                  FancyGlassButton(
+                    icon: Icons.chat_bubble_rounded,
+                    label: _formatCount(highlight.commentCount),
+                    color: AppColors.primaryGreen,
+                    isPulsing: true,
+                    onTap: () => _openComments(context, highlight.id),
+                  ),
+                  const SizedBox(height: 14),
+                  FancyGlassButton(
+                    icon: Icons.more_horiz_rounded,
+                    label: "More",
+                    onTap: onOptionsTap,
+                  ),
+                  const SizedBox(height: 14),
+                  FancyGlassButton(
+                    icon: Icons.share_rounded,
+                    label: "Share",
+                    onTap: () {},
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-
-              FancyGlassButton(
-                icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                label: _formatCount(likeCount),
-                color: isLiked ? Colors.redAccent : Colors.white,
-                onTap: onLikeTap,
-              ),
-              const SizedBox(height: 20),
-              FancyGlassButton(
-                icon: Icons.chat_bubble_rounded,
-                label: _formatCount(highlight.commentCount),
-                color: AppColors.primaryGreen,
-                isPulsing: true,
-                onTap: () => _openComments(context, highlight.id),
-              ),
-              const SizedBox(height: 20),
-              FancyGlassButton(
-                icon: Icons.more_horiz_rounded,
-                label: "More",
-                onTap: onOptionsTap,
-              ),
-              const SizedBox(height: 20),
-              FancyGlassButton(
-                icon: Icons.share_rounded,
-                label: "Share",
-                onTap: () {},
-              ),
-            ],
+            ),
           ),
         ],
       ),
