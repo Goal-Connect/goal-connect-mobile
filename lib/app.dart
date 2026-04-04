@@ -4,6 +4,7 @@ import 'package:goal_connect/core/theme/app_colors.dart';
 import 'package:goal_connect/core/theme/theme_cubit.dart';
 import 'package:goal_connect/core/theme/theme_state.dart';
 import 'package:goal_connect/core/theme/app_theme.dart';
+import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/login_usecase.dart';
 import 'package:goal_connect/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_bloc.dart';
@@ -27,7 +28,12 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AuthBloc(sl<LoginUsecase>())),
+        BlocProvider(
+          create: (_) => AuthBloc(
+            loginUsecase: sl<LoginUsecase>(),
+            createScoutAccountUsecase: sl<CreateScoutAccountUsecase>(),
+          ),
+        ),
         BlocProvider(
           create: (_) => OnboardingBloc(
             getStatus: sl<GetOnboardingStatusUsecase>(),

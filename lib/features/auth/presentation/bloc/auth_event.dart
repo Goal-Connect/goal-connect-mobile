@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -15,6 +16,25 @@ class LoginRequested extends AuthEvent {
 
   @override
   List<Object?> get props => [email, password];
+}
+
+class CreateScoutAccountRequested extends AuthEvent {
+  final ScoutAccountRegistration registration;
+
+  const CreateScoutAccountRequested(this.registration);
+
+  @override
+  List<Object?> get props => [
+        registration.fullName,
+        registration.email,
+        registration.password,
+        registration.licencePhotoPath,
+        registration.nationalIdFanNo,
+        registration.phoneNumber,
+        registration.organizationName,
+        registration.country,
+        registration.yearsExperience,
+      ];
 }
 
 class LogoutRequested extends AuthEvent {}

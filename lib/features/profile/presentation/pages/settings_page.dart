@@ -20,13 +20,12 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : AppColors.lightText;
-    final cardColor = (isDark ? Colors.white : Colors.black).withOpacity(0.03);
-    final borderColor = (isDark ? Colors.white : Colors.black).withOpacity(
-      0.05,
-    );
-    final dividerColor = (isDark ? Colors.white : Colors.black).withOpacity(
-      0.04,
-    );
+    final cardColor =
+        (isDark ? Colors.white : Colors.black).withOpacity(0.03);
+    final borderColor =
+        (isDark ? Colors.white : Colors.black).withOpacity(0.05);
+    final dividerColor =
+        (isDark ? Colors.white : Colors.black).withOpacity(0.04);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -43,29 +42,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   _buildProfileCard(isDark, textColor, cardColor, borderColor),
                   const SizedBox(height: 28),
                   _buildAppearanceSection(
-                    context,
-                    isDark,
-                    textColor,
-                    cardColor,
-                    borderColor,
-                    dividerColor,
-                  ),
+                      context, isDark, textColor, cardColor, borderColor, dividerColor),
                   const SizedBox(height: 24),
                   _buildPreferencesSection(
-                    isDark,
-                    textColor,
-                    cardColor,
-                    borderColor,
-                    dividerColor,
-                  ),
+                      isDark, textColor, cardColor, borderColor, dividerColor),
                   const SizedBox(height: 24),
                   _buildAccountSection(
-                    isDark,
-                    textColor,
-                    cardColor,
-                    borderColor,
-                    dividerColor,
-                  ),
+                      isDark, textColor, cardColor, borderColor, dividerColor),
                   const SizedBox(height: 28),
                   _buildSignOutButton(isDark),
                   const SizedBox(height: 20),
@@ -93,11 +76,8 @@ class _SettingsPageState extends State<SettingsPage> {
             color: Colors.black.withOpacity(0.15),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.arrow_back_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
+          child: const Icon(Icons.arrow_back_rounded,
+              color: Colors.white, size: 20),
         ),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -118,11 +98,7 @@ class _SettingsPageState extends State<SettingsPage> {
             physics: const NeverScrollableScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.fromLTRB(
-                24,
-                MediaQuery.of(context).padding.top + 48,
-                24,
-                16,
-              ),
+                  24, MediaQuery.of(context).padding.top + 48, 24, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -135,13 +111,13 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: Colors.black.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
+                        child: const Icon(Icons.settings_rounded,
+                            color: Colors.black, size: 24),
                       ),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(10),
@@ -186,11 +162,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildProfileCard(
-    bool isDark,
-    Color textColor,
-    Color cardColor,
-    Color borderColor,
-  ) {
+      bool isDark, Color textColor, Color cardColor, Color borderColor) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -218,11 +190,8 @@ class _SettingsPageState extends State<SettingsPage> {
             child: CircleAvatar(
               radius: 28,
               backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
-              child: const Icon(
-                Icons.person_rounded,
-                size: 28,
-                color: AppColors.primaryGreen,
-              ),
+              child: const Icon(Icons.person_rounded,
+                  size: 28, color: AppColors.primaryGreen),
             ),
           ),
           const SizedBox(width: 16),
@@ -242,11 +211,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Icon(
-                      Icons.verified_rounded,
-                      color: AppColors.primaryGreen,
-                      size: 16,
-                    ),
+                    const Icon(Icons.verified_rounded,
+                        color: AppColors.primaryGreen, size: 16),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -254,9 +220,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppColors.primaryGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
@@ -287,7 +251,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
+              color:
+                  (isDark ? Colors.white : Colors.black).withOpacity(0.04),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -427,7 +392,9 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? Colors.black : textColor.withOpacity(0.6),
+                  color: isSelected
+                      ? Colors.black
+                      : textColor.withOpacity(0.6),
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                   fontSize: 12,
                 ),
@@ -466,7 +433,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: 'Get match & scout alerts',
                 value: _notificationsEnabled,
                 textColor: textColor,
-                onChanged: (v) => setState(() => _notificationsEnabled = v),
+                onChanged: (v) =>
+                    setState(() => _notificationsEnabled = v),
               ),
               Divider(height: 1, indent: 60, color: dividerColor),
               _buildSwitchTile(
@@ -486,7 +454,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: 'Play highlights automatically',
                 value: _autoPlayVideos,
                 textColor: textColor,
-                onChanged: (v) => setState(() => _autoPlayVideos = v),
+                onChanged: (v) =>
+                    setState(() => _autoPlayVideos = v),
               ),
             ],
           ),
@@ -631,7 +600,8 @@ class _SettingsPageState extends State<SettingsPage> {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
               Container(
@@ -686,7 +656,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.habeshaRed.withOpacity(0.12)),
+        border: Border.all(
+          color: AppColors.habeshaRed.withOpacity(0.12),
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -704,11 +676,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: AppColors.habeshaRed.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
-                    Icons.logout_rounded,
-                    color: AppColors.habeshaRed,
-                    size: 16,
-                  ),
+                  child: const Icon(Icons.logout_rounded,
+                      color: AppColors.habeshaRed, size: 16),
                 ),
                 const SizedBox(width: 12),
                 const Text(

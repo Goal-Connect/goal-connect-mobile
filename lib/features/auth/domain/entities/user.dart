@@ -1,8 +1,8 @@
 class User {
+
   final String id;
   final String email;
   final String role;
-
   final String username;
   final String profileImage;
   final String position;
@@ -19,4 +19,5 @@ class User {
     required this.age,
     required this.country,
   });
+  
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goal_connect/core/theme/app_colors.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
+import '../pages/scout_register_page.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -71,6 +72,26 @@ class _LoginFormState extends State<LoginForm> {
             );
           },
           child: const Text("LOGIN TO ACCOUNT"),
+        ),
+        const SizedBox(height: 20),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<AuthBloc>(),
+                  child: const ScoutRegisterPage(),
+                ),
+              ),
+            );
+          },
+          child: const Text(
+            'Create scout account',
+            style: TextStyle(
+              color: AppColors.primaryGreen,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ],
     );

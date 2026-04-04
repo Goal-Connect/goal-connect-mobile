@@ -7,3 +7,5 @@ class NetworkFailure extends Failure {}
 class AuthFailure extends Failure {}
 
 class CacheFailure extends Failure {}
+
+class ValidationFailure extends Failure {}

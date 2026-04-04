@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:goal_connect/core/error/fialures.dart';
+import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
 
 abstract class AuthRepository {
@@ -7,4 +8,8 @@ abstract class AuthRepository {
     required String email,
     required String password,
   });
+
+  Future<Either<Failure, User>> createScoutAccount(
+    ScoutAccountRegistration registration,
+  );
 }

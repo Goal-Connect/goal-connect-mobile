@@ -1,7 +1,12 @@
+import '../models/scout_account_registration_model.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login({required String email, required String password});
+
+  Future<UserModel> createScoutAccount(
+    ScoutAccountRegistrationModel registration,
+  );
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -26,6 +31,28 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } else {
       throw Exception();
     }
+  }
+
+  @override
+  Future<UserModel> createScoutAccount(
+    ScoutAccountRegistrationModel registration,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    final username = registration.fullName
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'\s+'), '_');
+    return UserModel(
+      id: 'scout_${DateTime.now().millisecondsSinceEpoch}',
+      email: registration.email.trim(),
+      role: 'scout',
+      username: username.isEmpty ? 'scout' : username,
+      profileImage: registration.licencePhotoPath ??
+          'https://example.com/scout_licence.jpg',
+      position: 'Scout',
+      age: 30,
+      country: registration.country.trim(),
+    );
   }
 }
 
@@ -64,5 +91,27 @@ class MockAuthRemoteDataSource extends AuthRemoteDataSource {
     }
 
     throw Exception("Invalid credentials");
+  }
+
+  @override
+  Future<UserModel> createScoutAccount(
+    ScoutAccountRegistrationModel registration,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    final username = registration.fullName
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'\s+'), '_');
+    return UserModel(
+      id: 'scout_${DateTime.now().millisecondsSinceEpoch}',
+      email: registration.email.trim(),
+      role: 'scout',
+      username: username.isEmpty ? 'scout' : username,
+      profileImage: registration.licencePhotoPath ??
+          'https://example.com/scout_licence.jpg',
+      position: 'Scout',
+      age: 30,
+      country: registration.country.trim(),
+    );
   }
 }
