@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // ── Core ──────────────────────────────────────────────────────────────────────
 import 'core/constants/api_constants.dart';
+import 'core/network/auth_interceptor.dart';
 import 'core/theme/theme_cubit.dart';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -73,19 +74,20 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthTokenLocalDataSource>(
     () => AuthTokenLocalDataSourceImpl(),
   );
-  sl.registerLazySingleton<Dio>(
-    () => Dio(
+  sl.registerLazySingleton<Dio>(() {
+    final dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: const {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       ),
-    ),
-  );
+    );
+    dio.interceptors.add(AuthInterceptor(sl()));
+    return dio;
+  });
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(dio: sl()),
   );
@@ -110,7 +112,7 @@ Future<void> init() async {
 
   // ── Highlights ──────────────────────────────────────────────────────────────
   sl.registerLazySingleton<HighlightRemoteDataSource>(
-    () => MockHighlightRemoteDataSource(),
+    () => HighlightRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<HighlightRepository>(
     () => HighlightRepositoryImpl(remoteDataSource: sl()),

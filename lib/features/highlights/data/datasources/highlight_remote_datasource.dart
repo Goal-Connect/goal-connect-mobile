@@ -1,5 +1,18 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:goal_connect/core/constants/api_constants.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
 import '../models/highlight_model.dart';
+
+class VideoApiException implements Exception {
+  final String message;
+
+  VideoApiException(this.message);
+
+  @override
+  String toString() => message;
+}
 
 abstract class HighlightRemoteDataSource {
   Future<HighlightModel> uploadHighlight({
@@ -17,6 +30,171 @@ abstract class HighlightRemoteDataSource {
   Future<bool> toggleLike(String highlightId);
 
   bool isLiked(String highlightId);
+}
+
+class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
+  HighlightRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
+
+  final Dio _dio;
+
+  /// Local optimistic likes (no backend endpoint in README).
+  final Set<String> _likedHighlightIds = <String>{};
+
+  static String _basename(String path) {
+    final i = path.lastIndexOf('/');
+    final j = path.lastIndexOf(r'\');
+    final start = (i > j ? i : j) + 1;
+    return start > 0 ? path.substring(start) : path;
+  }
+
+  static String _messageFromDio(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final msg = map['message'] as String?;
+      if (msg != null && msg.isNotEmpty) {
+        return msg;
+      }
+    }
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return 'Connection timed out. Please try again.';
+    }
+    if (e.type == DioExceptionType.connectionError) {
+      return 'Could not reach the server. Check your connection.';
+    }
+    return e.message ?? 'Something went wrong';
+  }
+
+  List<HighlightModel> _parseVideoList(dynamic data) {
+    if (data is! Map) {
+      throw VideoApiException('Invalid response from server');
+    }
+    final map = Map<String, dynamic>.from(data);
+    if (map['success'] != true) {
+      throw VideoApiException(
+        map['message'] as String? ?? 'Failed to load videos',
+      );
+    }
+    final raw = map['data'];
+    if (raw is! List) {
+      return [];
+    }
+    return raw
+        .map((e) {
+          if (e is! Map) {
+            return null;
+          }
+          return HighlightModel.fromVideoApiMap(
+            Map<String, dynamic>.from(e),
+          );
+        })
+        .whereType<HighlightModel>()
+        .toList();
+  }
+
+  @override
+  Future<List<HighlightModel>> getHighlightsFeed() async {
+    try {
+      final response = await _dio.get<dynamic>(
+        ApiConstants.videos,
+        queryParameters: <String, dynamic>{
+          'page': 1,
+          'limit': 20,
+          'videoType': 'highlight',
+        },
+      );
+      return _parseVideoList(response.data);
+    } on DioException catch (e) {
+      throw VideoApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<List<HighlightModel>> getPlayerHighlights(String playerId) async {
+    try {
+      final response = await _dio.get<dynamic>(
+        ApiConstants.videos,
+        queryParameters: <String, dynamic>{
+          'page': 1,
+          'limit': 20,
+          'playerId': playerId,
+        },
+      );
+      return _parseVideoList(response.data);
+    } on DioException catch (e) {
+      throw VideoApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<HighlightModel> uploadHighlight({
+    required String playerId,
+    required String videoPath,
+    required String caption,
+  }) async {
+    if (!File(videoPath).existsSync()) {
+      throw VideoApiException('Video file not found');
+    }
+    final title = caption.trim().isEmpty ? 'Highlight' : caption.trim();
+    final formData = FormData.fromMap(<String, dynamic>{
+      'video': await MultipartFile.fromFile(
+        videoPath,
+        filename: _basename(videoPath),
+      ),
+      'title': title,
+      'videoType': 'highlight',
+    });
+
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiConstants.videos,
+        data: formData,
+        options: Options(
+          receiveTimeout: const Duration(minutes: 5),
+          sendTimeout: const Duration(minutes: 5),
+        ),
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw VideoApiException('Invalid response from server');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw VideoApiException(
+          map['message'] as String? ?? 'Upload failed',
+        );
+      }
+      final raw = map['data'];
+      if (raw is! Map) {
+        throw VideoApiException('Invalid upload response');
+      }
+      return HighlightModel.fromVideoApiMap(
+        Map<String, dynamic>.from(raw),
+      );
+    } on DioException catch (e) {
+      throw VideoApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<void> deleteHighlight(String highlightId) async {
+    // No delete endpoint in README; keep API surface for existing code.
+  }
+
+  @override
+  Future<bool> toggleLike(String highlightId) async {
+    if (_likedHighlightIds.contains(highlightId)) {
+      _likedHighlightIds.remove(highlightId);
+      return false;
+    }
+    _likedHighlightIds.add(highlightId);
+    return true;
+  }
+
+  @override
+  bool isLiked(String highlightId) =>
+      _likedHighlightIds.contains(highlightId);
 }
 
 class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
@@ -51,7 +229,7 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
       "Keep grinding, the world is watching 🌍",
     ];
 
-    for (int i = 0; i < mockVideos.length; i++) {
+    for (var i = 0; i < mockVideos.length; i++) {
       _highlights.add(
         HighlightModel(
           id: i.toString(),
@@ -60,7 +238,8 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
             email: "player${i % 10}@test.com",
             role: "player",
             username: "EthioStar_${i % 10}",
-            profileImage: "https://ui-avatars.com/api/?name=EthioStar+${i % 10}&background=00D084&color=000&size=150",
+            profileImage:
+                "https://ui-avatars.com/api/?name=EthioStar+${i % 10}&background=00D084&color=000&size=150",
             position: i % 2 == 0 ? "Forward" : "Midfielder",
             age: 15 + (i % 4),
             country: "Ethiopia",
@@ -123,13 +302,16 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   @override
   Future<bool> toggleLike(String highlightId) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    final highlight = _highlights.firstWhere((h) => h.id == highlightId,
-        orElse: () => throw Exception('Highlight not found'));
+    final highlight = _highlights.firstWhere(
+      (h) => h.id == highlightId,
+      orElse: () => throw Exception('Highlight not found'),
+    );
     _likeCounts.putIfAbsent(highlightId, () => highlight.likes);
 
     if (_likedHighlightIds.contains(highlightId)) {
       _likedHighlightIds.remove(highlightId);
-      _likeCounts[highlightId] = (_likeCounts[highlightId]! - 1).clamp(0, 999999);
+      _likeCounts[highlightId] =
+          (_likeCounts[highlightId]! - 1).clamp(0, 999999);
       return false;
     } else {
       _likedHighlightIds.add(highlightId);

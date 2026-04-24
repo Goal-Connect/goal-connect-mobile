@@ -32,6 +32,49 @@ class HighlightModel extends Highlight {
     );
   }
 
+  /// One item from `GET /videos` or `data` from `POST /videos` (see README).
+  factory HighlightModel.fromVideoApiMap(Map<String, dynamic> json) {
+    final id = (json['_id'] ?? json['id'])?.toString() ?? '';
+    final playerRef = json['player'];
+    final playerId = playerRef == null
+        ? ''
+        : (playerRef is String ? playerRef : playerRef.toString());
+    final title = json['title'] as String? ?? '';
+    final description = json['description'] as String? ?? '';
+    final caption = title.isNotEmpty
+        ? title
+        : (description.isNotEmpty ? description : 'Highlight');
+    final videoUrl = json['videoUrl'] as String? ?? '';
+    final thumbnailUrl = json['thumbnailUrl'] as String? ?? '';
+    final views = json['views'];
+    final likes = views is int
+        ? views
+        : int.tryParse(views?.toString() ?? '') ?? 0;
+    DateTime createdAt = DateTime.now();
+    final createdRaw = json['createdAt'];
+    if (createdRaw != null) {
+      createdAt = DateTime.tryParse(createdRaw.toString()) ?? createdAt;
+    }
+    return HighlightModel(
+      id: id,
+      player: User(
+        id: playerId.isEmpty ? 'unknown' : playerId,
+        email: '',
+        role: 'player',
+        username: 'Player',
+        profileImage: thumbnailUrl,
+        position: 'Player',
+        age: 0,
+        country: '',
+      ),
+      videoUrl: videoUrl,
+      caption: caption,
+      likes: likes,
+      commentCount: 0,
+      createdAt: createdAt,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
