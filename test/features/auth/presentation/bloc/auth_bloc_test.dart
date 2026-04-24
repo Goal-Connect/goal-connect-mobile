@@ -89,7 +89,7 @@ void main() {
       expect(states, [isA<AuthLoading>(), isA<AuthFailure>()]);
       expect(
         (states[1] as AuthFailure).message,
-        'Fill all required fields, add a licence photo, and use a password of at least 6 characters.',
+        'Please enter full name, email, password (at least 6 characters), phone number, and country.',
       );
 
       await sub.cancel();

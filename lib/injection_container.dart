@@ -1,11 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ── Core ──────────────────────────────────────────────────────────────────────
+import 'core/constants/api_constants.dart';
 import 'core/theme/theme_cubit.dart';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
+import 'features/auth/data/datasources/auth_token_local_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/create_scout_account_usecase.dart';
@@ -67,11 +70,30 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ThemeCubit(prefs: sl()));
 
   // ── Auth ────────────────────────────────────────────────────────────────────
+  sl.registerLazySingleton<AuthTokenLocalDataSource>(
+    () => AuthTokenLocalDataSourceImpl(),
+  );
+  sl.registerLazySingleton<Dio>(
+    () => Dio(
+      BaseOptions(
+        baseUrl: ApiConstants.baseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: const {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ),
+    ),
+  );
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => MockAuthRemoteDataSource(),
+    () => AuthRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl()),
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl(),
+      tokenStorage: sl(),
+    ),
   );
   sl.registerLazySingleton(() => LoginUsecase(sl()));
   sl.registerLazySingleton(() => CreateScoutAccountUsecase(sl()));

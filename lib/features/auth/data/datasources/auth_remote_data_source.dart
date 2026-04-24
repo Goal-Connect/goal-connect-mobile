@@ -1,117 +1,105 @@
-import '../models/scout_account_registration_model.dart';
-import '../models/user_model.dart';
+import 'package:dio/dio.dart';
+import 'package:goal_connect/core/constants/api_constants.dart';
+import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
+import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
+import 'package:goal_connect/features/auth/data/models/user_model.dart';
+
+class AuthApiException implements Exception {
+  final String message;
+
+  AuthApiException(this.message);
+
+  @override
+  String toString() => message;
+}
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login({required String email, required String password});
+  Future<AuthRemoteSession> login({
+    required String email,
+    required String password,
+  });
 
-  Future<UserModel> createScoutAccount(
+  Future<AuthRemoteSession> createScoutAccount(
     ScoutAccountRegistrationModel registration,
   );
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  AuthRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
+
+  final Dio _dio;
+
   @override
-  Future<UserModel> login({
+  Future<AuthRemoteSession> login({
     required String email,
     required String password,
   }) async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (email == "test@test.com" && password == "1234") {
-      return UserModel(
-        id: "1",
-        email: email,
-        role: "scout",
-        username: "scout_1",
-        profileImage: "https://example.com/scout.jpg",
-        position: "Scout",
-        age: 30,
-        country: "Ethiopia",
+    try {
+      final response = await _dio.post(
+        ApiConstants.authLogin,
+        data: <String, dynamic>{
+          'email': email.trim(),
+          'password': password,
+        },
       );
-    } else {
-      throw Exception();
+      return _parseAuthSuccess(response.data);
+    } on DioException catch (e) {
+      throw AuthApiException(_messageFromDio(e));
     }
   }
 
   @override
-  Future<UserModel> createScoutAccount(
+  Future<AuthRemoteSession> createScoutAccount(
     ScoutAccountRegistrationModel registration,
   ) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    final username = registration.fullName
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'\s+'), '_');
-    return UserModel(
-      id: 'scout_${DateTime.now().millisecondsSinceEpoch}',
-      email: registration.email.trim(),
-      role: 'scout',
-      username: username.isEmpty ? 'scout' : username,
-      profileImage: registration.licencePhotoPath ??
-          'https://example.com/scout_licence.jpg',
-      position: 'Scout',
-      age: 30,
-      country: registration.country.trim(),
-    );
-  }
-}
-
-class MockAuthRemoteDataSource extends AuthRemoteDataSource {
-  @override
-  Future<UserModel> login({
-    required String email,
-    required String password,
-  }) async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (email == "scout@test.com" && password == "123456") {
-      return UserModel(
-        id: "1",
-        email: email,
-        role: "scout",
-        username: "scout_master",
-        profileImage: "https://example.com/scout.jpg",
-        position: "Scout",
-        age: 35,
-        country: "Ethiopia",
+    try {
+      final response = await _dio.post(
+        ApiConstants.authRegister,
+        data: registration.toAuthRegisterRequestJson(),
       );
+      return _parseAuthSuccess(response.data);
+    } on DioException catch (e) {
+      throw AuthApiException(_messageFromDio(e));
     }
-
-    if (email == "academy@test.com" && password == "123456") {
-      return UserModel(
-        id: "2",
-        email: email,
-        role: "academy",
-        username: "academy_admin",
-        profileImage: "https://example.com/academy.jpg",
-        position: "Coach",
-        age: 40,
-        country: "Ethiopia",
-      );
-    }
-
-    throw Exception("Invalid credentials");
   }
 
-  @override
-  Future<UserModel> createScoutAccount(
-    ScoutAccountRegistrationModel registration,
-  ) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    final username = registration.fullName
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'\s+'), '_');
-    return UserModel(
-      id: 'scout_${DateTime.now().millisecondsSinceEpoch}',
-      email: registration.email.trim(),
-      role: 'scout',
-      username: username.isEmpty ? 'scout' : username,
-      profileImage: registration.licencePhotoPath ??
-          'https://example.com/scout_licence.jpg',
-      position: 'Scout',
-      age: 30,
-      country: registration.country.trim(),
-    );
+  AuthRemoteSession _parseAuthSuccess(dynamic data) {
+    if (data is! Map) {
+      throw AuthApiException('Invalid response from server');
+    }
+    final map = Map<String, dynamic>.from(data);
+    if (map['success'] != true) {
+      final msg = map['message'] as String? ?? 'Request failed';
+      throw AuthApiException(msg);
+    }
+    final token = map['token'] as String? ?? '';
+    final user = UserModel.fromAuthSuccessPayload(map);
+    return AuthRemoteSession(user: user, token: token);
+  }
+
+  String _messageFromDio(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final msg = map['message'] as String?;
+      if (msg != null && msg.isNotEmpty) {
+        return msg;
+      }
+      final errors = map['errors'];
+      if (errors is List && errors.isNotEmpty) {
+        final first = errors.first;
+        if (first is Map && first['msg'] is String) {
+          return first['msg'] as String;
+        }
+      }
+    }
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return 'Connection timed out. Please try again.';
+    }
+    if (e.type == DioExceptionType.connectionError) {
+      return 'Could not reach the server. Check your connection.';
+    }
+    return e.message ?? 'Something went wrong';
   }
 }

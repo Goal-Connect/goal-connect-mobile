@@ -1,0 +1,10 @@
+/// Goal Connect backend (see README.md).
+abstract final class ApiConstants {
+  ApiConstants._();
+
+  static const String baseUrl =
+      'https://goalconnect-backend-repo-2.onrender.com/api';
+
+  static const String authRegister = '/auth/register';
+  static const String authLogin = '/auth/login';
+}

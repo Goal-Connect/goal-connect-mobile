@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goal_connect/core/error/fialures.dart' show ValidationFailure;
+import 'package:goal_connect/core/error/fialures.dart' as fail;
 import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/login_usecase.dart';
 import 'auth_event.dart';
@@ -29,7 +29,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (failure) => emit(AuthFailure('')),
+      (failure) {
+        if (failure is fail.AuthFailure &&
+            (failure.message ?? '').isNotEmpty) {
+          emit(AuthFailure(failure.message!));
+        } else {
+          emit(const AuthFailure('Login failed. Please try again.'));
+        }
+      },
       (user) => emit(AuthAuthenticated(user)),
     );
   }
@@ -44,10 +51,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) {
-        if (failure is ValidationFailure) {
+        if (failure is fail.ValidationFailure) {
           emit(const AuthFailure(
-            'Fill all required fields, add a licence photo, and use a password of at least 6 characters.',
+            'Please enter full name, email, password (at least 6 characters), phone number, and country.',
           ));
+        } else if (failure is fail.AuthFailure &&
+            (failure.message ?? '').isNotEmpty) {
+          emit(AuthFailure(failure.message!));
         } else {
           emit(const AuthFailure('Could not create scout account'));
         }

@@ -25,6 +25,42 @@ class UserModel extends User {
     );
   }
 
+  /// Parses `user` from POST `/auth/login` or `/auth/register` success body.
+  factory UserModel.fromAuthSuccessPayload(Map<String, dynamic> body) {
+    final raw = body['user'];
+    if (raw is! Map) {
+      throw FormatException('Invalid auth response: missing user');
+    }
+    final user = Map<String, dynamic>.from(raw);
+    final id = user['id']?.toString() ?? '';
+    final email = user['email'] as String? ?? '';
+    final role = user['role'] as String? ?? 'user';
+    final username = email.contains('@')
+        ? email.split('@').first
+        : (email.isEmpty ? id : email);
+    return UserModel(
+      id: id,
+      email: email,
+      role: role,
+      username: username.isEmpty ? 'user' : username,
+      profileImage: '',
+      position: _positionFromRole(role),
+      age: 0,
+      country: '',
+    );
+  }
+
+  static String _positionFromRole(String role) {
+    switch (role) {
+      case 'scout':
+        return 'Scout';
+      case 'academy':
+        return 'Academy';
+      default:
+        return role;
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

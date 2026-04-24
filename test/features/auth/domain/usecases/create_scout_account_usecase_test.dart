@@ -123,15 +123,15 @@ void main() {
     verifyNever(() => mockRepository.createScoutAccount(any()));
   });
 
-  test('returns Left(ValidationFailure) when licence photo path is missing',
+  test('returns Left(ValidationFailure) when phone number is empty',
       () async {
     final bad = ScoutAccountRegistration(
       fullName: 'Jane',
       email: 'j@e.com',
       password: '123456',
-      licencePhotoPath: null,
+      licencePhotoPath: '/p',
       nationalIdFanNo: 'FAN-1',
-      phoneNumber: '+1',
+      phoneNumber: '   ',
       organizationName: 'Org',
       country: 'ET',
     );

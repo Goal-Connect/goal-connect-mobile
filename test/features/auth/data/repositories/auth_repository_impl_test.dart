@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_connect/core/error/fialures.dart';
 import 'package:goal_connect/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:goal_connect/features/auth/data/datasources/auth_token_local_datasource.dart';
+import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
 import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
 import 'package:goal_connect/features/auth/data/models/user_model.dart';
 import 'package:goal_connect/features/auth/data/repositories/auth_repository_impl.dart';
@@ -10,9 +12,13 @@ import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
+class MockAuthTokenLocalDataSource extends Mock
+    implements AuthTokenLocalDataSource {}
+
 void main() {
   late AuthRepositoryImpl repository;
   late MockAuthRemoteDataSource mockRemote;
+  late MockAuthTokenLocalDataSource mockToken;
 
   final tRegistration = ScoutAccountRegistration(
     fullName: 'Jane Scout',
@@ -36,21 +42,29 @@ void main() {
     country: 'Ethiopia',
   );
 
+  final tSession = AuthRemoteSession(user: tUserModel, token: 'jwt-token');
+
   setUp(() {
     mockRemote = MockAuthRemoteDataSource();
-    repository = AuthRepositoryImpl(remoteDataSource: mockRemote);
+    mockToken = MockAuthTokenLocalDataSource();
+    repository = AuthRepositoryImpl(
+      remoteDataSource: mockRemote,
+      tokenStorage: mockToken,
+    );
+    when(() => mockToken.saveToken(any())).thenAnswer((_) async {});
   });
 
   setUpAll(() {
+    registerFallbackValue('');
     registerFallbackValue(
       ScoutAccountRegistrationModel.fromEntity(tRegistration),
     );
   });
 
   group('createScoutAccount', () {
-    test('returns Right(user) when remote succeeds', () async {
+    test('returns Right(user) when remote succeeds and saves token', () async {
       when(() => mockRemote.createScoutAccount(any()))
-          .thenAnswer((_) async => tUserModel);
+          .thenAnswer((_) async => tSession);
 
       final result = await repository.createScoutAccount(tRegistration);
 
@@ -60,6 +74,7 @@ void main() {
         (user) => expect(user, tUserModel),
       );
       verify(() => mockRemote.createScoutAccount(any())).called(1);
+      verify(() => mockToken.saveToken('jwt-token')).called(1);
     });
 
     test('returns Left(AuthFailure) when remote throws', () async {
@@ -73,6 +88,7 @@ void main() {
         (f) => expect(f, isA<AuthFailure>()),
         (_) => fail('expected Left'),
       );
+      verifyNever(() => mockToken.saveToken(any()));
     });
   });
 }

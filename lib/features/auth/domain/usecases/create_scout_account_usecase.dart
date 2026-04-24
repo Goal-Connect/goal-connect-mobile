@@ -21,12 +21,8 @@ class CreateScoutAccountUsecase {
     if (r.fullName.trim().isEmpty) return false;
     if (r.email.trim().isEmpty || !r.email.contains('@')) return false;
     if (r.password.length < 6) return false;
-    if (r.nationalIdFanNo.trim().isEmpty) return false;
     if (r.phoneNumber.trim().isEmpty) return false;
     if (r.country.trim().isEmpty) return false;
-    if (r.licencePhotoPath == null || r.licencePhotoPath!.trim().isEmpty) {
-      return false;
-    }
     return true;
   }
 }

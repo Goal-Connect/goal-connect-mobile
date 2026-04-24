@@ -58,7 +58,13 @@ class LoginPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 BlocConsumer<AuthBloc, AuthState>(
-                  listener: (context, state) {},
+                  listener: (context, state) {
+                    if (state is AuthFailure && state.message.isNotEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    }
+                  },
                   builder: (context, state) {
                     if (state is AuthLoading) {
                       return const CircularProgressIndicator();

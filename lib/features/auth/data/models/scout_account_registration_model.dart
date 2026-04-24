@@ -56,4 +56,17 @@ class ScoutAccountRegistrationModel extends ScoutAccountRegistration {
       'years_experience': yearsExperience,
     };
   }
+
+  /// Body for `POST /api/auth/register` with `role: scout` (see README).
+  Map<String, dynamic> toAuthRegisterRequestJson() {
+    return <String, dynamic>{
+      'email': email.trim(),
+      'password': password,
+      'role': 'scout',
+      'fullName': fullName.trim(),
+      'organization': organizationName.trim(),
+      'country': country.trim(),
+      'phone': phoneNumber.trim(),
+    };
+  }
 }
