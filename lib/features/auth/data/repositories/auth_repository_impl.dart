@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:goal_connect/core/error/fialures.dart';
 import 'package:goal_connect/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:goal_connect/features/auth/data/datasources/auth_token_local_datasource.dart';
+import 'package:goal_connect/features/auth/data/datasources/auth_user_local_datasource.dart';
+import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
 import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
 import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
@@ -10,11 +12,24 @@ import '../../domain/repositories/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthTokenLocalDataSource tokenStorage;
+  final AuthUserLocalDataSource userCache;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.tokenStorage,
+    required this.userCache,
   });
+
+  Future<void> _persistSession(
+    AuthRemoteSession session, {
+    String? profileJson,
+  }) async {
+    await tokenStorage.saveToken(session.token);
+    await userCache.saveUserAndProfile(
+      user: session.user,
+      profileJson: profileJson,
+    );
+  }
 
   @override
   Future<Either<Failure, User>> login({
@@ -26,7 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         password: password,
       );
-      await tokenStorage.saveToken(session.token);
+      await _persistSession(session);
       return Right(session.user);
     } on AuthApiException catch (e) {
       return Left(AuthFailure(e.message));
@@ -43,7 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final payload =
           ScoutAccountRegistrationModel.fromEntity(registration);
       final session = await remoteDataSource.createScoutAccount(payload);
-      await tokenStorage.saveToken(session.token);
+      await _persistSession(session);
       return Right(session.user);
     } on AuthApiException catch (e) {
       return Left(AuthFailure(e.message));
@@ -51,4 +66,57 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, User>> getCurrentUser() async {
+    try {
+      final (user, profileJson) = await remoteDataSource.getCurrentUser();
+      await userCache.saveUserAndProfile(
+        user: user,
+        profileJson: profileJson,
+      );
+      return Right(user);
+    } on AuthApiException catch (e) {
+      if (e.statusCode == 401) {
+        await tokenStorage.clearToken();
+        await userCache.clear();
+      }
+      return Left(AuthFailure(e.message));
+    } catch (_) {
+      return Left(AuthFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final session = await remoteDataSource.updatePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      await _persistSession(session);
+      return Right(session.user);
+    } on AuthApiException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (_) {
+      return Left(AuthFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> logout() async {
+    try {
+      await tokenStorage.clearToken();
+      await userCache.clear();
+      return const Right(null);
+    } catch (_) {
+      return Left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<User?> getCachedUser() => userCache.readCachedUser();
 }

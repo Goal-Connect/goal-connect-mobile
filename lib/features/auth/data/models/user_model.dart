@@ -13,15 +13,79 @@ class UserModel extends User {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final player = json['player'];
+    if (player is Map) {
+      final p = Map<String, dynamic>.from(player);
+      return UserModel(
+        id: json['id']?.toString() ?? '',
+        email: p['email'] as String? ?? '',
+        role: p['role'] as String? ?? 'player',
+        username: p['username'] as String? ?? '',
+        profileImage: p['profileImage'] as String? ?? '',
+        position: p['position'] as String? ?? '',
+        age: (p['age'] is int) ? p['age'] as int : int.tryParse('${p['age']}') ?? 0,
+        country: p['country'] as String? ?? '',
+      );
+    }
     return UserModel(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      role: json['role'] as String,
-      username: json['username'] as String,
-      profileImage: json['profileImage'] as String,
-      position: json['position'] as String,
-      age: json['age'] as int,
-      country: json['country'] as String,
+      id: json['id']?.toString() ?? '',
+      email: json['email'] as String? ?? '',
+      role: json['role'] as String? ?? 'user',
+      username: json['username'] as String? ?? '',
+      profileImage: json['profileImage'] as String? ?? '',
+      position: json['position'] as String? ?? '',
+      age: (json['age'] is int)
+          ? json['age'] as int
+          : int.tryParse('${json['age']}') ?? 0,
+      country: json['country'] as String? ?? '',
+    );
+  }
+
+  /// Parses `data` from `GET /auth/me` (`user` + optional `profile`). See README.
+  factory UserModel.fromMeEnvelope(Map<String, dynamic> data) {
+    final userRaw = data['user'];
+    if (userRaw is! Map) {
+      throw const FormatException('Invalid /auth/me response: missing user');
+    }
+    final user = Map<String, dynamic>.from(userRaw);
+    Map<String, dynamic>? profile;
+    final p = data['profile'];
+    if (p is Map) {
+      profile = Map<String, dynamic>.from(p);
+    }
+    return UserModel._fromMeUserMap(user, profile);
+  }
+
+  static UserModel _fromMeUserMap(
+    Map<String, dynamic> user,
+    Map<String, dynamic>? profile,
+  ) {
+    final id = user['id']?.toString() ?? '';
+    final email = user['email'] as String? ?? '';
+    final role = user['role'] as String? ?? 'user';
+    final fullName = profile?['fullName'] as String?;
+    final username = (fullName != null && fullName.trim().isNotEmpty)
+        ? fullName.trim()
+        : (email.contains('@') ? email.split('@').first : (id.isEmpty ? 'user' : id));
+    final country = profile?['country'] as String? ?? '';
+    String image = '';
+    if (profile != null) {
+      final v = profile['avatarUrl'] ??
+          profile['profileImage'] ??
+          profile['photoUrl'];
+      if (v != null) {
+        image = v.toString();
+      }
+    }
+    return UserModel(
+      id: id,
+      email: email,
+      role: role,
+      username: username,
+      profileImage: image,
+      position: _positionFromRole(role),
+      age: 0,
+      country: country,
     );
   }
 
@@ -56,6 +120,10 @@ class UserModel extends User {
         return 'Scout';
       case 'academy':
         return 'Academy';
+      case 'admin':
+        return 'Admin';
+      case 'player':
+        return 'Player';
       default:
         return role;
     }

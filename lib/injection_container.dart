@@ -10,10 +10,15 @@ import 'core/theme/theme_cubit.dart';
 // ── Auth ──────────────────────────────────────────────────────────────────────
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/datasources/auth_token_local_datasource.dart';
+import 'features/auth/data/datasources/auth_user_local_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/create_scout_account_usecase.dart';
+import 'features/auth/domain/usecases/get_cached_user_usecase.dart';
+import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
+import 'features/auth/domain/usecases/logout_usecase.dart';
+import 'features/auth/domain/usecases/update_password_usecase.dart';
 
 // ── Onboarding ────────────────────────────────────────────────────────────────
 import 'features/onboarding/data/datasources/onboarding_local_datasource.dart';
@@ -74,6 +79,9 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthTokenLocalDataSource>(
     () => AuthTokenLocalDataSourceImpl(),
   );
+  sl.registerLazySingleton<AuthUserLocalDataSource>(
+    () => AuthUserLocalDataSourceImpl(prefs: sl()),
+  );
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio(
       BaseOptions(
@@ -95,10 +103,15 @@ Future<void> init() async {
     () => AuthRepositoryImpl(
       remoteDataSource: sl(),
       tokenStorage: sl(),
+      userCache: sl(),
     ),
   );
   sl.registerLazySingleton(() => LoginUsecase(sl()));
   sl.registerLazySingleton(() => CreateScoutAccountUsecase(sl()));
+  sl.registerLazySingleton(() => GetCurrentUserUsecase(sl()));
+  sl.registerLazySingleton(() => GetCachedUserUsecase(sl()));
+  sl.registerLazySingleton(() => UpdatePasswordUsecase(sl()));
+  sl.registerLazySingleton(() => LogoutUsecase(sl()));
 
   // ── Onboarding ──────────────────────────────────────────────────────────────
   sl.registerLazySingleton<OnboardingLocalDataSource>(

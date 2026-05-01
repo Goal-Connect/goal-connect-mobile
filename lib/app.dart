@@ -5,8 +5,13 @@ import 'package:goal_connect/core/theme/theme_cubit.dart';
 import 'package:goal_connect/core/theme/theme_state.dart';
 import 'package:goal_connect/core/theme/app_theme.dart';
 import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
+import 'package:goal_connect/features/auth/domain/usecases/get_cached_user_usecase.dart';
+import 'package:goal_connect/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/login_usecase.dart';
+import 'package:goal_connect/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:goal_connect/features/auth/domain/usecases/update_password_usecase.dart';
 import 'package:goal_connect/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:goal_connect/features/auth/presentation/bloc/auth_event.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_bloc.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/highlight_feed_page.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
@@ -32,6 +37,10 @@ class App extends StatelessWidget {
           create: (_) => AuthBloc(
             loginUsecase: sl<LoginUsecase>(),
             createScoutAccountUsecase: sl<CreateScoutAccountUsecase>(),
+            getCurrentUserUsecase: sl<GetCurrentUserUsecase>(),
+            getCachedUserUsecase: sl<GetCachedUserUsecase>(),
+            updatePasswordUsecase: sl<UpdatePasswordUsecase>(),
+            logoutUsecase: sl<LogoutUsecase>(),
           ),
         ),
         BlocProvider(
@@ -71,6 +80,16 @@ class _MainPageState extends State<MainPage> {
   // Tab order: 0=Highlights, 1=Upload(action), 2=Chat, 3=Profile
   // _selectedTab tracks the visual tab highlight (skip 1 since Upload is an action)
   int _selectedTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<AuthBloc>().add(CheckAuthStatus());
+      }
+    });
+  }
 
   Widget get _currentPage {
     switch (_selectedTab) {

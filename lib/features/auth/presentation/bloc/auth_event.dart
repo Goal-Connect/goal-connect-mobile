@@ -39,6 +39,19 @@ class CreateScoutAccountRequested extends AuthEvent {
 
 class LogoutRequested extends AuthEvent {}
 
-class RegisterRequested extends AuthEvent {}
-
 class CheckAuthStatus extends AuthEvent {}
+
+class UpdatePasswordRequested extends AuthEvent {
+  final String currentPassword;
+  final String newPassword;
+
+  const UpdatePasswordRequested({
+    required this.currentPassword,
+    required this.newPassword,
+  });
+
+  @override
+  List<Object?> get props => [currentPassword, newPassword];
+}
+
+class RegisterRequested extends AuthEvent {}

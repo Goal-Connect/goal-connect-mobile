@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -664,7 +666,10 @@ class _SettingsPageState extends State<SettingsPage> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
-          onTap: () {},
+          onTap: () {
+            context.read<AuthBloc>().add(LogoutRequested());
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(

@@ -7,6 +7,8 @@ abstract final class ApiConstants {
 
   static const String authRegister = '/auth/register';
   static const String authLogin = '/auth/login';
+  static const String authMe = '/auth/me';
+  static const String authUpdatePassword = '/auth/updatepassword';
 
   /// List / upload videos (see README).
   static const String videos = '/videos';

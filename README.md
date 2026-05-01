@@ -1,6 +1,0 @@
-# features
-
-  - authentication
-    - login
-    -
-  - 

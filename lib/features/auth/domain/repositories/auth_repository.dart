@@ -12,4 +12,17 @@ abstract class AuthRepository {
   Future<Either<Failure, User>> createScoutAccount(
     ScoutAccountRegistration registration,
   );
+
+  /// `GET /auth/me` — refreshes profile and persists user (+ profile JSON) locally.
+  Future<Either<Failure, User>> getCurrentUser();
+
+  Future<Either<Failure, User>> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
+  Future<Either<Failure, void>> logout();
+
+  /// Last successful user from local cache (no network).
+  Future<User?> getCachedUser();
 }
