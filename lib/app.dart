@@ -12,6 +12,7 @@ import 'package:goal_connect/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/update_password_usecase.dart';
 import 'package:goal_connect/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:goal_connect/features/auth/presentation/bloc/auth_event.dart';
+import 'package:goal_connect/features/auth/presentation/bloc/auth_state.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_bloc.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/highlight_feed_page.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
@@ -98,10 +99,22 @@ class _MainPageState extends State<MainPage> {
       case 2:
         return const ChatListPage();
       case 3:
-        return BlocProvider(
-          create: (_) => sl<HighlightBloc>()
-            ..add(const GetPlayerHighlightsEvent('current_user')),
-          child: const ProfilePage(),
+        return BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, authState) {
+            final playerId =
+                authState is AuthAuthenticated ? authState.user.id : '';
+            return BlocProvider(
+              key: ValueKey<String>(playerId),
+              create: (_) {
+                final bloc = sl<HighlightBloc>();
+                if (playerId.isNotEmpty) {
+                  bloc.add(GetPlayerHighlightsEvent(playerId));
+                }
+                return bloc;
+              },
+              child: const ProfilePage(),
+            );
+          },
         );
       default:
         return const HighlightFeedPage();

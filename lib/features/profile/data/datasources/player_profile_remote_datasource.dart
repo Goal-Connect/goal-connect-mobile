@@ -1,9 +1,67 @@
+import 'package:dio/dio.dart';
+import 'package:goal_connect/core/constants/api_constants.dart';
 import '../models/player_profile_model.dart';
 import '../models/player_stats_model.dart';
 
 abstract class PlayerProfileRemoteDataSource {
   Future<PlayerProfileModel> getPlayerProfile(String playerId);
   Future<bool> toggleFollow(String playerId);
+}
+
+class PlayerProfileApiException implements Exception {
+  final String message;
+
+  PlayerProfileApiException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class PlayerProfileRemoteDataSourceImpl implements PlayerProfileRemoteDataSource {
+  PlayerProfileRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
+
+  final Dio _dio;
+
+  /// Until a follow API exists, keep optimistic local toggles (same as mock).
+  final Map<String, bool> _followState = <String, bool>{};
+
+  static String _messageFromDio(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final msg = map['message'] as String?;
+      if (msg != null && msg.isNotEmpty) {
+        return msg;
+      }
+    }
+    return e.message ?? 'Something went wrong';
+  }
+
+  @override
+  Future<PlayerProfileModel> getPlayerProfile(String playerId) async {
+    try {
+      final response = await _dio.get<dynamic>(
+        ApiConstants.playerPath(playerId),
+      );
+      return PlayerProfileModel.fromPlayersEndpoint(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        final data = e.response?.data;
+        if (data is Map && data['message'] is String) {
+          throw PlayerProfileApiException(data['message'] as String);
+        }
+        throw PlayerProfileApiException('Player not found');
+      }
+      throw PlayerProfileApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<bool> toggleFollow(String playerId) async {
+    final current = _followState[playerId] ?? false;
+    _followState[playerId] = !current;
+    return !current;
+  }
 }
 
 class MockPlayerProfileRemoteDataSource implements PlayerProfileRemoteDataSource {

@@ -59,6 +59,7 @@ void main() {
       userCache: mockUserCache,
     );
     when(() => mockToken.saveToken(any())).thenAnswer((_) async {});
+    when(() => mockRemote.logoutAck()).thenAnswer((_) async {});
     when(
       () => mockUserCache.saveUserAndProfile(
         user: any(named: 'user'),
@@ -184,6 +185,7 @@ void main() {
       final result = await repository.logout();
 
       expect(result, const Right(null));
+      verify(() => mockRemote.logoutAck()).called(1);
       verify(() => mockToken.clearToken()).called(1);
       verify(() => mockUserCache.clear()).called(1);
     });

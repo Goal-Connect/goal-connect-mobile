@@ -182,7 +182,7 @@ Future<void> init() async {
 
   // ── Player Profile ────────────────────────────────────────────────────────
   sl.registerLazySingleton<PlayerProfileRemoteDataSource>(
-    () => MockPlayerProfileRemoteDataSource(),
+    () => PlayerProfileRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<PlayerProfileRepository>(
     () => PlayerProfileRepositoryImpl(remoteDataSource: sl()),

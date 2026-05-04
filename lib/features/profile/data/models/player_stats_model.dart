@@ -35,6 +35,53 @@ class PlayerStatsModel extends PlayerStats {
     );
   }
 
+  static int _asInt(dynamic v, [int fallback = 0]) {
+    if (v is int) {
+      return v;
+    }
+    if (v is double) {
+      return v.round();
+    }
+    return int.tryParse(v?.toString() ?? '') ?? fallback;
+  }
+
+  /// Fallback when API omits stats block.
+  factory PlayerStatsModel.defaults() {
+    return PlayerStatsModel(
+      pace: 50,
+      shooting: 50,
+      passing: 50,
+      dribbling: 50,
+      defending: 50,
+      physical: 50,
+      preferredFoot: 'Right',
+      heightCm: 170,
+      weightKg: 65,
+      currentClub: null,
+      matchesPlayed: 0,
+      goals: 0,
+      assists: 0,
+    );
+  }
+
+  factory PlayerStatsModel.fromApiMap(Map<String, dynamic> json) {
+    return PlayerStatsModel(
+      pace: _asInt(json['pace'], 50),
+      shooting: _asInt(json['shooting'], 50),
+      passing: _asInt(json['passing'], 50),
+      dribbling: _asInt(json['dribbling'], 50),
+      defending: _asInt(json['defending'], 50),
+      physical: _asInt(json['physical'], 50),
+      preferredFoot: json['preferredFoot']?.toString() ?? 'Right',
+      heightCm: _asInt(json['heightCm'], 170),
+      weightKg: _asInt(json['weightKg'], 65),
+      currentClub: json['currentClub']?.toString(),
+      matchesPlayed: _asInt(json['matchesPlayed'], 0),
+      goals: _asInt(json['goals'], 0),
+      assists: _asInt(json['assists'], 0),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'pace': pace,

@@ -114,11 +114,11 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
   Future<List<HighlightModel>> getPlayerHighlights(String playerId) async {
     try {
       final response = await _dio.get<dynamic>(
-        ApiConstants.videos,
+        ApiConstants.playerVideosPath(playerId),
         queryParameters: <String, dynamic>{
           'page': 1,
           'limit': 20,
-          'playerId': playerId,
+          'videoType': 'highlight',
         },
       );
       return _parseVideoList(response.data);

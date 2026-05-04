@@ -109,6 +109,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
+      await remoteDataSource.logoutAck();
+    } catch (_) {
+      // README: client must clear token regardless; still attempt sign-out call.
+    }
+    try {
       await tokenStorage.clearToken();
       await userCache.clear();
       return const Right(null);

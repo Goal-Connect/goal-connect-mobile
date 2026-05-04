@@ -34,6 +34,9 @@ abstract class AuthRemoteDataSource {
     required String currentPassword,
     required String newPassword,
   });
+
+  /// `POST /auth/logout` — server acknowledges; client must still clear JWT.
+  Future<void> logoutAck();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -130,6 +133,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         },
       );
       return _parseAuthSuccess(response.data);
+    } on DioException catch (e) {
+      throw AuthApiException(
+        _messageFromDio(e),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<void> logoutAck() async {
+    try {
+      await _dio.post<dynamic>(ApiConstants.authLogout);
     } on DioException catch (e) {
       throw AuthApiException(
         _messageFromDio(e),
