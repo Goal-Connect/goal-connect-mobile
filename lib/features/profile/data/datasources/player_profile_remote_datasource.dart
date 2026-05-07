@@ -1,11 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:goal_connect/core/constants/api_constants.dart';
+import '../../domain/entities/players_list_result.dart';
 import '../models/player_profile_model.dart';
 import '../models/player_stats_model.dart';
 
 abstract class PlayerProfileRemoteDataSource {
   Future<PlayerProfileModel> getPlayerProfile(String playerId);
   Future<bool> toggleFollow(String playerId);
+
+  /// `GET /players` with optional filters (see API docs).
+  Future<PlayersListResult> listPlayers({
+    required int page,
+    required int limit,
+    String? search,
+    String? position,
+    String? strongFoot,
+    int? minAge,
+    int? maxAge,
+    int? minHeight,
+    int? maxHeight,
+    String? sortBy,
+    String? sortOrder,
+    String? meta,
+  });
 }
 
 class PlayerProfileApiException implements Exception {
@@ -61,6 +78,95 @@ class PlayerProfileRemoteDataSourceImpl implements PlayerProfileRemoteDataSource
     final current = _followState[playerId] ?? false;
     _followState[playerId] = !current;
     return !current;
+  }
+
+  @override
+  Future<PlayersListResult> listPlayers({
+    required int page,
+    required int limit,
+    String? search,
+    String? position,
+    String? strongFoot,
+    int? minAge,
+    int? maxAge,
+    int? minHeight,
+    int? maxHeight,
+    String? sortBy,
+    String? sortOrder,
+    String? meta,
+  }) async {
+    try {
+      final params = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+      };
+      final searchTrimmed = search?.trim();
+      if (searchTrimmed != null && searchTrimmed.isNotEmpty) {
+        params['search'] = searchTrimmed;
+      }
+      final positionTrimmed = position?.trim();
+      if (positionTrimmed != null && positionTrimmed.isNotEmpty) {
+        params['position'] = positionTrimmed;
+      }
+      final footTrimmed = strongFoot?.trim();
+      if (footTrimmed != null && footTrimmed.isNotEmpty) {
+        params['strongFoot'] = footTrimmed;
+      }
+      if (minAge != null) params['minAge'] = minAge;
+      if (maxAge != null) params['maxAge'] = maxAge;
+      if (minHeight != null) params['minHeight'] = minHeight;
+      if (maxHeight != null) params['maxHeight'] = maxHeight;
+      final sortByTrimmed = sortBy?.trim();
+      if (sortByTrimmed != null && sortByTrimmed.isNotEmpty) {
+        params['sortBy'] = sortByTrimmed;
+      }
+      final sortOrderTrimmed = sortOrder?.trim();
+      if (sortOrderTrimmed != null && sortOrderTrimmed.isNotEmpty) {
+        params['sortOrder'] = sortOrderTrimmed;
+      }
+      final metaTrimmed = meta?.trim();
+      if (metaTrimmed != null && metaTrimmed.isNotEmpty) {
+        params['meta'] = metaTrimmed;
+      }
+
+      final response = await _dio.get<dynamic>(
+        ApiConstants.players,
+        queryParameters: params,
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw PlayerProfileApiException('Invalid players list response');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw PlayerProfileApiException(
+          map['message'] as String? ?? 'Failed to load players',
+        );
+      }
+      final raw = map['data'];
+      final list = raw is List ? raw : <dynamic>[];
+      final players = list
+          .whereType<Map>()
+          .map((e) => PlayerProfileModel.fromListDocument(
+                Map<String, dynamic>.from(e),
+              ))
+          .toList();
+
+      final pageNum = (map['page'] as num?)?.toInt() ?? page;
+      final pagesNum = (map['pages'] as num?)?.toInt() ?? 1;
+      final totalNum = (map['total'] as num?)?.toInt() ?? players.length;
+      final countNum = (map['count'] as num?)?.toInt() ?? players.length;
+
+      return PlayersListResult(
+        players: players,
+        page: pageNum,
+        pages: pagesNum,
+        total: totalNum,
+        count: countNum,
+      );
+    } on DioException catch (e) {
+      throw PlayerProfileApiException(_messageFromDio(e));
+    }
   }
 }
 
@@ -168,5 +274,45 @@ class MockPlayerProfileRemoteDataSource implements PlayerProfileRemoteDataSource
     final current = _followState[playerId] ?? false;
     _followState[playerId] = !current;
     return !current;
+  }
+
+  @override
+  Future<PlayersListResult> listPlayers({
+    required int page,
+    required int limit,
+    String? search,
+    String? position,
+    String? strongFoot,
+    int? minAge,
+    int? maxAge,
+    int? minHeight,
+    int? maxHeight,
+    String? sortBy,
+    String? sortOrder,
+    String? meta,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    var list = _mockProfiles.values.toList();
+    if (search != null && search.trim().isNotEmpty) {
+      final q = search.trim().toLowerCase();
+      list = list
+          .where(
+            (p) =>
+                p.username.toLowerCase().contains(q) ||
+                (p.bio?.toLowerCase().contains(q) ?? false),
+          )
+          .toList();
+    }
+    final start = (page - 1) * limit;
+    final slice = start < list.length
+        ? list.skip(start).take(limit).toList()
+        : <PlayerProfileModel>[];
+    return PlayersListResult(
+      players: slice,
+      page: page,
+      pages: (list.length / limit).ceil().clamp(1, 999),
+      total: list.length,
+      count: slice.length,
+    );
   }
 }

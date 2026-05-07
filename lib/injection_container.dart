@@ -65,7 +65,9 @@ import 'features/profile/data/repositories/player_profile_repository_impl.dart';
 import 'features/profile/domain/repositories/player_profile_repository.dart';
 import 'features/profile/domain/usecases/get_player_profile_usecase.dart';
 import 'features/profile/domain/usecases/toggle_follow_usecase.dart';
+import 'features/profile/domain/usecases/list_players_usecase.dart';
 import 'features/profile/presentation/bloc/player_profile_bloc.dart';
+import 'features/profile/presentation/bloc/player_search_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -199,10 +201,14 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => GetPlayerProfileUsecase(sl()));
   sl.registerLazySingleton(() => ToggleFollowUsecase(sl()));
+  sl.registerLazySingleton(() => ListPlayersUsecase(sl()));
   sl.registerFactory(
     () => PlayerProfileBloc(
       getPlayerProfile: sl(),
       toggleFollow: sl(),
     ),
+  );
+  sl.registerFactory(
+    () => PlayerSearchBloc(listPlayers: sl()),
   );
 }

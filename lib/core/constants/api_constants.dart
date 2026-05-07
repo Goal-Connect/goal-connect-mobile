@@ -35,6 +35,9 @@ abstract final class ApiConstants {
   /// Smart discovery feed (role-filtered `FeedItem` list).
   static const String videosFeed = '/videos/feed';
 
+  /// `GET /players` — list & filter players.
+  static const String players = '/players';
+
   /// `GET /players/{id}` — path only; pass id when calling Dio.
   static String playerPath(String playerId) => '/players/$playerId';
 

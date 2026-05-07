@@ -17,6 +17,7 @@ import 'package:goal_connect/features/highlights/presentation/bloc/highlight_blo
 import 'package:goal_connect/features/highlights/presentation/pages/highlight_feed_page.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dart';
+import 'package:goal_connect/features/profile/presentation/pages/players_search_page.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
@@ -24,6 +25,8 @@ import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
 import 'injection_container.dart';
 import 'package:goal_connect/features/profile/presentation/pages/player_profile_page.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/player_search_bloc.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/player_search_event.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -76,8 +79,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  // Tab order: 0=Highlights, 1=Upload(action), 2=Chat, 3=Profile
-  // _selectedTab tracks the visual tab highlight (skip 1 since Upload is an action)
+  // Tab order: 0=Highlights, 1=Search, 2=Chat, 3=Profile
   int _selectedTab = 0;
 
   @override
@@ -94,6 +96,12 @@ class _MainPageState extends State<MainPage> {
     switch (_selectedTab) {
       case 0:
         return const HighlightFeedPage();
+      case 1:
+        return BlocProvider(
+          create: (_) => sl<PlayerSearchBloc>()
+            ..add(const PlayerSearchLoadFeatured()),
+          child: const PlayersSearchPage(),
+        );
       case 2:
         return const ChatListPage();
       case 3:
@@ -121,13 +129,6 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _onTabTapped(int index) {
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const UploadHighlightPage()),
-      );
-      return;
-    }
     setState(() => _selectedTab = index);
   }
 
@@ -138,9 +139,9 @@ class _MainPageState extends State<MainPage> {
       label: 'Highlights',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.add_box_outlined),
-      activeIcon: Icon(Icons.add_box_rounded),
-      label: 'Upload',
+      icon: Icon(Icons.search_rounded),
+      activeIcon: Icon(Icons.search_rounded),
+      label: 'Search',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.chat_bubble_outline_rounded),
@@ -209,10 +210,25 @@ class ProfilePage extends StatelessWidget {
         }
         final profileId =
             state.user.playerProfileId ?? state.user.id;
-        return PlayerProfilePage(
-          playerId: profileId,
-          embeddedInShell: true,
-          provideHighlightBloc: false,
+        return Scaffold(
+          body: PlayerProfilePage(
+            playerId: profileId,
+            embeddedInShell: true,
+            provideHighlightBloc: false,
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => UploadHighlightPage(playerId: profileId),
+                ),
+              );
+            },
+            backgroundColor: AppColors.primaryGreen,
+            foregroundColor: Colors.black,
+            icon: const Icon(Icons.video_call_rounded),
+            label: const Text('Upload highlight'),
+          ),
         );
       },
     );

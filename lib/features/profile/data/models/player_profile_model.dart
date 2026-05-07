@@ -83,6 +83,14 @@ class PlayerProfileModel extends PlayerProfile {
     };
   }
 
+  /// One element from `GET /players` `data[]` (same shape as single-player `data`).
+  factory PlayerProfileModel.fromListDocument(Map<String, dynamic> json) {
+    return PlayerProfileModel.fromPlayersEndpoint(<String, dynamic>{
+      'success': true,
+      'data': json,
+    });
+  }
+
   /// `GET /players/{id}` — `{ success, data }` with flat player document or nested `user` / `profile`.
   factory PlayerProfileModel.fromPlayersEndpoint(dynamic body) {
     if (body is! Map) {

@@ -12,10 +12,16 @@ import '../bloc/highlight_event.dart';
 import '../bloc/highlight_state.dart';
 import '../../../../core/theme/app_colors.dart';
 
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+
 enum _PageMode { selection, camera, preview }
 
 class UploadHighlightPage extends StatefulWidget {
-  const UploadHighlightPage({super.key});
+  /// Player document id used when posting the video (defaults from auth if omitted).
+  final String? playerId;
+
+  const UploadHighlightPage({super.key, this.playerId});
 
   @override
   State<UploadHighlightPage> createState() => _UploadHighlightPageState();
@@ -828,9 +834,23 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                           bg: AppColors.primaryGreen,
                           onTap: () {
                             if (_videoFile == null) return;
+                            final auth = context.read<AuthBloc>().state;
+                            final resolved = widget.playerId ??
+                                (auth is AuthAuthenticated
+                                    ? (auth.user.playerProfileId ??
+                                        auth.user.id)
+                                    : '');
+                            if (resolved.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Sign in as a player to upload.'),
+                                ),
+                              );
+                              return;
+                            }
                             context.read<HighlightBloc>().add(
                               UploadHighlightEvent(
-                                playerId: "player_123",
+                                playerId: resolved,
                                 videoPath: _videoFile!.path,
                                 caption: _captionController.text,
                               ),

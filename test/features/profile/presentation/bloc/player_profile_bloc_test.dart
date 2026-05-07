@@ -65,24 +65,6 @@ void main() {
     stats: tStats,
   );
 
-  final tProfileFollowing = PlayerProfile(
-    id: 'player_1',
-    username: 'EthioStar',
-    email: 'ethiostar@goalconnect.com',
-    role: 'player',
-    profileImage: 'https://example.com/avatar.png',
-    position: 'Forward',
-    age: 17,
-    country: 'Ethiopia',
-    bio: 'Young forward from Addis Ababa',
-    highlightsCount: 12,
-    followersCount: 201,
-    followingCount: 50,
-    totalLikes: 500,
-    isFollowing: true,
-    stats: tStats,
-  );
-
   group('LoadPlayerProfileEvent', () {
     test('emits [Loading, Loaded] on success', () async {
       when(() => mockGetProfile(playerId: any(named: 'playerId')))
