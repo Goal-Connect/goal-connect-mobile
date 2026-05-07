@@ -21,6 +21,7 @@ import 'package:goal_connect/features/highlights/presentation/pages/upload_highl
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_state.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/single_highlight_page.dart';
+import 'package:goal_connect/features/auth/presentation/pages/login_page.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_status_usecase.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
@@ -61,7 +62,11 @@ class App extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: state.themeMode,
-            home: const MainPage(),
+            initialRoute: '/login',
+            routes: {
+              '/login': (_) => const LoginPage(),
+              '/main': (_) => const MainPage(),
+            },
           );
         },
       ),

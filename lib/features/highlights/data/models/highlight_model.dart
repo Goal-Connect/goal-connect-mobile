@@ -32,6 +32,69 @@ class HighlightModel extends Highlight {
     );
   }
 
+  /// One item from `GET /videos/feed` (wrapped `video` + `player` + `academy`).
+  factory HighlightModel.fromFeedItemMap(Map<String, dynamic> json) {
+    final videoRaw = json['video'];
+    final playerRaw = json['player'];
+    if (videoRaw is! Map || playerRaw is! Map) {
+      throw const FormatException('Invalid feed item');
+    }
+    final v = Map<String, dynamic>.from(videoRaw);
+    final p = Map<String, dynamic>.from(playerRaw);
+
+    final videoId = (v['_id'] ?? v['id'])?.toString() ?? '';
+    final title = v['title'] as String? ?? '';
+    final description = v['description'] as String? ?? '';
+    final caption = title.isNotEmpty
+        ? title
+        : (description.isNotEmpty ? description : 'Highlight');
+
+    final likesRaw = v['likes'];
+    final likeCount = likesRaw is List
+        ? likesRaw.length
+        : (likesRaw is int
+            ? likesRaw
+            : int.tryParse(likesRaw?.toString() ?? '') ?? 0);
+
+    var createdAt = DateTime.now();
+    final createdRaw = v['createdAt'] ?? json['createdAt'];
+    if (createdRaw != null) {
+      createdAt = DateTime.tryParse(createdRaw.toString()) ?? createdAt;
+    }
+
+    final playerId = (p['id'] ?? p['_id'])?.toString() ?? '';
+    final fullName = p['fullName'] as String? ?? 'Player';
+    final profileImageUrl = p['profileImageUrl'] as String? ?? '';
+    final position = p['position'] as String? ?? '';
+    final ageVal = p['age'];
+    final age = ageVal is int
+        ? ageVal
+        : int.tryParse(ageVal?.toString() ?? '') ?? 0;
+
+    final id = videoId.isNotEmpty
+        ? videoId
+        : (json['_id'] ?? json['id'])?.toString() ?? '';
+
+    return HighlightModel(
+      id: id.isEmpty ? 'unknown' : id,
+      player: User(
+        id: playerId.isEmpty ? 'unknown' : playerId,
+        email: '',
+        role: 'player',
+        username: fullName,
+        profileImage: profileImageUrl,
+        position: position.isEmpty ? 'Player' : position,
+        age: age,
+        country: '',
+      ),
+      videoUrl: v['videoUrl'] as String? ?? '',
+      caption: caption,
+      likes: likeCount,
+      commentCount: 0,
+      createdAt: createdAt,
+    );
+  }
+
   /// One item from `GET /videos` or `data` from `POST /videos` (see README).
   factory HighlightModel.fromVideoApiMap(Map<String, dynamic> json) {
     final id = (json['_id'] ?? json['id'])?.toString() ?? '';

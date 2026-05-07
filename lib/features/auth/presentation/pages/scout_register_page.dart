@@ -91,7 +91,10 @@ class _ScoutRegisterPageState extends State<ScoutRegisterPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.of(context).pop(true);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/main',
+              (route) => false,
+            );
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(

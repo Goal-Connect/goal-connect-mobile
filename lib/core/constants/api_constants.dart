@@ -14,6 +14,9 @@ abstract final class ApiConstants {
   /// List / upload videos (see README).
   static const String videos = '/videos';
 
+  /// Smart discovery feed (role-filtered `FeedItem` list).
+  static const String videosFeed = '/videos/feed';
+
   /// `GET /players/{id}` — path only; pass id when calling Dio.
   static String playerPath(String playerId) => '/players/$playerId';
 

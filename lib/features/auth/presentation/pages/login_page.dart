@@ -64,6 +64,9 @@ class LoginPage extends StatelessWidget {
                         SnackBar(content: Text(state.message)),
                       );
                     }
+                    if (state is AuthAuthenticated) {
+                      Navigator.of(context).pushReplacementNamed('/main');
+                    }
                   },
                   builder: (context, state) {
                     if (state is AuthLoading) {

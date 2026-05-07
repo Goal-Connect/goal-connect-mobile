@@ -93,18 +93,48 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
         .toList();
   }
 
+  List<HighlightModel> _parseFeedList(dynamic data) {
+    if (data is! Map) {
+      throw VideoApiException('Invalid response from server');
+    }
+    final map = Map<String, dynamic>.from(data);
+    if (map['success'] != true) {
+      throw VideoApiException(
+        map['message'] as String? ?? 'Failed to load feed',
+      );
+    }
+    final raw = map['data'];
+    if (raw is! List) {
+      return [];
+    }
+    return raw
+        .map((e) {
+          if (e is! Map) {
+            return null;
+          }
+          try {
+            return HighlightModel.fromFeedItemMap(
+              Map<String, dynamic>.from(e),
+            );
+          } on FormatException {
+            return null;
+          }
+        })
+        .whereType<HighlightModel>()
+        .toList();
+  }
+
   @override
   Future<List<HighlightModel>> getHighlightsFeed() async {
     try {
       final response = await _dio.get<dynamic>(
-        ApiConstants.videos,
+        ApiConstants.videosFeed,
         queryParameters: <String, dynamic>{
           'page': 1,
           'limit': 20,
-          'videoType': 'highlight',
         },
       );
-      return _parseVideoList(response.data);
+      return _parseFeedList(response.data);
     } on DioException catch (e) {
       throw VideoApiException(_messageFromDio(e));
     }
