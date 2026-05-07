@@ -37,7 +37,12 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
               scrollDirection: Axis.vertical,
               itemCount: state.highlights.length,
               itemBuilder: (context, index) =>
-                  VideoFeedItem(highlight: state.highlights[index]),
+                  VideoFeedItem(
+                    highlight: state.highlights[index],
+                    onVideoChanged: () => context
+                        .read<HighlightBloc>()
+                        .add(GetHighlightsFeedEvent()),
+                  ),
             );
           }
           return const SizedBox();

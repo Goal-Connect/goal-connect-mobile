@@ -16,15 +16,77 @@ import '../bloc/player_profile_event.dart';
 import '../bloc/player_profile_state.dart';
 import '../widgets/stats_hexagon.dart';
 import '../widgets/info_chip.dart';
+import 'settings_page.dart';
+
+Widget _networkProfileAvatar({
+  required double radius,
+  required String imageUrl,
+  String? heroTag,
+}) {
+  final placeholder = Container(
+    width: radius * 2,
+    height: radius * 2,
+    color: AppColors.primaryGreen.withOpacity(0.1),
+    child: Icon(Icons.person_rounded,
+        size: radius * 1.05, color: AppColors.primaryGreen),
+  );
+  final uri = Uri.tryParse(imageUrl);
+  final useNetwork =
+      imageUrl.isNotEmpty && uri != null && uri.hasScheme && uri.host.isNotEmpty;
+
+  Widget image;
+  if (!useNetwork) {
+    image = placeholder;
+  } else {
+    image = Image.network(
+      imageUrl,
+      width: radius * 2,
+      height: radius * 2,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => placeholder,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return SizedBox(
+          width: radius * 2,
+          height: radius * 2,
+          child: const Center(
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primaryGreen,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  final clipped = ClipOval(child: image);
+  if (heroTag != null) {
+    return Hero(tag: heroTag, child: clipped);
+  }
+  return clipped;
+}
 
 class PlayerProfilePage extends StatelessWidget {
   final String playerId;
   final String? heroTag;
 
+  /// When `true`, hides back affordance for use inside main shell tab.
+  final bool embeddedInShell;
+
+  /// Set `false` when [HighlightBloc] is already provided above (e.g. main tab).
+  final bool provideHighlightBloc;
+
   const PlayerProfilePage({
     super.key,
     required this.playerId,
     this.heroTag,
+    this.embeddedInShell = false,
+    this.provideHighlightBloc = true,
   });
 
   @override
@@ -35,12 +97,17 @@ class PlayerProfilePage extends StatelessWidget {
           create: (_) => sl<PlayerProfileBloc>()
             ..add(LoadPlayerProfileEvent(playerId)),
         ),
-        BlocProvider(
-          create: (_) => sl<HighlightBloc>()
-            ..add(GetPlayerHighlightsEvent(playerId)),
-        ),
+        if (provideHighlightBloc)
+          BlocProvider(
+            create: (_) => sl<HighlightBloc>()
+              ..add(GetPlayerHighlightsEvent(playerId)),
+          ),
       ],
-      child: _PlayerProfileView(playerId: playerId, heroTag: heroTag),
+      child: _PlayerProfileView(
+        playerId: playerId,
+        heroTag: heroTag,
+        embeddedInShell: embeddedInShell,
+      ),
     );
   }
 }
@@ -48,8 +115,13 @@ class PlayerProfilePage extends StatelessWidget {
 class _PlayerProfileView extends StatelessWidget {
   final String playerId;
   final String? heroTag;
+  final bool embeddedInShell;
 
-  const _PlayerProfileView({required this.playerId, this.heroTag});
+  const _PlayerProfileView({
+    required this.playerId,
+    this.heroTag,
+    this.embeddedInShell = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,18 +191,55 @@ class _PlayerProfileView extends StatelessWidget {
       expandedHeight: 340,
       pinned: true,
       backgroundColor: isDark ? const Color(0xFF0A0A12) : Colors.white,
-      leading: GestureDetector(
-        onTap: () => Navigator.pop(context),
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 22),
-        ),
-      ),
+      automaticallyImplyLeading: false,
+      leading: embeddedInShell
+          ? null
+          : GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_back_rounded,
+                    color: Colors.white, size: 22),
+              ),
+            ),
       actions: [
+        if (embeddedInShell)
+          Padding(
+            padding: const EdgeInsets.only(right: 4, top: 8, bottom: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.settings_rounded,
+                    color: Colors.white, size: 22),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder<void>(
+                      pageBuilder: (_, _, _) => const SettingsPage(),
+                      transitionsBuilder:
+                          (_, animation, _, child) => SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0, 1),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutCubic,
+                                )),
+                                child: child,
+                              ),
+                      transitionDuration: const Duration(milliseconds: 400),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
         Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -182,18 +291,14 @@ class _PlayerProfileView extends StatelessWidget {
                       ],
                     ),
                     child: heroTag != null
-                        ? Hero(
-                            tag: heroTag!,
-                            child: CircleAvatar(
-                              radius: 46,
-                              backgroundImage: NetworkImage(profile.profileImage),
-                              backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
-                            ),
-                          )
-                        : CircleAvatar(
+                        ? _networkProfileAvatar(
                             radius: 46,
-                            backgroundImage: NetworkImage(profile.profileImage),
-                            backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
+                            imageUrl: profile.profileImage,
+                            heroTag: heroTag,
+                          )
+                        : _networkProfileAvatar(
+                            radius: 46,
+                            imageUrl: profile.profileImage,
                           ),
                   ),
                   const SizedBox(height: 12),
@@ -208,9 +313,12 @@ class _PlayerProfileView extends StatelessWidget {
                           color: isDark ? Colors.white : AppColors.lightText,
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      const Icon(Icons.verified_rounded,
-                          color: AppColors.primaryGreen, size: 20),
+                      if (profile.verificationStatus.toLowerCase() ==
+                          'verified') ...[
+                        const SizedBox(width: 6),
+                        const Icon(Icons.verified_rounded,
+                            color: AppColors.primaryGreen, size: 20),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -243,6 +351,44 @@ class _PlayerProfileView extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (_hasProfileStatus(profile)) ...[
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (profile.listingStatus.isNotEmpty)
+                            _profileStatusChip(
+                              profile.listingStatus,
+                              Icons.flag_rounded,
+                              isDark,
+                            ),
+                          if (profile.verificationStatus.isNotEmpty)
+                            _profileStatusChip(
+                              profile.verificationStatus,
+                              Icons.verified_outlined,
+                              isDark,
+                            ),
+                          if (profile.availabilityStatus.isNotEmpty)
+                            _profileStatusChip(
+                              profile.availabilityStatus,
+                              Icons.event_available_rounded,
+                              isDark,
+                            ),
+                          if (profile.academyName != null &&
+                              profile.academyName!.isNotEmpty)
+                            _profileStatusChip(
+                              profile.academyName!,
+                              Icons.school_rounded,
+                              isDark,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -387,10 +533,26 @@ class _PlayerProfileView extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              _statColumn(profile.highlightsCount.toString(), 'Highlights', textColor),
-              _statColumn(profile.followersCount.toString(), 'Followers', textColor),
-              _statColumn(profile.followingCount.toString(), 'Following', textColor),
-              _statColumn(profile.totalLikes.toString(), 'Likes', textColor),
+              if (_useServerStatsRow(profile)) ...[
+                _statColumn(profile.highlightsCount.toString(), 'Videos',
+                    textColor),
+                _statColumn(
+                    '${profile.stats?.goals ?? 0}', 'Goals', textColor),
+                _statColumn(
+                    '${profile.stats?.assists ?? 0}', 'Assists', textColor),
+                _statColumn(
+                    '${profile.stats?.matchesPlayed ?? 0}',
+                    'Matches',
+                    textColor),
+              ] else ...[
+                _statColumn(profile.highlightsCount.toString(), 'Highlights',
+                    textColor),
+                _statColumn(profile.followersCount.toString(), 'Followers',
+                    textColor),
+                _statColumn(profile.followingCount.toString(), 'Following',
+                    textColor),
+                _statColumn(profile.totalLikes.toString(), 'Likes', textColor),
+              ],
             ],
           ),
           const SizedBox(height: 20),
@@ -416,10 +578,14 @@ class _PlayerProfileView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
           ],
+          if (profile.isPlayer &&
+              profile.stats != null &&
+              !_shouldHideSyntheticAbilityStats(profile)) ...[
+            _buildStatsSection(profile.stats!, isDark, textColor),
+            const SizedBox(height: 24),
+          ],
           if (profile.isPlayer && profile.stats != null) ...[
             _buildPlayerInfo(profile, isDark, textColor),
-            const SizedBox(height: 24),
-            _buildStatsSection(profile.stats!, isDark, textColor),
             const SizedBox(height: 24),
             _buildMatchStats(profile.stats!, isDark, textColor),
             const SizedBox(height: 24),
@@ -772,4 +938,49 @@ class _PlayerProfileView extends StatelessWidget {
       ),
     );
   }
+}
+
+bool _hasProfileStatus(PlayerProfile profile) {
+  return profile.listingStatus.isNotEmpty ||
+      profile.verificationStatus.isNotEmpty ||
+      profile.availabilityStatus.isNotEmpty ||
+      (profile.academyName != null && profile.academyName!.isNotEmpty);
+}
+
+bool _useServerStatsRow(PlayerProfile profile) {
+  return profile.listingStatus.isNotEmpty ||
+      profile.verificationStatus.isNotEmpty ||
+      profile.availabilityStatus.isNotEmpty;
+}
+
+bool _shouldHideSyntheticAbilityStats(PlayerProfile profile) {
+  return _useServerStatsRow(profile);
+}
+
+Widget _profileStatusChip(String label, IconData icon, bool isDark) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(
+        color: AppColors.primaryGreen.withOpacity(0.25),
+      ),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppColors.primaryGreen),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark ? Colors.white70 : AppColors.lightText,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    ),
+  );
 }

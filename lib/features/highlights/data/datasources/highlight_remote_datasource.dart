@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:goal_connect/core/constants/api_constants.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
+import 'package:goal_connect/features/highlights/domain/entities/toggle_like_result.dart';
 import '../models/highlight_model.dart';
 
 class VideoApiException implements Exception {
@@ -23,22 +24,25 @@ abstract class HighlightRemoteDataSource {
 
   Future<void> deleteHighlight(String highlightId);
 
+  Future<HighlightModel> updateHighlight({
+    required String highlightId,
+    String? title,
+    String? description,
+    String? privacy,
+    String? drillType,
+  });
+
   Future<List<HighlightModel>> getHighlightsFeed();
 
   Future<List<HighlightModel>> getPlayerHighlights(String playerId);
 
-  Future<bool> toggleLike(String highlightId);
-
-  bool isLiked(String highlightId);
+  Future<ToggleLikeResult> toggleLike(String highlightId);
 }
 
 class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
   HighlightRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
 
   final Dio _dio;
-
-  /// Local optimistic likes (no backend endpoint in README).
-  final Set<String> _likedHighlightIds = <String>{};
 
   static String _basename(String path) {
     final i = path.lastIndexOf('/');
@@ -64,6 +68,27 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
       return 'Could not reach the server. Check your connection.';
     }
     return e.message ?? 'Something went wrong';
+  }
+
+  static ToggleLikeResult _parseToggleLikeResponse(dynamic body) {
+    if (body is! Map) {
+      throw VideoApiException('Invalid like response');
+    }
+    final map = Map<String, dynamic>.from(body);
+    final data = map['data'];
+    if (data is! Map) {
+      throw VideoApiException('Invalid like response');
+    }
+    final d = Map<String, dynamic>.from(data);
+    final likesRaw = d['likes'];
+    final ids = likesRaw is List
+        ? likesRaw.map((e) => e.toString()).toList()
+        : <String>[];
+    final count = d['likesCount'];
+    final likesCount = count is int
+        ? count
+        : int.tryParse(count?.toString() ?? '') ?? ids.length;
+    return ToggleLikeResult(likesCount: likesCount, likedUserIds: ids);
   }
 
   List<HighlightModel> _parseVideoList(dynamic data) {
@@ -209,28 +234,82 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
 
   @override
   Future<void> deleteHighlight(String highlightId) async {
-    // No delete endpoint in README; keep API surface for existing code.
-  }
-
-  @override
-  Future<bool> toggleLike(String highlightId) async {
-    if (_likedHighlightIds.contains(highlightId)) {
-      _likedHighlightIds.remove(highlightId);
-      return false;
+    try {
+      final response = await _dio.delete<dynamic>(
+        ApiConstants.videoPath(highlightId),
+      );
+      final body = response.data;
+      if (body is Map) {
+        final map = Map<String, dynamic>.from(body);
+        if (map['success'] != true) {
+          throw VideoApiException(
+            map['message'] as String? ?? 'Failed to delete video',
+          );
+        }
+      }
+    } on DioException catch (e) {
+      throw VideoApiException(_messageFromDio(e));
     }
-    _likedHighlightIds.add(highlightId);
-    return true;
   }
 
   @override
-  bool isLiked(String highlightId) =>
-      _likedHighlightIds.contains(highlightId);
+  Future<HighlightModel> updateHighlight({
+    required String highlightId,
+    String? title,
+    String? description,
+    String? privacy,
+    String? drillType,
+  }) async {
+    final payload = <String, dynamic>{};
+    if (title != null) payload['title'] = title;
+    if (description != null) payload['description'] = description;
+    if (privacy != null) payload['privacy'] = privacy;
+    if (drillType != null) payload['drillType'] = drillType;
+
+    try {
+      final response = await _dio.patch<dynamic>(
+        ApiConstants.videoPath(highlightId),
+        data: payload,
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw VideoApiException('Invalid response from server');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw VideoApiException(
+          map['message'] as String? ?? 'Failed to update video',
+        );
+      }
+      final raw = map['data'];
+      if (raw is! Map) {
+        throw VideoApiException('Invalid update response');
+      }
+      return HighlightModel.fromVideoApiMap(
+        Map<String, dynamic>.from(raw),
+      );
+    } on DioException catch (e) {
+      throw VideoApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<ToggleLikeResult> toggleLike(String highlightId) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiConstants.videoLikePath(highlightId),
+      );
+      final body = response.data;
+      return _parseToggleLikeResponse(body);
+    } on DioException catch (e) {
+      throw VideoApiException(_messageFromDio(e));
+    }
+  }
 }
 
 class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   final List<HighlightModel> _highlights = [];
-  final Set<String> _likedHighlightIds = {};
-  final Map<String, int> _likeCounts = {};
+  final Map<String, ToggleLikeResult> _likeState = {};
 
   final List<String> mockVideos = [
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
@@ -318,6 +397,37 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   }
 
   @override
+  Future<HighlightModel> updateHighlight({
+    required String highlightId,
+    String? title,
+    String? description,
+    String? privacy,
+    String? drillType,
+  }) async {
+    final i = _highlights.indexWhere((h) => h.id == highlightId);
+    if (i < 0) throw VideoApiException('Not found');
+    final old = _highlights[i];
+    final updated = HighlightModel(
+      id: old.id,
+      player: old.player,
+      videoUrl: old.videoUrl,
+      caption: title ?? old.caption,
+      likes: old.likes,
+      likedUserIds: old.likedUserIds,
+      commentCount: old.commentCount,
+      createdAt: old.createdAt,
+      description: description ?? old.description,
+      privacy: privacy ?? old.privacy,
+      drillType: drillType ?? old.drillType,
+      videoType: old.videoType,
+      thumbnailUrl: old.thumbnailUrl,
+      uploadedById: old.uploadedById,
+    );
+    _highlights[i] = updated;
+    return updated;
+  }
+
+  @override
   Future<List<HighlightModel>> getHighlightsFeed() async {
     await Future.delayed(const Duration(milliseconds: 500));
     return _highlights;
@@ -330,26 +440,30 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   }
 
   @override
-  Future<bool> toggleLike(String highlightId) async {
+  Future<ToggleLikeResult> toggleLike(String highlightId) async {
     await Future.delayed(const Duration(milliseconds: 100));
     final highlight = _highlights.firstWhere(
       (h) => h.id == highlightId,
-      orElse: () => throw Exception('Highlight not found'),
+      orElse: () => throw VideoApiException('Highlight not found'),
     );
-    _likeCounts.putIfAbsent(highlightId, () => highlight.likes);
-
-    if (_likedHighlightIds.contains(highlightId)) {
-      _likedHighlightIds.remove(highlightId);
-      _likeCounts[highlightId] =
-          (_likeCounts[highlightId]! - 1).clamp(0, 999999);
-      return false;
+    final prev = _likeState[highlightId] ??
+        ToggleLikeResult(
+          likesCount: highlight.likes,
+          likedUserIds: List<String>.from(highlight.likedUserIds),
+        );
+    const me = 'local_user';
+    final had = prev.likedUserIds.contains(me);
+    final nextIds = List<String>.from(prev.likedUserIds);
+    if (had) {
+      nextIds.remove(me);
     } else {
-      _likedHighlightIds.add(highlightId);
-      _likeCounts[highlightId] = _likeCounts[highlightId]! + 1;
-      return true;
+      nextIds.add(me);
     }
+    final next = ToggleLikeResult(
+      likesCount: nextIds.length,
+      likedUserIds: nextIds,
+    );
+    _likeState[highlightId] = next;
+    return next;
   }
-
-  @override
-  bool isLiked(String highlightId) => _likedHighlightIds.contains(highlightId);
 }

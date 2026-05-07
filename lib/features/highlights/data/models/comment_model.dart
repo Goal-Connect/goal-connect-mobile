@@ -9,6 +9,10 @@ class CommentModel extends Comment {
     required super.text,
     required super.createdAt,
     super.likes,
+    super.likedByMe,
+    super.parentCommentId,
+    super.replies,
+    super.userRole,
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) => CommentModel(
@@ -20,6 +24,77 @@ class CommentModel extends Comment {
         createdAt: DateTime.parse(json['createdAt']),
         likes: json['likes'] ?? 0,
       );
+
+  /// `GET/POST` video comments API shape.
+  factory CommentModel.fromApiMap(
+    Map<String, dynamic> json, {
+    String? currentUserId,
+  }) {
+    final id = (json['_id'] ?? json['id'])?.toString() ?? '';
+    final userRaw = json['user'];
+    var userId = '';
+    var username = 'User';
+    String? profileImage;
+    String? userRole;
+    if (userRaw is Map) {
+      final u = Map<String, dynamic>.from(userRaw);
+      userId = (u['_id'] ?? u['id'])?.toString() ?? '';
+      username = u['fullName'] as String? ??
+          u['username'] as String? ??
+          'User';
+      profileImage = u['profileImageUrl'] as String? ?? u['profileImage'] as String?;
+      userRole = u['role'] as String?;
+    }
+
+    final likesRaw = json['likes'];
+    final likesCount = likesRaw is List
+        ? likesRaw.length
+        : (json['likesCount'] is int
+            ? json['likesCount'] as int
+            : int.tryParse(json['likesCount']?.toString() ?? '') ?? 0);
+    final likedByMe = currentUserId != null &&
+        likesRaw is List &&
+        likesRaw.map((e) => e.toString()).contains(currentUserId);
+
+    final parent = json['parentComment'];
+    final parentCommentId = parent == null
+        ? null
+        : (parent is String ? parent : parent.toString());
+
+    final createdRaw = json['createdAt'];
+    final createdAt = createdRaw != null
+        ? (DateTime.tryParse(createdRaw.toString()) ?? DateTime.now())
+        : DateTime.now();
+
+    final repliesRaw = json['replies'];
+    final List<CommentModel> replies = [];
+    if (repliesRaw is List) {
+      for (final item in repliesRaw) {
+        if (item is Map) {
+          replies.add(
+            CommentModel.fromApiMap(
+              Map<String, dynamic>.from(item),
+              currentUserId: currentUserId,
+            ),
+          );
+        }
+      }
+    }
+
+    return CommentModel(
+      id: id,
+      userId: userId,
+      username: username,
+      profileImage: profileImage,
+      text: json['text'] as String? ?? '',
+      createdAt: createdAt,
+      likes: likesCount,
+      likedByMe: likedByMe,
+      parentCommentId: parentCommentId,
+      replies: replies,
+      userRole: userRole,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

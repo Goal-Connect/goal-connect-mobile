@@ -10,22 +10,24 @@ class UserModel extends User {
     required super.position,
     required super.age,
     required super.country,
+    super.playerProfileId,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final player = json['player'];
     if (player is Map) {
       final p = Map<String, dynamic>.from(player);
-      return UserModel(
-        id: json['id']?.toString() ?? '',
-        email: p['email'] as String? ?? '',
-        role: p['role'] as String? ?? 'player',
-        username: p['username'] as String? ?? '',
-        profileImage: p['profileImage'] as String? ?? '',
-        position: p['position'] as String? ?? '',
-        age: (p['age'] is int) ? p['age'] as int : int.tryParse('${p['age']}') ?? 0,
-        country: p['country'] as String? ?? '',
-      );
+    return UserModel(
+      id: json['id']?.toString() ?? '',
+      email: p['email'] as String? ?? '',
+      role: p['role'] as String? ?? 'player',
+      username: p['username'] as String? ?? '',
+      profileImage: p['profileImage'] as String? ?? '',
+      position: p['position'] as String? ?? '',
+      age: (p['age'] is int) ? p['age'] as int : int.tryParse('${p['age']}') ?? 0,
+      country: p['country'] as String? ?? '',
+      playerProfileId: json['playerProfileId']?.toString(),
+    );
     }
     return UserModel(
       id: json['id']?.toString() ?? '',
@@ -38,6 +40,7 @@ class UserModel extends User {
           ? json['age'] as int
           : int.tryParse('${json['age']}') ?? 0,
       country: json['country'] as String? ?? '',
+      playerProfileId: json['playerProfileId']?.toString(),
     );
   }
 
@@ -69,13 +72,17 @@ class UserModel extends User {
         : (email.contains('@') ? email.split('@').first : (id.isEmpty ? 'user' : id));
     final country = profile?['country'] as String? ?? '';
     String image = '';
+    String? playerProfileId;
     if (profile != null) {
-      final v = profile['avatarUrl'] ??
+      final v = profile['profileImageUrl'] ??
+          profile['avatarUrl'] ??
           profile['profileImage'] ??
           profile['photoUrl'];
       if (v != null) {
         image = v.toString();
       }
+      playerProfileId =
+          profile['id']?.toString() ?? profile['_id']?.toString();
     }
     return UserModel(
       id: id,
@@ -83,9 +90,16 @@ class UserModel extends User {
       role: role,
       username: username,
       profileImage: image,
-      position: _positionFromRole(role),
-      age: 0,
-      country: country,
+      position: profile?['primaryPosition'] as String? ??
+          profile?['position'] as String? ??
+          _positionFromRole(role),
+      age: profile?['age'] is int
+          ? profile!['age'] as int
+          : int.tryParse('${profile?['age']}') ?? 0,
+      country: profile?['nationality'] as String? ??
+          profile?['country'] as String? ??
+          country,
+      playerProfileId: playerProfileId,
     );
   }
 
@@ -111,6 +125,7 @@ class UserModel extends User {
       position: _positionFromRole(role),
       age: 0,
       country: '',
+      playerProfileId: null,
     );
   }
 
@@ -139,6 +154,7 @@ class UserModel extends User {
       'position': position,
       'age': age,
       'country': country,
+      if (playerProfileId != null) 'playerProfileId': playerProfileId,
     };
   }
 
@@ -152,6 +168,7 @@ class UserModel extends User {
       position: user.position,
       age: user.age,
       country: user.country,
+      playerProfileId: user.playerProfileId,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/fialures.dart';
 import '../../domain/entities/highlight.dart';
+import '../../domain/entities/toggle_like_result.dart';
 import '../../domain/repositories/highlight_repository.dart';
 import '../datasources/highlight_remote_datasource.dart';
 
@@ -42,6 +43,28 @@ class HighlightRepositoryImpl implements HighlightRepository {
   }
 
   @override
+  Future<Either<Failure, Highlight>> updateHighlight({
+    required String highlightId,
+    String? title,
+    String? description,
+    String? privacy,
+    String? drillType,
+  }) async {
+    try {
+      final result = await remoteDataSource.updateHighlight(
+        highlightId: highlightId,
+        title: title,
+        description: description,
+        privacy: privacy,
+        drillType: drillType,
+      );
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, List<Highlight>>> getHighlightsFeed() async {
     try {
       final result = await remoteDataSource.getHighlightsFeed();
@@ -65,7 +88,9 @@ class HighlightRepositoryImpl implements HighlightRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> toggleLike({required String highlightId}) async {
+  Future<Either<Failure, ToggleLikeResult>> toggleLike({
+    required String highlightId,
+  }) async {
     try {
       final result = await remoteDataSource.toggleLike(highlightId);
       return Right(result);

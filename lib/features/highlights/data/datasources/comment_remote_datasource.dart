@@ -1,177 +1,248 @@
+import 'package:dio/dio.dart';
+import 'package:goal_connect/core/constants/api_constants.dart';
+import '../../domain/entities/toggle_like_result.dart';
 import '../models/comment_model.dart';
 
-abstract class CommentRemoteDataSource {
-  Future<List<CommentModel>> getComments(String highlightId);
-  Future<CommentModel> addComment({
-    required String highlightId,
-    required String userId,
-    required String username,
-    required String? profileImage,
-    required String text,
-  });
-  Future<void> deleteComment(String commentId);
+class CommentApiException implements Exception {
+  final String message;
+  CommentApiException(this.message);
+  @override
+  String toString() => message;
 }
 
+abstract class CommentRemoteDataSource {
+  Future<List<CommentModel>> getComments(
+    String videoId, {
+    String? currentUserId,
+  });
+
+  Future<CommentModel> addComment({
+    required String videoId,
+    required String text,
+    String? parentCommentId,
+  });
+
+  Future<void> deleteComment({
+    required String videoId,
+    required String commentId,
+  });
+
+  Future<CommentLikeToggleResult> toggleCommentLike({
+    required String videoId,
+    required String commentId,
+  });
+}
+
+class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
+  CommentRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
+
+  final Dio _dio;
+
+  static String _messageFromDio(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final msg = map['message'] as String?;
+      if (msg != null && msg.isNotEmpty) return msg;
+    }
+    return e.message ?? 'Something went wrong';
+  }
+
+  @override
+  Future<List<CommentModel>> getComments(
+    String videoId, {
+    String? currentUserId,
+  }) async {
+    try {
+      final response = await _dio.get<dynamic>(
+        ApiConstants.videoCommentsPath(videoId),
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw CommentApiException('Invalid response');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw CommentApiException(
+          map['message'] as String? ?? 'Failed to load comments',
+        );
+      }
+      final raw = map['data'];
+      if (raw is! List) {
+        return [];
+      }
+      return raw
+          .map((e) {
+            if (e is! Map) return null;
+            return CommentModel.fromApiMap(
+              Map<String, dynamic>.from(e),
+              currentUserId: currentUserId,
+            );
+          })
+          .whereType<CommentModel>()
+          .toList();
+    } on DioException catch (e) {
+      throw CommentApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<CommentModel> addComment({
+    required String videoId,
+    required String text,
+    String? parentCommentId,
+  }) async {
+    final payload = <String, dynamic>{'text': text};
+    if (parentCommentId != null) {
+      payload['parentComment'] = parentCommentId;
+    }
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiConstants.videoCommentsPath(videoId),
+        data: payload,
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw CommentApiException('Invalid response');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw CommentApiException(
+          map['message'] as String? ?? 'Failed to post comment',
+        );
+      }
+      final raw = map['data'];
+      if (raw is! Map) {
+        throw CommentApiException('Invalid comment response');
+      }
+      return CommentModel.fromApiMap(Map<String, dynamic>.from(raw));
+    } on DioException catch (e) {
+      throw CommentApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<void> deleteComment({
+    required String videoId,
+    required String commentId,
+  }) async {
+    try {
+      final response = await _dio.delete<dynamic>(
+        ApiConstants.videoCommentPath(videoId, commentId),
+      );
+      final body = response.data;
+      if (body is Map) {
+        final map = Map<String, dynamic>.from(body);
+        if (map['success'] != true) {
+          throw CommentApiException(
+            map['message'] as String? ?? 'Failed to delete comment',
+          );
+        }
+      }
+    } on DioException catch (e) {
+      throw CommentApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<CommentLikeToggleResult> toggleCommentLike({
+    required String videoId,
+    required String commentId,
+  }) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiConstants.videoCommentLikePath(videoId, commentId),
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw CommentApiException('Invalid response');
+      }
+      final map = Map<String, dynamic>.from(body);
+      final data = map['data'];
+      if (data is! Map) {
+        throw CommentApiException('Invalid like response');
+      }
+      final d = Map<String, dynamic>.from(data);
+      final likesRaw = d['likes'];
+      final ids = likesRaw is List
+          ? likesRaw.map((e) => e.toString()).toList()
+          : <String>[];
+      final count = d['likesCount'];
+      final likesCount = count is int
+          ? count
+          : int.tryParse(count?.toString() ?? '') ?? ids.length;
+      return CommentLikeToggleResult(likesCount: likesCount, likedUserIds: ids);
+    } on DioException catch (e) {
+      throw CommentApiException(_messageFromDio(e));
+    }
+  }
+}
+
+/// Offline / demo comments (used in tests when mock is registered).
 class MockCommentRemoteDataSource implements CommentRemoteDataSource {
   final Map<String, List<CommentModel>> _commentsByHighlight = {};
 
-  final List<Map<String, dynamic>> _baseComments = [
-    {
-      'userId': 'u1',
-      'username': 'AbebeTekeste',
-      'profileImage': 'https://ui-avatars.com/api/?name=abebe&background=00D084&color=000&size=150',
-      'text': 'Incredible footwork! This kid has a real future 🔥',
-      'likes': 47,
-      'hoursAgo': 2,
-    },
-    {
-      'userId': 'u2',
-      'username': 'ScoutEthiopia_FA',
-      'profileImage': 'https://ui-avatars.com/api/?name=scout1&background=00D084&color=000&size=150',
-      'text': 'We have been watching you. Expect a call soon! 📞',
-      'likes': 120,
-      'hoursAgo': 3,
-    },
-    {
-      'userId': 'u3',
-      'username': 'AlemayehuG',
-      'profileImage': 'https://ui-avatars.com/api/?name=alemayehu&background=00D084&color=000&size=150',
-      'text': 'Those cone drills are elite level. Keep grinding brother 💪',
-      'likes': 33,
-      'hoursAgo': 4,
-    },
-    {
-      'userId': 'u4',
-      'username': 'HailuBekele',
-      'profileImage': 'https://ui-avatars.com/api/?name=hailu&background=00D084&color=000&size=150',
-      'text': 'Best young midfielder I have seen from Ethiopia this year!',
-      'likes': 88,
-      'hoursAgo': 5,
-    },
-    {
-      'userId': 'u5',
-      'username': 'YohannesT',
-      'profileImage': 'https://ui-avatars.com/api/?name=yohannes&background=00D084&color=000&size=150',
-      'text': 'The way you turn with the ball is like a pro! 🇪🇹⚽',
-      'likes': 22,
-      'hoursAgo': 6,
-    },
-    {
-      'userId': 'u6',
-      'username': 'NairoAcademyCoach',
-      'profileImage': 'https://ui-avatars.com/api/?name=nairo&background=00D084&color=000&size=150',
-      'text': 'Sent this to our head of recruitment. Amazing talent.',
-      'likes': 65,
-      'hoursAgo': 8,
-    },
-    {
-      'userId': 'u7',
-      'username': 'FikerteM',
-      'profileImage': 'https://ui-avatars.com/api/?name=fikerte&background=00D084&color=000&size=150',
-      'text': 'Shared this with my whole team. Everyone is impressed! 🙌',
-      'likes': 14,
-      'hoursAgo': 10,
-    },
-    {
-      'userId': 'u8',
-      'username': 'EthioFootballDaily',
-      'profileImage': 'https://ui-avatars.com/api/?name=efball&background=00D084&color=000&size=150',
-      'text': 'We will feature you in our next weekly recap! Great clip.',
-      'likes': 91,
-      'hoursAgo': 12,
-    },
-    {
-      'userId': 'u9',
-      'username': 'DerbeHaile',
-      'profileImage': 'https://ui-avatars.com/api/?name=derbe&background=00D084&color=000&size=150',
-      'text': 'Same energy I saw from Zeray Hagos back in the day. Future star!',
-      'likes': 55,
-      'hoursAgo': 14,
-    },
-    {
-      'userId': 'u10',
-      'username': 'AddisBallerFC',
-      'profileImage': 'https://ui-avatars.com/api/?name=addis&background=00D084&color=000&size=150',
-      'text': 'Dribbling past 3 defenders like that at 16? 😤 Respect',
-      'likes': 39,
-      'hoursAgo': 16,
-    },
-    {
-      'userId': 'u11',
-      'username': 'CAFYouthScout',
-      'profileImage': 'https://ui-avatars.com/api/?name=caf&background=00D084&color=000&size=150',
-      'text': 'CAF Youth Development has your name on the list. Keep it up ⭐',
-      'likes': 143,
-      'hoursAgo': 20,
-    },
-    {
-      'userId': 'u12',
-      'username': 'SamrawiB',
-      'profileImage': 'https://ui-avatars.com/api/?name=samrawi&background=00D084&color=000&size=150',
-      'text': 'Your balance and change of direction are unreal. Stay focused 🙏',
-      'likes': 27,
-      'hoursAgo': 24,
-    },
-  ];
-
-  List<CommentModel> _buildCommentsForHighlight(String highlightId) {
-    final seed = highlightId.hashCode.abs() % _baseComments.length;
-    final shuffled = [
-      ..._baseComments.sublist(seed),
-      ..._baseComments.sublist(0, seed),
+  List<CommentModel> _seed(String videoId) {
+    return [
+      CommentModel(
+        id: '${videoId}_c1',
+        userId: 'u1',
+        username: 'DemoUser',
+        profileImage: null,
+        text: 'Incredible footwork!',
+        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        likes: 3,
+      ),
     ];
-    return shuffled.asMap().entries.map((entry) {
-      final i = entry.key;
-      final c = entry.value;
-      return CommentModel(
-        id: 'comment_${highlightId}_$i',
-        userId: c['userId'] as String,
-        username: c['username'] as String,
-        profileImage: c['profileImage'] as String?,
-        text: c['text'] as String,
-        createdAt: DateTime.now().subtract(Duration(hours: c['hoursAgo'] as int)),
-        likes: c['likes'] as int,
-      );
-    }).toList();
   }
 
   @override
-  Future<List<CommentModel>> getComments(String highlightId) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    _commentsByHighlight.putIfAbsent(
-        highlightId, () => _buildCommentsForHighlight(highlightId));
-    return _commentsByHighlight[highlightId]!;
+  Future<List<CommentModel>> getComments(
+    String videoId, {
+    String? currentUserId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    _commentsByHighlight.putIfAbsent(videoId, () => _seed(videoId));
+    return List.from(_commentsByHighlight[videoId]!);
   }
 
   @override
   Future<CommentModel> addComment({
-    required String highlightId,
-    required String userId,
-    required String username,
-    required String? profileImage,
+    required String videoId,
     required String text,
+    String? parentCommentId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    final comment = CommentModel(
-      id: 'comment_${DateTime.now().millisecondsSinceEpoch}',
-      userId: userId,
-      username: username,
-      profileImage: profileImage,
+    await Future.delayed(const Duration(milliseconds: 200));
+    final c = CommentModel(
+      id: 'c_${DateTime.now().millisecondsSinceEpoch}',
+      userId: 'local',
+      username: 'You',
       text: text,
       createdAt: DateTime.now(),
       likes: 0,
+      parentCommentId: parentCommentId,
     );
-    _commentsByHighlight.putIfAbsent(
-        highlightId, () => _buildCommentsForHighlight(highlightId));
-    _commentsByHighlight[highlightId]!.insert(0, comment);
-    return comment;
+    _commentsByHighlight.putIfAbsent(videoId, () => []);
+    _commentsByHighlight[videoId]!.insert(0, c);
+    return c;
   }
 
   @override
-  Future<void> deleteComment(String commentId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    for (final list in _commentsByHighlight.values) {
-      list.removeWhere((c) => c.id == commentId);
-    }
+  Future<void> deleteComment({
+    required String videoId,
+    required String commentId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    final list = _commentsByHighlight[videoId];
+    list?.removeWhere((c) => c.id == commentId);
+  }
+
+  @override
+  Future<CommentLikeToggleResult> toggleCommentLike({
+    required String videoId,
+    required String commentId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return const CommentLikeToggleResult(likesCount: 1, likedUserIds: ['local']);
   }
 }

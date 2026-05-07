@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:goal_connect/core/error/fialures.dart';
 import 'package:goal_connect/features/highlights/domain/repositories/highlight_repository.dart';
+import 'package:goal_connect/features/highlights/domain/entities/toggle_like_result.dart';
 import 'package:goal_connect/features/highlights/domain/usecases/toggle_like_highlight_usecase.dart';
 
 class MockHighlightRepository extends Mock implements HighlightRepository {}
@@ -18,24 +19,20 @@ void main() {
 
   const tHighlightId = 'highlight123';
 
-  test('should return true (liked) when toggle succeeds', () async {
+  final tResult = const ToggleLikeResult(
+    likesCount: 5,
+    likedUserIds: ['user1'],
+  );
+
+  test('should return ToggleLikeResult when toggle succeeds', () async {
     when(() => mockRepository.toggleLike(highlightId: any(named: 'highlightId')))
-        .thenAnswer((_) async => const Right(true));
+        .thenAnswer((_) async => Right(tResult));
 
     final result = await usecase(highlightId: tHighlightId);
 
-    expect(result, const Right(true));
+    expect(result, Right(tResult));
     verify(() => mockRepository.toggleLike(highlightId: tHighlightId)).called(1);
     verifyNoMoreInteractions(mockRepository);
-  });
-
-  test('should return false (unliked) when toggle succeeds', () async {
-    when(() => mockRepository.toggleLike(highlightId: any(named: 'highlightId')))
-        .thenAnswer((_) async => const Right(false));
-
-    final result = await usecase(highlightId: tHighlightId);
-
-    expect(result, const Right(false));
   });
 
   test('should return ServerFailure when toggle fails', () async {

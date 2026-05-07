@@ -37,6 +37,7 @@ import 'features/highlights/domain/usecases/get_highlights_feed_usecase.dart';
 import 'features/highlights/domain/usecases/get_player_highlights_usecase.dart';
 import 'features/highlights/domain/usecases/upload_highlight_usecase.dart';
 import 'features/highlights/domain/usecases/toggle_like_highlight_usecase.dart';
+import 'features/highlights/domain/usecases/update_highlight_usecase.dart';
 import 'features/highlights/presentation/bloc/highlight_bloc.dart';
 
 // ── Comments (inside highlights) ──────────────────────────────────────────────
@@ -46,6 +47,7 @@ import 'features/highlights/domain/repositories/comment_repository.dart';
 import 'features/highlights/domain/usecases/get_comments_usecase.dart';
 import 'features/highlights/domain/usecases/add_comment_usecase.dart';
 import 'features/highlights/domain/usecases/delete_comment_usecase.dart';
+import 'features/highlights/domain/usecases/toggle_comment_like_usecase.dart';
 import 'features/highlights/presentation/bloc/comment_bloc.dart';
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
@@ -134,6 +136,7 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => UploadHighlightUsecase(sl()));
   sl.registerLazySingleton(() => DeleteHighlightUsecase(sl()));
+  sl.registerLazySingleton(() => UpdateHighlightUsecase(sl()));
   sl.registerLazySingleton(() => GetHighlightsFeedUsecase(sl()));
   sl.registerLazySingleton(() => GetPlayerHighlightsUsecase(sl()));
   sl.registerLazySingleton(() => ToggleLikeHighlightUsecase(sl()));
@@ -148,19 +151,24 @@ Future<void> init() async {
 
   // ── Comments (inside highlights feature) ────────────────────────────────────
   sl.registerLazySingleton<CommentRemoteDataSource>(
-    () => MockCommentRemoteDataSource(),
+    () => CommentRemoteDataSourceImpl(dio: sl()),
   );
   sl.registerLazySingleton<CommentRepository>(
-    () => CommentRepositoryImpl(remoteDataSource: sl()),
+    () => CommentRepositoryImpl(
+      remoteDataSource: sl(),
+      userCache: sl(),
+    ),
   );
   sl.registerLazySingleton(() => GetCommentsUsecase(sl()));
   sl.registerLazySingleton(() => AddCommentUsecase(sl()));
   sl.registerLazySingleton(() => DeleteCommentUsecase(sl()));
+  sl.registerLazySingleton(() => ToggleCommentLikeUsecase(sl()));
   sl.registerFactory(
     () => CommentBloc(
       getComments: sl(),
       addComment: sl(),
       deleteComment: sl(),
+      toggleCommentLike: sl(),
     ),
   );
 

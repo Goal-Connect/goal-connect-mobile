@@ -14,6 +14,24 @@ abstract final class ApiConstants {
   /// List / upload videos (see README).
   static const String videos = '/videos';
 
+  /// `PATCH/DELETE /videos/{id}` — pass id when calling Dio.
+  static String videoPath(String videoId) => '/videos/$videoId';
+
+  /// `POST /videos/{id}/like`
+  static String videoLikePath(String videoId) => '/videos/$videoId/like';
+
+  /// `GET/POST /videos/{id}/comments`
+  static String videoCommentsPath(String videoId) =>
+      '/videos/$videoId/comments';
+
+  /// `DELETE /videos/{id}/comments/{commentId}`
+  static String videoCommentPath(String videoId, String commentId) =>
+      '/videos/$videoId/comments/$commentId';
+
+  /// `POST /videos/{id}/comments/{commentId}/like`
+  static String videoCommentLikePath(String videoId, String commentId) =>
+      '/videos/$videoId/comments/$commentId/like';
+
   /// Smart discovery feed (role-filtered `FeedItem` list).
   static const String videosFeed = '/videos/feed';
 

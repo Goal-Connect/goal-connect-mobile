@@ -6,6 +6,7 @@ import 'package:goal_connect/features/auth/domain/entities/user.dart';
 import 'package:goal_connect/features/highlights/data/datasources/highlight_remote_datasource.dart';
 import 'package:goal_connect/features/highlights/data/models/highlight_model.dart';
 import 'package:goal_connect/features/highlights/data/repositories/highlight_repository_impl.dart';
+import 'package:goal_connect/features/highlights/domain/entities/toggle_like_result.dart';
 
 class MockHighlightRemoteDataSource extends Mock
     implements HighlightRemoteDataSource {}
@@ -41,6 +42,11 @@ void main() {
 
   final tHighlightModels = [tHighlightModel];
 
+  final tToggleLike = const ToggleLikeResult(
+    likesCount: 11,
+    likedUserIds: ['u1'],
+  );
+
   group('getHighlightsFeed', () {
     test('should return list of highlights when datasource succeeds', () async {
       when(() => mockDataSource.getHighlightsFeed())
@@ -57,7 +63,8 @@ void main() {
     });
 
     test('should return ServerFailure when datasource throws', () async {
-      when(() => mockDataSource.getHighlightsFeed()).thenThrow(Exception('Server error'));
+      when(() => mockDataSource.getHighlightsFeed())
+          .thenThrow(Exception('Server error'));
 
       final result = await repository.getHighlightsFeed();
 
@@ -166,23 +173,14 @@ void main() {
   });
 
   group('toggleLike', () {
-    test('should return true when like is toggled on', () async {
+    test('should return ToggleLikeResult when toggle succeeds', () async {
       when(() => mockDataSource.toggleLike(any()))
-          .thenAnswer((_) async => true);
+          .thenAnswer((_) async => tToggleLike);
 
       final result = await repository.toggleLike(highlightId: '1');
 
-      expect(result, const Right(true));
+      expect(result, Right(tToggleLike));
       verify(() => mockDataSource.toggleLike('1')).called(1);
-    });
-
-    test('should return false when like is toggled off', () async {
-      when(() => mockDataSource.toggleLike(any()))
-          .thenAnswer((_) async => false);
-
-      final result = await repository.toggleLike(highlightId: '1');
-
-      expect(result, const Right(false));
     });
 
     test('should return ServerFailure when toggle throws', () async {

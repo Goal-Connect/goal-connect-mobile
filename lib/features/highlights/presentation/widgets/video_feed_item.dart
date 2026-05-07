@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/entities/highlight.dart';
 import '../../../../injection_container.dart';
 import '../../domain/usecases/toggle_like_highlight_usecase.dart';
@@ -9,7 +12,13 @@ import 'video_options_sheet.dart';
 
 class VideoFeedItem extends StatefulWidget {
   final Highlight highlight;
-  const VideoFeedItem({super.key, required this.highlight});
+  final VoidCallback? onVideoChanged;
+
+  const VideoFeedItem({
+    super.key,
+    required this.highlight,
+    this.onVideoChanged,
+  });
 
   @override
   State<VideoFeedItem> createState() => _VideoFeedItemState();
@@ -26,6 +35,19 @@ class _VideoFeedItemState extends State<VideoFeedItem>
   late bool _isLiked;
   late int _likeCount;
   bool _showHeart = false;
+  bool _seededLike = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_seededLike) {
+      final auth = context.read<AuthBloc>().state;
+      if (auth is AuthAuthenticated) {
+        _isLiked = widget.highlight.likedUserIds.contains(auth.user.id);
+      }
+      _seededLike = true;
+    }
+  }
 
   @override
   void initState() {
@@ -85,18 +107,35 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     });
   }
 
-  void _toggleLike() {
+  Future<void> _toggleLike() async {
     HapticFeedback.mediumImpact();
-    setState(() {
-      _isLiked = !_isLiked;
-      _likeCount += _isLiked ? 1 : -1;
-    });
-    sl<ToggleLikeHighlightUsecase>()(highlightId: widget.highlight.id);
+    final auth = context.read<AuthBloc>().state;
+    final uid = auth is AuthAuthenticated ? auth.user.id : null;
+
+    final result =
+        await sl<ToggleLikeHighlightUsecase>()(highlightId: widget.highlight.id);
+
+    if (!mounted) return;
+    result.fold(
+      (_) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          const SnackBar(content: Text('Could not update like')),
+        );
+      },
+      (r) {
+        setState(() {
+          _likeCount = r.likesCount;
+          if (uid != null) {
+            _isLiked = r.likedUserIds.contains(uid);
+          }
+        });
+      },
+    );
   }
 
-  void _onDoubleTap() {
+  Future<void> _onDoubleTap() async {
     if (!_isLiked) {
-      _toggleLike();
+      await _toggleLike();
     }
     setState(() => _showHeart = true);
     Future.delayed(const Duration(milliseconds: 800), () {
@@ -112,9 +151,8 @@ class _VideoFeedItemState extends State<VideoFeedItem>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => VideoOptionsSheet(
-        highlightId: widget.highlight.id,
-        playerUsername: widget.highlight.player.username,
-        videoUrl: widget.highlight.videoUrl,
+        highlight: widget.highlight,
+        onVideoChanged: widget.onVideoChanged,
       ),
     ).then((_) => _resumeVideo());
   }

@@ -16,38 +16,44 @@ void main() {
     usecase = DeleteCommentUsecase(mockRepository);
   });
 
+  const tVideoId = 'video123';
   const tCommentId = 'comment123';
 
-  test('should call repository deleteComment and return Right(void) on success', () async {
-    when(() => mockRepository.deleteComment(any()))
-        .thenAnswer((_) async => const Right(null));
+  test('should call repository deleteComment and return Right(void) on success',
+      () async {
+    when(() => mockRepository.deleteComment(
+          highlightId: any(named: 'highlightId'),
+          commentId: any(named: 'commentId'),
+        )).thenAnswer((_) async => const Right(null));
 
-    final result = await usecase(tCommentId);
+    final result = await usecase(
+      highlightId: tVideoId,
+      commentId: tCommentId,
+    );
 
     expect(result, const Right(null));
-    verify(() => mockRepository.deleteComment(tCommentId)).called(1);
+    verify(() => mockRepository.deleteComment(
+          highlightId: tVideoId,
+          commentId: tCommentId,
+        )).called(1);
     verifyNoMoreInteractions(mockRepository);
   });
 
   test('should return ServerFailure when deletion fails', () async {
-    when(() => mockRepository.deleteComment(any()))
-        .thenAnswer((_) async => Left(ServerFailure()));
+    when(() => mockRepository.deleteComment(
+          highlightId: any(named: 'highlightId'),
+          commentId: any(named: 'commentId'),
+        )).thenAnswer((_) async => Left(ServerFailure()));
 
-    final result = await usecase(tCommentId);
+    final result = await usecase(
+      highlightId: tVideoId,
+      commentId: tCommentId,
+    );
 
     expect(result, isA<Left>());
     result.fold(
       (failure) => expect(failure, isA<ServerFailure>()),
       (_) => fail('Expected a Left'),
     );
-  });
-
-  test('should pass the exact commentId to the repository', () async {
-    when(() => mockRepository.deleteComment(any()))
-        .thenAnswer((_) async => const Right(null));
-
-    await usecase('specificComment456');
-
-    verify(() => mockRepository.deleteComment('specificComment456')).called(1);
   });
 }

@@ -5,17 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../injection_container.dart';
+import '../../domain/entities/highlight.dart';
+import '../../domain/usecases/delete_highlight_usecase.dart';
+import '../../domain/usecases/update_highlight_usecase.dart';
 
 class VideoOptionsSheet extends StatefulWidget {
-  final String highlightId;
-  final String playerUsername;
-  final String videoUrl;
+  final Highlight highlight;
+  final VoidCallback? onVideoChanged;
 
   const VideoOptionsSheet({
     super.key,
-    required this.highlightId,
-    required this.playerUsername,
-    required this.videoUrl,
+    required this.highlight,
+    this.onVideoChanged,
   });
 
   @override
@@ -53,6 +55,167 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
     _showToast(context, option);
   }
 
+  Future<void> _editVideo() async {
+    HapticFeedback.lightImpact();
+    final titleCtrl =
+        TextEditingController(text: widget.highlight.caption);
+    final descCtrl =
+        TextEditingController(text: widget.highlight.description ?? '');
+    final drillCtrl =
+        TextEditingController(text: widget.highlight.drillType ?? '');
+    var privacy = widget.highlight.privacy ?? 'public';
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => AlertDialog(
+          backgroundColor: const Color(0xFF1E1E24),
+          title: const Text('Edit highlight',
+              style: TextStyle(color: Colors.white)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleCtrl,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descCtrl,
+                  style: const TextStyle(color: Colors.white),
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: privacy,
+                  dropdownColor: const Color(0xFF2A2A32),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Privacy',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'public', child: Text('public')),
+                    DropdownMenuItem(value: 'private', child: Text('private')),
+                  ],
+                  onChanged: (v) =>
+                      setModalState(() => privacy = v ?? 'public'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: drillCtrl,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Drill type',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final r = await sl<UpdateHighlightUsecase>()(
+                  highlightId: widget.highlight.id,
+                  title: titleCtrl.text.trim(),
+                  description: descCtrl.text.trim().isEmpty
+                      ? null
+                      : descCtrl.text.trim(),
+                  privacy: privacy,
+                  drillType: drillCtrl.text.trim().isEmpty
+                      ? null
+                      : drillCtrl.text.trim(),
+                );
+                if (!mounted) return;
+                r.fold(
+                  (_) {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Could not update video')),
+                    );
+                  },
+                  (_) {
+                    Navigator.pop(ctx);
+                    Navigator.pop(context);
+                    widget.onVideoChanged?.call();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Video updated')),
+                    );
+                  },
+                );
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    titleCtrl.dispose();
+    descCtrl.dispose();
+    drillCtrl.dispose();
+  }
+
+  Future<void> _deleteVideo() async {
+    HapticFeedback.lightImpact();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E24),
+        title: const Text('Delete video?',
+            style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'This removes the video from Goal Connect and Cloudinary.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+
+    final r = await sl<DeleteHighlightUsecase>()(
+      highlightId: widget.highlight.id,
+    );
+    if (!mounted) return;
+    r.fold(
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not delete video')),
+        );
+      },
+      (_) {
+        Navigator.pop(context);
+        widget.onVideoChanged?.call();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Video deleted')),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -86,6 +249,26 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                     controller: scrollController,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
+                      _OptionTile(
+                        icon: Icons.edit_outlined,
+                        label: 'Edit highlight',
+                        subtitle: 'Title, description, privacy, drill type',
+                        color: AppColors.primaryGreen,
+                        onTap: _editVideo,
+                      ),
+                      _OptionTile(
+                        icon: Icons.delete_outline_rounded,
+                        label: 'Delete video',
+                        subtitle: 'Remove from Goal Connect',
+                        color: Colors.redAccent,
+                        onTap: _deleteVideo,
+                      ),
+                      Divider(
+                        height: 1,
+                        indent: 20,
+                        endIndent: 20,
+                        color: Colors.white.withOpacity(0.06),
+                      ),
                       _OptionTile(
                         icon: Icons.bookmark_outline_rounded,
                         label: 'Save Video',
@@ -123,11 +306,11 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                       ),
                       _OptionTile(
                         icon: Icons.person_remove_outlined,
-                        label: 'Unfollow @${widget.playerUsername}',
+                        label: 'Unfollow @${widget.highlight.player.username}',
                         subtitle: 'Stop seeing their highlights',
                         color: Colors.amber,
                         onTap: () => _handleOption(
-                            'Unfollowed @${widget.playerUsername}'),
+                            'Unfollowed @${widget.highlight.player.username}'),
                       ),
                       _OptionTile(
                         icon: Icons.flag_outlined,
@@ -138,11 +321,11 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                       ),
                       _OptionTile(
                         icon: Icons.block_rounded,
-                        label: 'Block @${widget.playerUsername}',
+                        label: 'Block @${widget.highlight.player.username}',
                         subtitle: 'They won\'t be able to see your profile',
                         color: Colors.red,
                         onTap: () => _handleOption(
-                            'Blocked @${widget.playerUsername}'),
+                            'Blocked @${widget.highlight.player.username}'),
                       ),
                     ],
                   ),
@@ -221,11 +404,11 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
       }
 
       final fileName =
-          'highlight_${widget.highlightId}_${DateTime.now().millisecondsSinceEpoch}.mp4';
+          'highlight_${widget.highlight.id}_${DateTime.now().millisecondsSinceEpoch}.mp4';
       final savePath = '${downloadsDir.path}/$fileName';
 
       final dio = Dio();
-      await dio.download(widget.videoUrl, savePath);
+      await dio.download(widget.highlight.videoUrl, savePath);
 
       if (context.mounted) {
         _showToast(context, 'Video saved to GoalConnect folder');
@@ -253,7 +436,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _ReportSheet(
-        highlightId: widget.highlightId,
+        highlightId: widget.highlight.id,
         onReport: (reason) {
           final overlay = Overlay.of(context);
           final entry = OverlayEntry(

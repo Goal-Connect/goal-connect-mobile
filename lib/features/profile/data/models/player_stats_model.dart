@@ -45,6 +45,33 @@ class PlayerStatsModel extends PlayerStats {
     return int.tryParse(v?.toString() ?? '') ?? fallback;
   }
 
+  factory PlayerStatsModel.fromFlatPlayerApi(Map<String, dynamic> p) {
+    final footRaw = p['strongFoot']?.toString() ?? 'right';
+    final footLabel = footRaw.isEmpty
+        ? 'Right'
+        : '${footRaw[0].toUpperCase()}${footRaw.length > 1 ? footRaw.substring(1) : ''}';
+    String? club;
+    final academy = p['academy'];
+    if (academy is Map) {
+      club = academy['name']?.toString();
+    }
+    return PlayerStatsModel(
+      pace: 50,
+      shooting: 50,
+      passing: 50,
+      dribbling: 50,
+      defending: 50,
+      physical: 50,
+      preferredFoot: footLabel,
+      heightCm: _asInt(p['height'], 170),
+      weightKg: _asInt(p['weight'], 65),
+      currentClub: club,
+      matchesPlayed: _asInt(p['totalMatches'], 0),
+      goals: _asInt(p['totalGoals'], 0),
+      assists: _asInt(p['totalAssists'], 0),
+    );
+  }
+
   /// Fallback when API omits stats block.
   factory PlayerStatsModel.defaults() {
     return PlayerStatsModel(

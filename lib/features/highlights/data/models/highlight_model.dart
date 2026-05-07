@@ -8,8 +8,15 @@ class HighlightModel extends Highlight {
     required super.videoUrl,
     required super.caption,
     required super.likes,
+    super.likedUserIds,
     super.commentCount,
     required super.createdAt,
+    super.description,
+    super.privacy,
+    super.drillType,
+    super.videoType,
+    super.thumbnailUrl,
+    super.uploadedById,
   });
 
   factory HighlightModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +39,20 @@ class HighlightModel extends Highlight {
     );
   }
 
+  static List<String> _parseLikeIds(dynamic likesRaw) {
+    if (likesRaw is List) {
+      return likesRaw.map((e) => e.toString()).toList();
+    }
+    return [];
+  }
+
+  static int _parseLikeCount(dynamic likesRaw, dynamic likesCountRaw) {
+    if (likesRaw is List) return likesRaw.length;
+    if (likesCountRaw is int) return likesCountRaw;
+    if (likesRaw is int) return likesRaw;
+    return int.tryParse(likesCountRaw?.toString() ?? '') ?? 0;
+  }
+
   /// One item from `GET /videos/feed` (wrapped `video` + `player` + `academy`).
   factory HighlightModel.fromFeedItemMap(Map<String, dynamic> json) {
     final videoRaw = json['video'];
@@ -50,11 +71,8 @@ class HighlightModel extends Highlight {
         : (description.isNotEmpty ? description : 'Highlight');
 
     final likesRaw = v['likes'];
-    final likeCount = likesRaw is List
-        ? likesRaw.length
-        : (likesRaw is int
-            ? likesRaw
-            : int.tryParse(likesRaw?.toString() ?? '') ?? 0);
+    final likeCount = _parseLikeCount(likesRaw, v['likesCount']);
+    final likedIds = _parseLikeIds(likesRaw);
 
     var createdAt = DateTime.now();
     final createdRaw = v['createdAt'] ?? json['createdAt'];
@@ -75,6 +93,13 @@ class HighlightModel extends Highlight {
         ? videoId
         : (json['_id'] ?? json['id'])?.toString() ?? '';
 
+    final uploadedBy = v['uploadedBy'];
+    final uploadedById = uploadedBy == null
+        ? null
+        : (uploadedBy is String ? uploadedBy : uploadedBy.toString());
+
+    final thumb = v['thumbnailUrl'] as String? ?? '';
+
     return HighlightModel(
       id: id.isEmpty ? 'unknown' : id,
       player: User(
@@ -90,12 +115,21 @@ class HighlightModel extends Highlight {
       videoUrl: v['videoUrl'] as String? ?? '',
       caption: caption,
       likes: likeCount,
-      commentCount: 0,
+      likedUserIds: likedIds,
+      commentCount: int.tryParse(v['commentsCount']?.toString() ?? '') ??
+          int.tryParse(json['commentsCount']?.toString() ?? '') ??
+          0,
       createdAt: createdAt,
+      description: description.isEmpty ? null : description,
+      privacy: v['privacy'] as String?,
+      drillType: v['drillType'] as String?,
+      videoType: v['videoType'] as String?,
+      thumbnailUrl: thumb.isEmpty ? null : thumb,
+      uploadedById: uploadedById,
     );
   }
 
-  /// One item from `GET /videos` or `data` from `POST /videos` (see README).
+  /// One item from `GET /players/.../videos` or `data` from `POST /videos`.
   factory HighlightModel.fromVideoApiMap(Map<String, dynamic> json) {
     final id = (json['_id'] ?? json['id'])?.toString() ?? '';
     final playerRef = json['player'];
@@ -109,15 +143,20 @@ class HighlightModel extends Highlight {
         : (description.isNotEmpty ? description : 'Highlight');
     final videoUrl = json['videoUrl'] as String? ?? '';
     final thumbnailUrl = json['thumbnailUrl'] as String? ?? '';
-    final views = json['views'];
-    final likes = views is int
-        ? views
-        : int.tryParse(views?.toString() ?? '') ?? 0;
+    final likesRaw = json['likes'];
+    final likesCount = _parseLikeCount(likesRaw, json['likesCount']);
+    final likedIds = _parseLikeIds(likesRaw);
     DateTime createdAt = DateTime.now();
     final createdRaw = json['createdAt'];
     if (createdRaw != null) {
       createdAt = DateTime.tryParse(createdRaw.toString()) ?? createdAt;
     }
+
+    final uploadedBy = json['uploadedBy'];
+    final uploadedById = uploadedBy == null
+        ? null
+        : (uploadedBy is String ? uploadedBy : uploadedBy.toString());
+
     return HighlightModel(
       id: id,
       player: User(
@@ -132,9 +171,16 @@ class HighlightModel extends Highlight {
       ),
       videoUrl: videoUrl,
       caption: caption,
-      likes: likes,
+      likes: likesCount,
+      likedUserIds: likedIds,
       commentCount: 0,
       createdAt: createdAt,
+      description: description.isEmpty ? null : description,
+      privacy: json['privacy'] as String?,
+      drillType: json['drillType'] as String?,
+      videoType: json['videoType'] as String?,
+      thumbnailUrl: thumbnailUrl.isEmpty ? null : thumbnailUrl,
+      uploadedById: uploadedById,
     );
   }
 

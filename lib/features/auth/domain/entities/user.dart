@@ -9,6 +9,9 @@ class User {
   final int age;
   final String country;
 
+  /// Football profile document id from `GET /auth/me` → `profile.id` (for `GET /players/:id`).
+  final String? playerProfileId;
+
   User({
     required this.id,
     required this.email,
@@ -18,6 +21,7 @@ class User {
     required this.position,
     required this.age,
     required this.country,
+    this.playerProfileId,
   });
   
 }

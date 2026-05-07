@@ -9,17 +9,13 @@ class AddCommentUsecase {
 
   Future<Either<Failure, Comment>> call({
     required String highlightId,
-    required String userId,
-    required String username,
-    required String? profileImage,
     required String text,
+    String? parentCommentId,
   }) {
     return repository.addComment(
       highlightId: highlightId,
-      userId: userId,
-      username: username,
-      profileImage: profileImage,
       text: text,
+      parentCommentId: parentCommentId,
     );
   }
 }

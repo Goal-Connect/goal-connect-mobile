@@ -18,6 +18,17 @@ class PlayerProfileModel extends PlayerProfile {
     required super.totalLikes,
     required super.isFollowing,
     super.stats,
+    super.listingStatus = '',
+    super.verificationStatus = '',
+    super.availabilityStatus = '',
+    super.academyName,
+    super.academyRegion,
+    super.secondaryPosition = '',
+    super.jerseyNumber = 0,
+    super.strongFoot = '',
+    super.yellowCards = 0,
+    super.redCards = 0,
+    super.isAgeVerified = false,
   });
 
   factory PlayerProfileModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +50,17 @@ class PlayerProfileModel extends PlayerProfile {
       stats: json['stats'] != null
           ? PlayerStatsModel.fromJson(json['stats'] as Map<String, dynamic>)
           : null,
+      listingStatus: json['listingStatus'] as String? ?? '',
+      verificationStatus: json['verificationStatus'] as String? ?? '',
+      availabilityStatus: json['availabilityStatus'] as String? ?? '',
+      academyName: json['academyName'] as String?,
+      academyRegion: json['academyRegion'] as String?,
+      secondaryPosition: json['secondaryPosition'] as String? ?? '',
+      jerseyNumber: json['jerseyNumber'] as int? ?? 0,
+      strongFoot: json['strongFoot'] as String? ?? '',
+      yellowCards: json['yellowCards'] as int? ?? 0,
+      redCards: json['redCards'] as int? ?? 0,
+      isAgeVerified: json['isAgeVerified'] as bool? ?? false,
     );
   }
 
@@ -61,7 +83,7 @@ class PlayerProfileModel extends PlayerProfile {
     };
   }
 
-  /// `GET /players/{id}` — supports `{ success, data }` or nested `user` / `profile`.
+  /// `GET /players/{id}` — `{ success, data }` with flat player document or nested `user` / `profile`.
   factory PlayerProfileModel.fromPlayersEndpoint(dynamic body) {
     if (body is! Map) {
       throw const FormatException('Invalid player response');
@@ -72,6 +94,14 @@ class PlayerProfileModel extends PlayerProfile {
       payload = Map<String, dynamic>.from(root['data'] as Map);
     } else {
       payload = root;
+    }
+
+    final flatPlayerDoc = payload['user'] == null &&
+        (payload.containsKey('fullName') ||
+            payload.containsKey('profileImageUrl') ||
+            payload.containsKey('nationality'));
+    if (flatPlayerDoc) {
+      return PlayerProfileModel._fromFlatPlayerPayload(payload);
     }
 
     Map<String, dynamic> u;
@@ -96,17 +126,23 @@ class PlayerProfileModel extends PlayerProfile {
         ? fullName.trim()
         : (u['username'] as String? ??
             (email.contains('@') ? email.split('@').first : id));
-    final image = (prof?['avatarUrl'] ??
+    final image = (prof?['profileImageUrl'] ??
+            prof?['avatarUrl'] ??
             prof?['profileImage'] ??
             u['profileImage'] ??
             u['avatarUrl'])
         ?.toString() ??
         '';
     final position =
-        prof?['position'] as String? ?? u['position'] as String? ?? 'Player';
+        prof?['primaryPosition'] as String? ??
+            prof?['position'] as String? ??
+            u['position'] as String? ??
+            'Player';
     final age = PlayerProfileModel._asInt(u['age'], prof?['age'], 0);
-    final country =
-        prof?['country'] as String? ?? u['country'] as String? ?? '';
+    final country = prof?['nationality'] as String? ??
+        prof?['country'] as String? ??
+        u['country'] as String? ??
+        '';
     final bio = prof?['bio'] as String? ?? u['bio'] as String?;
 
     final highlightsCount = PlayerProfileModel._asInt(
@@ -155,6 +191,72 @@ class PlayerProfileModel extends PlayerProfile {
       totalLikes: totalLikes,
       isFollowing: isFollowing,
       stats: stats,
+    );
+  }
+
+  /// `GET /players/:id` when `data` is the player document (same shape as embedded profile).
+  static PlayerProfileModel _fromFlatPlayerPayload(Map<String, dynamic> p) {
+    final id = p['id']?.toString() ?? p['_id']?.toString() ?? '';
+    final fullName = p['fullName'] as String? ?? '';
+    final username = fullName.trim().isNotEmpty ? fullName.trim() : id;
+    final image = p['profileImageUrl']?.toString() ?? '';
+    final position = p['primaryPosition'] as String? ??
+        p['position'] as String? ??
+        '';
+    final age = PlayerProfileModel._asInt(p['age'], null, 0);
+    final country = p['nationality'] as String? ?? '';
+    final bio = p['bio'] as String?;
+
+    final videos = p['videos'];
+    final highlightsCount = videos is List ? videos.length : 0;
+
+    String? academyName;
+    String? academyRegion;
+    final academy = p['academy'];
+    if (academy is Map) {
+      final am = Map<String, dynamic>.from(academy);
+      academyName = am['name']?.toString();
+      academyRegion = am['region']?.toString();
+    }
+
+    var yellow = 0;
+    var red = 0;
+    final disc = p['disciplinaryRecord'];
+    if (disc is Map) {
+      final dm = Map<String, dynamic>.from(disc);
+      yellow = PlayerProfileModel._asInt(dm['yellowCards'], null, 0);
+      red = PlayerProfileModel._asInt(dm['redCards'], null, 0);
+    }
+
+    final stats = PlayerStatsModel.fromFlatPlayerApi(p);
+
+    return PlayerProfileModel(
+      id: id,
+      username: username,
+      email: '',
+      role: 'player',
+      profileImage: image,
+      position: position.isEmpty ? 'Player' : position,
+      age: age,
+      country: country,
+      bio: bio,
+      highlightsCount: highlightsCount,
+      followersCount: 0,
+      followingCount: 0,
+      totalLikes: 0,
+      isFollowing: false,
+      stats: stats,
+      listingStatus: p['status']?.toString() ?? '',
+      verificationStatus: p['verificationStatus']?.toString() ?? '',
+      availabilityStatus: p['availabilityStatus']?.toString() ?? '',
+      academyName: academyName,
+      academyRegion: academyRegion,
+      secondaryPosition: p['secondaryPosition'] as String? ?? '',
+      jerseyNumber: PlayerProfileModel._asInt(p['jerseyNumber'], null, 0),
+      strongFoot: p['strongFoot']?.toString() ?? '',
+      yellowCards: yellow,
+      redCards: red,
+      isAgeVerified: p['isAgeVerified'] as bool? ?? false,
     );
   }
 

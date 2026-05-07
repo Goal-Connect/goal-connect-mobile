@@ -29,27 +29,20 @@ void main() {
   test('should return created comment on success', () async {
     when(() => mockRepository.addComment(
           highlightId: any(named: 'highlightId'),
-          userId: any(named: 'userId'),
-          username: any(named: 'username'),
-          profileImage: any(named: 'profileImage'),
           text: any(named: 'text'),
+          parentCommentId: any(named: 'parentCommentId'),
         )).thenAnswer((_) async => Right(tComment));
 
     final result = await usecase(
       highlightId: 'h1',
-      userId: 'u1',
-      username: 'testuser',
-      profileImage: 'https://example.com/avatar.jpg',
       text: 'Nice highlight!',
     );
 
     expect(result, Right(tComment));
     verify(() => mockRepository.addComment(
           highlightId: 'h1',
-          userId: 'u1',
-          username: 'testuser',
-          profileImage: 'https://example.com/avatar.jpg',
           text: 'Nice highlight!',
+          parentCommentId: null,
         )).called(1);
     verifyNoMoreInteractions(mockRepository);
   });
@@ -57,17 +50,12 @@ void main() {
   test('should return ServerFailure when adding comment fails', () async {
     when(() => mockRepository.addComment(
           highlightId: any(named: 'highlightId'),
-          userId: any(named: 'userId'),
-          username: any(named: 'username'),
-          profileImage: any(named: 'profileImage'),
           text: any(named: 'text'),
+          parentCommentId: any(named: 'parentCommentId'),
         )).thenAnswer((_) async => Left(ServerFailure()));
 
     final result = await usecase(
       highlightId: 'h1',
-      userId: 'u1',
-      username: 'testuser',
-      profileImage: null,
       text: 'Test comment',
     );
 
@@ -78,29 +66,23 @@ void main() {
     );
   });
 
-  test('should pass null profileImage correctly', () async {
+  test('should pass parentCommentId when replying', () async {
     when(() => mockRepository.addComment(
           highlightId: any(named: 'highlightId'),
-          userId: any(named: 'userId'),
-          username: any(named: 'username'),
-          profileImage: any(named: 'profileImage'),
           text: any(named: 'text'),
+          parentCommentId: any(named: 'parentCommentId'),
         )).thenAnswer((_) async => Right(tComment));
 
     await usecase(
       highlightId: 'h1',
-      userId: 'u1',
-      username: 'testuser',
-      profileImage: null,
-      text: 'A comment',
+      text: 'A reply',
+      parentCommentId: 'parent1',
     );
 
     verify(() => mockRepository.addComment(
           highlightId: 'h1',
-          userId: 'u1',
-          username: 'testuser',
-          profileImage: null,
-          text: 'A comment',
+          text: 'A reply',
+          parentCommentId: 'parent1',
         )).called(1);
   });
 }

@@ -17,6 +17,19 @@ class PlayerProfile {
   final bool isFollowing;
   final PlayerStats? stats;
 
+  /// `GET /players/:id` — `status` (e.g. active).
+  final String listingStatus;
+  final String verificationStatus;
+  final String availabilityStatus;
+  final String? academyName;
+  final String? academyRegion;
+  final String secondaryPosition;
+  final int jerseyNumber;
+  final String strongFoot;
+  final int yellowCards;
+  final int redCards;
+  final bool isAgeVerified;
+
   PlayerProfile({
     required this.id,
     required this.username,
@@ -33,6 +46,17 @@ class PlayerProfile {
     required this.totalLikes,
     required this.isFollowing,
     this.stats,
+    this.listingStatus = '',
+    this.verificationStatus = '',
+    this.availabilityStatus = '',
+    this.academyName,
+    this.academyRegion,
+    this.secondaryPosition = '',
+    this.jerseyNumber = 0,
+    this.strongFoot = '',
+    this.yellowCards = 0,
+    this.redCards = 0,
+    this.isAgeVerified = false,
   });
 
   bool get isPlayer => role == 'player';

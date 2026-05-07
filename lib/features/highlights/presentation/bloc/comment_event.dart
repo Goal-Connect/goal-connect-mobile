@@ -15,26 +15,39 @@ class GetCommentsEvent extends CommentEvent {
 
 class AddCommentEvent extends CommentEvent {
   final String highlightId;
-  final String userId;
-  final String username;
-  final String? profileImage;
   final String text;
+  final String? parentCommentId;
 
   const AddCommentEvent({
     required this.highlightId,
-    required this.userId,
-    required this.username,
-    this.profileImage,
     required this.text,
+    this.parentCommentId,
   });
 
   @override
-  List<Object?> get props => [highlightId, userId, text];
+  List<Object?> get props => [highlightId, text, parentCommentId];
 }
 
 class DeleteCommentEvent extends CommentEvent {
+  final String highlightId;
   final String commentId;
-  const DeleteCommentEvent(this.commentId);
+  const DeleteCommentEvent({
+    required this.highlightId,
+    required this.commentId,
+  });
   @override
-  List<Object?> get props => [commentId];
+  List<Object?> get props => [highlightId, commentId];
+}
+
+class ToggleCommentLikeEvent extends CommentEvent {
+  final String highlightId;
+  final String commentId;
+
+  const ToggleCommentLikeEvent({
+    required this.highlightId,
+    required this.commentId,
+  });
+
+  @override
+  List<Object?> get props => [highlightId, commentId];
 }
