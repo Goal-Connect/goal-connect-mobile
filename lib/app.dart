@@ -15,6 +15,7 @@ import 'package:goal_connect/features/auth/presentation/bloc/auth_event.dart';
 import 'package:goal_connect/features/auth/presentation/bloc/auth_state.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_bloc.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/highlight_feed_page.dart';
+import 'package:goal_connect/features/chat/data/services/chat_socket_service.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/players_search_page.dart';
@@ -23,7 +24,7 @@ import 'package:goal_connect/features/highlights/presentation/bloc/highlight_eve
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_status_usecase.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
-import 'injection_container.dart';
+import 'package:goal_connect/injection_container.dart';
 import 'package:goal_connect/features/profile/presentation/pages/player_profile_page.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/player_search_bloc.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/player_search_event.dart';
@@ -161,6 +162,11 @@ class _MainPageState extends State<MainPage> {
       listener: (context, state) {
         if (state is! AuthAuthenticated && _selectedTab != 0) {
           setState(() => _selectedTab = 0);
+        }
+        if (state is AuthAuthenticated) {
+          sl<ChatSocketService>().connect();
+        } else {
+          sl<ChatSocketService>().disconnect();
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(

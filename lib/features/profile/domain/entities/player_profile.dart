@@ -2,6 +2,9 @@ import 'player_stats.dart';
 
 class PlayerProfile {
   final String id;
+
+  /// Auth user id (`users` document) when distinct from [id] (e.g. list payload has `user`).
+  final String? userId;
   final String username;
   final String email;
   final String role;
@@ -32,6 +35,7 @@ class PlayerProfile {
 
   PlayerProfile({
     required this.id,
+    this.userId,
     required this.username,
     required this.email,
     required this.role,
@@ -60,4 +64,7 @@ class PlayerProfile {
   });
 
   bool get isPlayer => role == 'player';
+
+  /// User id to use for `GET/POST /messages` (peer account id).
+  String get messagingUserId => userId ?? id;
 }

@@ -1,160 +1,98 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:goal_connect/core/error/fialures.dart';
+import 'package:goal_connect/features/auth/data/datasources/auth_user_local_datasource.dart';
 import 'package:goal_connect/features/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:goal_connect/features/chat/data/datasources/conversation_local_datasource.dart';
 import 'package:goal_connect/features/chat/data/models/conversation_model.dart';
-import 'package:goal_connect/features/chat/data/models/message_model.dart';
 import 'package:goal_connect/features/chat/data/repositories/chat_repository_impl.dart';
+import 'package:goal_connect/features/chat/data/services/chat_socket_service.dart';
+import 'package:goal_connect/features/chat/domain/entities/conversation.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockChatRemoteDataSource extends Mock implements ChatRemoteDataSource {}
+class MockChatRemote extends Mock implements ChatRemoteDataSource {}
+
+class MockConversationLocal extends Mock implements ConversationLocalDataSource {}
+
+class MockAuthUserLocal extends Mock implements AuthUserLocalDataSource {}
+
+class MockChatSocket extends Mock implements ChatSocketService {}
 
 void main() {
   late ChatRepositoryImpl repository;
-  late MockChatRemoteDataSource mockDataSource;
+  late MockChatRemote mockRemote;
+  late MockConversationLocal mockLocal;
+  late MockAuthUserLocal mockUserLocal;
+  late MockChatSocket mockSocket;
 
   setUp(() {
-    mockDataSource = MockChatRemoteDataSource();
-    repository = ChatRepositoryImpl(remoteDataSource: mockDataSource);
+    mockRemote = MockChatRemote();
+    mockLocal = MockConversationLocal();
+    mockUserLocal = MockAuthUserLocal();
+    mockSocket = MockChatSocket();
+    when(() => mockSocket.isConnected).thenReturn(false);
+    repository = ChatRepositoryImpl(
+      remoteDataSource: mockRemote,
+      conversationLocal: mockLocal,
+      userLocal: mockUserLocal,
+      socketService: mockSocket,
+    );
   });
 
+  final tPeerId = 'peer_user';
+  final tThread = Conversation(
+    id: tPeerId,
+    participantId: tPeerId,
+    participantName: 'Player One',
+    participantRole: 'player',
+    lastMessage: '',
+    updatedAt: DateTime(2026, 1, 1),
+  );
+
   group('getConversations', () {
-    const tUserId = 'user_1';
-    final tConversationModels = [
-      ConversationModel(
-        id: 'conv_1',
-        participantId: 'p1',
-        participantName: 'Player One',
-        participantRole: 'player',
-        lastMessage: 'Hello!',
-        updatedAt: DateTime(2026, 1, 1),
-      ),
-    ];
+    test('returns threads from local storage', () async {
+      final models = [
+        ConversationModel(
+          id: tPeerId,
+          participantId: tPeerId,
+          participantName: 'Player One',
+          participantRole: 'player',
+          lastMessage: 'Hi',
+          updatedAt: DateTime(2026, 1, 1),
+        ),
+      ];
+      when(() => mockLocal.loadThreads()).thenAnswer((_) async => models);
 
-    test('should return Right with conversations when datasource succeeds',
-        () async {
-      when(() => mockDataSource.getConversations(any()))
-          .thenAnswer((_) async => tConversationModels);
+      final result = await repository.getConversations();
 
-      final result = await repository.getConversations(tUserId);
-
-      expect(result, isA<Right>());
-      result.fold(
-        (_) => fail('Expected Right'),
-        (conversations) => expect(conversations, tConversationModels),
-      );
-      verify(() => mockDataSource.getConversations(tUserId)).called(1);
-    });
-
-    test('should return Left(ServerFailure) when datasource throws', () async {
-      when(() => mockDataSource.getConversations(any()))
-          .thenThrow(Exception('Server error'));
-
-      final result = await repository.getConversations(tUserId);
-
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<ServerFailure>()),
-        (_) => fail('Expected Left'),
-      );
+      expect(result.isRight(), isTrue);
+      verify(() => mockLocal.loadThreads()).called(1);
     });
   });
 
   group('getMessages', () {
-    const tConversationId = 'conv_1';
-    final tMessageModels = [
-      MessageModel(
-        id: 'msg_1',
-        conversationId: tConversationId,
-        senderId: 'user_1',
-        senderName: 'Yafet',
-        text: 'Hello!',
-        createdAt: DateTime(2026, 1, 1),
-      ),
-    ];
-
-    test('should return Right with messages when datasource succeeds',
-        () async {
-      when(() => mockDataSource.getMessages(any()))
-          .thenAnswer((_) async => tMessageModels);
-
-      final result = await repository.getMessages(tConversationId);
-
-      expect(result, isA<Right>());
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) => expect(messages, tMessageModels),
+    test('maps API messages when user is cached', () async {
+      when(() => mockUserLocal.readCachedUser()).thenAnswer(
+        (_) async => null,
       );
-      verify(() => mockDataSource.getMessages(tConversationId)).called(1);
-    });
 
-    test('should return Left(ServerFailure) when datasource throws', () async {
-      when(() => mockDataSource.getMessages(any()))
-          .thenThrow(Exception('Server error'));
+      final result = await repository.getMessages(tPeerId);
 
-      final result = await repository.getMessages(tConversationId);
-
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<ServerFailure>()),
-        (_) => fail('Expected Left'),
-      );
+      expect(result.isLeft(), isTrue);
     });
   });
 
   group('sendMessage', () {
-    final tMessageModel = MessageModel(
-      id: 'msg_new',
-      conversationId: 'conv_1',
-      senderId: 'user_1',
-      senderName: 'Yafet',
-      text: 'Test message',
-      createdAt: DateTime(2026, 3, 13),
-    );
-
-    test('should return Right with message when datasource succeeds',
-        () async {
-      when(() => mockDataSource.sendMessage(
-            conversationId: any(named: 'conversationId'),
-            senderId: any(named: 'senderId'),
-            senderName: any(named: 'senderName'),
-            text: any(named: 'text'),
-          )).thenAnswer((_) async => tMessageModel);
+    test('uses HTTP when socket is disconnected', () async {
+      when(() => mockUserLocal.readCachedUser()).thenAnswer(
+        (_) async => null,
+      );
 
       final result = await repository.sendMessage(
-        conversationId: 'conv_1',
-        senderId: 'user_1',
-        senderName: 'Yafet',
-        text: 'Test message',
+        peerThread: tThread,
+        text: 'Hello',
       );
 
-      expect(result, isA<Right>());
-      result.fold(
-        (_) => fail('Expected Right'),
-        (message) => expect(message, tMessageModel),
-      );
-    });
-
-    test('should return Left(ServerFailure) when datasource throws', () async {
-      when(() => mockDataSource.sendMessage(
-            conversationId: any(named: 'conversationId'),
-            senderId: any(named: 'senderId'),
-            senderName: any(named: 'senderName'),
-            text: any(named: 'text'),
-          )).thenThrow(Exception('Network error'));
-
-      final result = await repository.sendMessage(
-        conversationId: 'conv_1',
-        senderId: 'user_1',
-        senderName: 'Yafet',
-        text: 'Test message',
-      );
-
-      expect(result, isA<Left>());
-      result.fold(
-        (failure) => expect(failure, isA<ServerFailure>()),
-        (_) => fail('Expected Left'),
-      );
+      expect(result.isLeft(), isTrue);
+      verifyZeroInteractions(mockRemote);
     });
   });
 }

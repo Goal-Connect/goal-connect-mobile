@@ -17,7 +17,6 @@ void main() {
     usecase = GetConversationsUsecase(mockRepository);
   });
 
-  final tUserId = 'user_1';
   final tConversations = [
     Conversation(
       id: 'conv_1',
@@ -39,37 +38,37 @@ void main() {
   ];
 
   test('should return list of conversations on success', () async {
-    when(() => mockRepository.getConversations(any()))
+    when(() => mockRepository.getConversations())
         .thenAnswer((_) async => Right(tConversations));
 
-    final result = await usecase(tUserId);
+    final result = await usecase();
 
     expect(result, Right(tConversations));
-    verify(() => mockRepository.getConversations(tUserId)).called(1);
+    verify(() => mockRepository.getConversations()).called(1);
     verifyNoMoreInteractions(mockRepository);
   });
 
   test('should return ServerFailure when repository fails', () async {
-    when(() => mockRepository.getConversations(any()))
+    when(() => mockRepository.getConversations())
         .thenAnswer((_) async => Left(ServerFailure()));
 
-    final result = await usecase(tUserId);
+    final result = await usecase();
 
     expect(result, isA<Left>());
     result.fold(
       (failure) => expect(failure, isA<ServerFailure>()),
       (_) => fail('Expected Left'),
     );
-    verify(() => mockRepository.getConversations(tUserId)).called(1);
+    verify(() => mockRepository.getConversations()).called(1);
   });
 
   test('should return empty list when no conversations exist', () async {
-    when(() => mockRepository.getConversations(any()))
+    when(() => mockRepository.getConversations())
         .thenAnswer((_) async => const Right([]));
 
-    final result = await usecase(tUserId);
+    final result = await usecase();
 
     expect(result, const Right(<Conversation>[]));
-    verify(() => mockRepository.getConversations(tUserId)).called(1);
+    verify(() => mockRepository.getConversations()).called(1);
   });
 }

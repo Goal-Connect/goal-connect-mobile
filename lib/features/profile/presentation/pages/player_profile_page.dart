@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection_container.dart';
-import '../../../chat/presentation/bloc/chat_bloc.dart';
 import '../../../chat/presentation/pages/conversation_page.dart';
 import '../../../chat/domain/entities/conversation.dart';
 import '../../../highlights/presentation/bloc/highlight_bloc.dart';
@@ -502,9 +501,10 @@ class _PlayerProfileView extends StatelessWidget {
   }
 
   void _initiateChat(BuildContext context, PlayerProfile profile) {
+    final peerId = profile.messagingUserId;
     final conversation = Conversation(
-      id: 'conv_${profile.id}',
-      participantId: profile.id,
+      id: peerId,
+      participantId: peerId,
       participantName: profile.username,
       participantImage: profile.profileImage,
       participantRole: profile.role,
@@ -513,11 +513,8 @@ class _PlayerProfileView extends StatelessWidget {
     );
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) => sl<ChatBloc>(),
-          child: ConversationPage(conversation: conversation),
-        ),
+      MaterialPageRoute<void>(
+        builder: (_) => ConversationPage(conversation: conversation),
       ),
     );
   }

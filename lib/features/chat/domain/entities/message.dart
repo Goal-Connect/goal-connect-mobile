@@ -2,6 +2,7 @@ class Message {
   final String id;
   final String conversationId;
   final String senderId;
+  final String? receiverId;
   final String senderName;
   final String text;
   final DateTime createdAt;
@@ -11,6 +12,7 @@ class Message {
     required this.id,
     required this.conversationId,
     required this.senderId,
+    this.receiverId,
     required this.senderName,
     required this.text,
     required this.createdAt,

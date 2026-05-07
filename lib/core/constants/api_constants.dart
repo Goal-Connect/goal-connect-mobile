@@ -44,4 +44,20 @@ abstract final class ApiConstants {
   /// `GET /players/{id}/videos` (see README).
   static String playerVideosPath(String playerId) =>
       '/players/$playerId/videos';
+
+  /// `POST /messages` — direct message (HTTP fallback).
+  static const String messages = '/messages';
+
+  /// `GET /messages/{userId}` — full thread with that user (oldest first).
+  static String messagesWithUserPath(String userId) => '/messages/$userId';
+
+  /// Socket.IO origin (no `/api` path). Example: `https://host:443`
+  static String get socketBaseUrl {
+    final u = Uri.parse(baseUrl);
+    return Uri(
+      scheme: u.scheme,
+      host: u.host,
+      port: u.hasPort ? u.port : null,
+    ).toString();
+  }
 }

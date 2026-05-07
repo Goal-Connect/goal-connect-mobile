@@ -52,7 +52,9 @@ import 'features/highlights/presentation/bloc/comment_bloc.dart';
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
 import 'features/chat/data/datasources/chat_remote_datasource.dart';
+import 'features/chat/data/datasources/conversation_local_datasource.dart';
 import 'features/chat/data/repositories/chat_repository_impl.dart';
+import 'features/chat/data/services/chat_socket_service.dart';
 import 'features/chat/domain/repositories/chat_repository.dart';
 import 'features/chat/domain/usecases/get_conversations_usecase.dart';
 import 'features/chat/domain/usecases/get_messages_usecase.dart';
@@ -175,20 +177,34 @@ Future<void> init() async {
   );
 
   // ── Chat ─────────────────────────────────────────────────────────────────────
+  sl.registerLazySingleton<ConversationLocalDataSource>(
+    () => ConversationLocalDataSourceImpl(prefs: sl()),
+  );
   sl.registerLazySingleton<ChatRemoteDataSource>(
-    () => MockChatRemoteDataSource(),
+    () => ChatRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<ChatSocketService>(
+    () => ChatSocketService(tokens: sl()),
   );
   sl.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(remoteDataSource: sl()),
+    () => ChatRepositoryImpl(
+      remoteDataSource: sl(),
+      conversationLocal: sl(),
+      userLocal: sl(),
+      socketService: sl(),
+    ),
   );
   sl.registerLazySingleton(() => GetConversationsUsecase(sl()));
   sl.registerLazySingleton(() => GetMessagesUsecase(sl()));
   sl.registerLazySingleton(() => SendMessageUsecase(sl()));
-  sl.registerFactory(
+  sl.registerLazySingleton<ChatBloc>(
     () => ChatBloc(
       getConversations: sl(),
       getMessages: sl(),
       sendMessage: sl(),
+      getCachedUser: sl(),
+      chatRepository: sl(),
+      socketService: sl(),
     ),
   );
 

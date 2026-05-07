@@ -4,6 +4,7 @@ import 'player_stats_model.dart';
 class PlayerProfileModel extends PlayerProfile {
   PlayerProfileModel({
     required super.id,
+    super.userId,
     required super.username,
     required super.email,
     required super.role,
@@ -34,6 +35,7 @@ class PlayerProfileModel extends PlayerProfile {
   factory PlayerProfileModel.fromJson(Map<String, dynamic> json) {
     return PlayerProfileModel(
       id: json['id'] as String,
+      userId: json['userId'] as String?,
       username: json['username'] as String,
       email: json['email'] as String,
       role: json['role'] as String,
@@ -67,6 +69,7 @@ class PlayerProfileModel extends PlayerProfile {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      if (userId != null) 'userId': userId,
       'username': username,
       'email': email,
       'role': role,
@@ -185,6 +188,7 @@ class PlayerProfileModel extends PlayerProfile {
 
     return PlayerProfileModel(
       id: id,
+      userId: id,
       username: username,
       email: email,
       role: role,
@@ -240,6 +244,7 @@ class PlayerProfileModel extends PlayerProfile {
 
     return PlayerProfileModel(
       id: id,
+      userId: p['user']?.toString(),
       username: username,
       email: '',
       role: 'player',

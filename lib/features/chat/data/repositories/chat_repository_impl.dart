@@ -1,31 +1,66 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/fialures.dart';
+import '../../../auth/data/datasources/auth_user_local_datasource.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/chat_remote_datasource.dart';
+import '../datasources/conversation_local_datasource.dart';
+import '../models/message_model.dart';
+import '../services/chat_socket_service.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
-  final ChatRemoteDataSource remoteDataSource;
-  ChatRepositoryImpl({required this.remoteDataSource});
+  ChatRepositoryImpl({
+    required ChatRemoteDataSource remoteDataSource,
+    required ConversationLocalDataSource conversationLocal,
+    required AuthUserLocalDataSource userLocal,
+    required ChatSocketService socketService,
+  })  : _remote = remoteDataSource,
+        _local = conversationLocal,
+        _userLocal = userLocal,
+        _socket = socketService;
+
+  final ChatRemoteDataSource _remote;
+  final ConversationLocalDataSource _local;
+  final AuthUserLocalDataSource _userLocal;
+  final ChatSocketService _socket;
+
+  Future<String> _peerDisplayName(String peerUserId) async {
+    final threads = await _local.loadThreads();
+    for (final t in threads) {
+      if (t.id == peerUserId) return t.participantName;
+    }
+    return 'Member';
+  }
 
   @override
-  Future<Either<Failure, List<Conversation>>> getConversations(
-      String userId) async {
+  Future<Either<Failure, List<Conversation>>> getConversations() async {
     try {
-      final result = await remoteDataSource.getConversations(userId);
-      return Right(result);
+      final threads = await _local.loadThreads();
+      return Right(threads);
     } catch (_) {
-      return Left(ServerFailure());
+      return Left(CacheFailure());
     }
   }
 
   @override
-  Future<Either<Failure, List<Message>>> getMessages(
-      String conversationId) async {
+  Future<Either<Failure, List<Message>>> getMessages(String peerUserId) async {
+    final user = await _userLocal.readCachedUser();
+    if (user == null) {
+      return Left(AuthFailure());
+    }
+    final peerName = await _peerDisplayName(peerUserId);
     try {
-      final result = await remoteDataSource.getMessages(conversationId);
-      return Right(result);
+      final list = await _remote.fetchConversation(
+        peerUserId: peerUserId,
+        currentUserId: user.id,
+        selfDisplayName: user.username,
+        peerDisplayName: peerName,
+      );
+      return Right(list);
+    } on ChatApiException catch (e) {
+      return Left(ChatFailure(e.message));
     } catch (_) {
       return Left(ServerFailure());
     }
@@ -33,21 +68,107 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<Either<Failure, Message>> sendMessage({
-    required String conversationId,
-    required String senderId,
-    required String senderName,
+    required Conversation peerThread,
     required String text,
   }) async {
+    final user = await _userLocal.readCachedUser();
+    if (user == null) {
+      return Left(AuthFailure());
+    }
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) {
+      return Left(ChatFailure('Message is empty'));
+    }
+
+    final peerUserId = peerThread.id;
+    final peerName = peerThread.participantName;
+
     try {
-      final result = await remoteDataSource.sendMessage(
-        conversationId: conversationId,
-        senderId: senderId,
-        senderName: senderName,
-        text: text,
+      MessageModel sent;
+      if (_socket.isConnected) {
+        _socket.emitSend(toUserId: peerUserId, content: trimmed);
+        sent = MessageModel(
+          id: 'pending_${DateTime.now().millisecondsSinceEpoch}',
+          conversationId: peerUserId,
+          senderId: user.id,
+          receiverId: peerUserId,
+          senderName: user.username,
+          text: trimmed,
+          createdAt: DateTime.now(),
+          isRead: false,
+        );
+      } else {
+        sent = await _remote.postDirectMessage(
+          receiverId: peerUserId,
+          content: trimmed,
+          peerUserId: peerUserId,
+          currentUserId: user.id,
+          selfDisplayName: user.username,
+          peerDisplayName: peerName,
+        );
+      }
+
+      await _local.upsertThread(
+        peerUserId: peerUserId,
+        lastMessage: trimmed,
+        updatedAt: sent.createdAt,
+        participantName: peerThread.participantName,
+        participantImage: peerThread.participantImage,
+        participantRole: peerThread.participantRole,
       );
-      return Right(result);
+
+      return Right(sent);
+    } on ChatApiException catch (e) {
+      return Left(ChatFailure(e.message));
     } catch (_) {
       return Left(ServerFailure());
     }
   }
+
+  @override
+  Message? messageFromSocketPayload(
+    Map<String, dynamic> raw, {
+    required String currentUserId,
+    required String selfDisplayName,
+    required String peerDisplayName,
+    required String peerUserId,
+  }) {
+    try {
+      return MessageModel.fromApiMap(
+        raw,
+        peerUserId: peerUserId,
+        currentUserId: currentUserId,
+        selfDisplayName: selfDisplayName,
+        peerDisplayName: peerDisplayName,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> touchThreadFromIncomingMessage(Message message, String myUserId) async {
+    final sender = message.senderId;
+    final receiver = message.receiverId;
+    String? peer;
+    if (sender == myUserId) {
+      peer = receiver;
+    } else if (receiver != null && receiver == myUserId) {
+      peer = sender;
+    } else {
+      return;
+    }
+    if (peer == null || peer.isEmpty) return;
+
+    await _local.upsertThread(
+      peerUserId: peer,
+      lastMessage: message.text,
+      updatedAt: message.createdAt,
+      unreadDelta: sender == myUserId ? 0 : 1,
+    );
+  }
+
+  @override
+  Future<String> resolvePeerDisplayName(String peerUserId) =>
+      _peerDisplayName(peerUserId);
 }

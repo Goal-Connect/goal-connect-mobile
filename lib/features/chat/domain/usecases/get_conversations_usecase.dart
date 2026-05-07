@@ -7,7 +7,7 @@ class GetConversationsUsecase {
   final ChatRepository repository;
   GetConversationsUsecase(this.repository);
 
-  Future<Either<Failure, List<Conversation>>> call(String userId) {
-    return repository.getConversations(userId);
+  Future<Either<Failure, List<Conversation>>> call() {
+    return repository.getConversations();
   }
 }

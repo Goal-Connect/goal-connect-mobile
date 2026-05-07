@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../domain/entities/conversation.dart';
+
 abstract class ChatEvent extends Equatable {
   const ChatEvent();
   @override
@@ -7,10 +9,12 @@ abstract class ChatEvent extends Equatable {
 }
 
 class GetConversationsEvent extends ChatEvent {
-  final String userId;
-  const GetConversationsEvent(this.userId);
-  @override
-  List<Object?> get props => [userId];
+  const GetConversationsEvent();
+}
+
+/// Leave thread UI — restores inbox state for the shared [ChatBloc].
+class LeaveConversationEvent extends ChatEvent {
+  const LeaveConversationEvent();
 }
 
 class GetMessagesEvent extends ChatEvent {
@@ -21,18 +25,24 @@ class GetMessagesEvent extends ChatEvent {
 }
 
 class SendMessageEvent extends ChatEvent {
-  final String conversationId;
-  final String senderId;
-  final String senderName;
+  final Conversation peerThread;
   final String text;
 
   const SendMessageEvent({
-    required this.conversationId,
-    required this.senderId,
-    required this.senderName,
+    required this.peerThread,
     required this.text,
   });
 
   @override
-  List<Object?> get props => [conversationId, senderId, text];
+  List<Object?> get props => [peerThread.id, text];
+}
+
+/// Raw Socket.IO `message:received` payload.
+class ChatSocketMessageReceivedEvent extends ChatEvent {
+  final Map<String, dynamic> raw;
+
+  const ChatSocketMessageReceivedEvent(this.raw);
+
+  @override
+  List<Object?> get props => [raw];
 }

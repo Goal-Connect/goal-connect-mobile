@@ -1,11 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_connect/core/error/fialures.dart';
+import 'package:goal_connect/features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'package:goal_connect/features/chat/domain/entities/conversation.dart';
 import 'package:goal_connect/features/chat/domain/entities/message.dart';
+import 'package:goal_connect/features/chat/domain/repositories/chat_repository.dart';
 import 'package:goal_connect/features/chat/domain/usecases/get_conversations_usecase.dart';
 import 'package:goal_connect/features/chat/domain/usecases/get_messages_usecase.dart';
 import 'package:goal_connect/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:goal_connect/features/chat/data/services/chat_socket_service.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_event.dart';
 import 'package:goal_connect/features/chat/presentation/bloc/chat_state.dart';
@@ -18,21 +21,38 @@ class MockGetMessagesUsecase extends Mock implements GetMessagesUsecase {}
 
 class MockSendMessageUsecase extends Mock implements SendMessageUsecase {}
 
+class MockGetCachedUserUsecase extends Mock implements GetCachedUserUsecase {}
+
+class MockChatRepository extends Mock implements ChatRepository {}
+
+class MockChatSocketService extends Mock implements ChatSocketService {}
+
 void main() {
   late MockGetConversationsUsecase mockGetConversations;
   late MockGetMessagesUsecase mockGetMessages;
   late MockSendMessageUsecase mockSendMessage;
+  late MockGetCachedUserUsecase mockGetCachedUser;
+  late MockChatRepository mockRepo;
+  late MockChatSocketService mockSocket;
 
   setUp(() {
     mockGetConversations = MockGetConversationsUsecase();
     mockGetMessages = MockGetMessagesUsecase();
     mockSendMessage = MockSendMessageUsecase();
+    mockGetCachedUser = MockGetCachedUserUsecase();
+    mockRepo = MockChatRepository();
+    mockSocket = MockChatSocketService();
+    when(() => mockSocket.onMessageReceived)
+        .thenAnswer((_) => const Stream.empty());
   });
 
   ChatBloc buildBloc() => ChatBloc(
         getConversations: mockGetConversations,
         getMessages: mockGetMessages,
         sendMessage: mockSendMessage,
+        getCachedUser: mockGetCachedUser,
+        chatRepository: mockRepo,
+        socketService: mockSocket,
       );
 
   final tConversations = [
@@ -45,6 +65,8 @@ void main() {
       updatedAt: DateTime(2026, 1, 1),
     ),
   ];
+
+  final tThread = tConversations.first;
 
   final tMessages = [
     Message(
@@ -66,16 +88,19 @@ void main() {
     createdAt: DateTime(2026, 3, 13),
   );
 
+  setUpAll(() {
+    registerFallbackValue(tThread);
+  });
+
   group('GetConversationsEvent', () {
     test('emits [ChatLoading, ConversationsLoaded] on success', () async {
-      when(() => mockGetConversations(any()))
-          .thenAnswer((_) async => Right(tConversations));
+      when(() => mockGetConversations()).thenAnswer((_) async => Right(tConversations));
 
       final bloc = buildBloc();
       final states = <ChatState>[];
       final sub = bloc.stream.listen(states.add);
 
-      bloc.add(const GetConversationsEvent('user_1'));
+      bloc.add(const GetConversationsEvent());
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(states, [isA<ChatLoading>(), isA<ConversationsLoaded>()]);
@@ -89,14 +114,13 @@ void main() {
     });
 
     test('emits [ChatLoading, ChatError] on failure', () async {
-      when(() => mockGetConversations(any()))
-          .thenAnswer((_) async => Left(ServerFailure()));
+      when(() => mockGetConversations()).thenAnswer((_) async => Left(ServerFailure()));
 
       final bloc = buildBloc();
       final states = <ChatState>[];
       final sub = bloc.stream.listen(states.add);
 
-      bloc.add(const GetConversationsEvent('user_1'));
+      bloc.add(const GetConversationsEvent());
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(states, [isA<ChatLoading>(), isA<ChatError>()]);
@@ -158,9 +182,7 @@ void main() {
         'emits [MessageSending, MessagesLoaded] on success from initial state',
         () async {
       when(() => mockSendMessage(
-            conversationId: any(named: 'conversationId'),
-            senderId: any(named: 'senderId'),
-            senderName: any(named: 'senderName'),
+            peerThread: any(named: 'peerThread'),
             text: any(named: 'text'),
           )).thenAnswer((_) async => Right(tSentMessage));
 
@@ -168,10 +190,8 @@ void main() {
       final states = <ChatState>[];
       final sub = bloc.stream.listen(states.add);
 
-      bloc.add(const SendMessageEvent(
-        conversationId: 'conv_1',
-        senderId: 'user_1',
-        senderName: 'Yafet',
+      bloc.add(SendMessageEvent(
+        peerThread: tThread,
         text: 'New message',
       ));
       await Future.delayed(const Duration(milliseconds: 100));
@@ -186,9 +206,7 @@ void main() {
 
     test('emits [MessageSending, ChatError] on send failure', () async {
       when(() => mockSendMessage(
-            conversationId: any(named: 'conversationId'),
-            senderId: any(named: 'senderId'),
-            senderName: any(named: 'senderName'),
+            peerThread: any(named: 'peerThread'),
             text: any(named: 'text'),
           )).thenAnswer((_) async => Left(ServerFailure()));
 
@@ -196,10 +214,8 @@ void main() {
       final states = <ChatState>[];
       final sub = bloc.stream.listen(states.add);
 
-      bloc.add(const SendMessageEvent(
-        conversationId: 'conv_1',
-        senderId: 'user_1',
-        senderName: 'Yafet',
+      bloc.add(SendMessageEvent(
+        peerThread: tThread,
         text: 'Will fail',
       ));
       await Future.delayed(const Duration(milliseconds: 100));
@@ -219,9 +235,7 @@ void main() {
       when(() => mockGetMessages(any()))
           .thenAnswer((_) async => Right(tMessages));
       when(() => mockSendMessage(
-            conversationId: any(named: 'conversationId'),
-            senderId: any(named: 'senderId'),
-            senderName: any(named: 'senderName'),
+            peerThread: any(named: 'peerThread'),
             text: any(named: 'text'),
           )).thenAnswer((_) async => Right(tSentMessage));
 
@@ -234,10 +248,8 @@ void main() {
 
       states.clear();
 
-      bloc.add(const SendMessageEvent(
-        conversationId: 'conv_1',
-        senderId: 'user_1',
-        senderName: 'Yafet',
+      bloc.add(SendMessageEvent(
+        peerThread: tThread,
         text: 'New message',
       ));
       await Future.delayed(const Duration(milliseconds: 100));

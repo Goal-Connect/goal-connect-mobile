@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../injection_container.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -17,7 +16,6 @@ class ChatListPage extends StatefulWidget {
 
 class _ChatListPageState extends State<ChatListPage>
     with SingleTickerProviderStateMixin {
-  static const String _currentUserId = 'current_user';
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   late AnimationController _fabController;
@@ -25,7 +23,7 @@ class _ChatListPageState extends State<ChatListPage>
   @override
   void initState() {
     super.initState();
-    context.read<ChatBloc>().add(const GetConversationsEvent(_currentUserId));
+    context.read<ChatBloc>().add(const GetConversationsEvent());
     _fabController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -252,7 +250,7 @@ class _ChatListPageState extends State<ChatListPage>
                 GestureDetector(
                   onTap: () => context
                       .read<ChatBloc>()
-                      .add(const GetConversationsEvent(_currentUserId)),
+                      .add(const GetConversationsEvent()),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 10),
@@ -315,7 +313,7 @@ class _ChatListPageState extends State<ChatListPage>
             onRefresh: () async {
               context
                   .read<ChatBloc>()
-                  .add(const GetConversationsEvent(_currentUserId));
+                      .add(const GetConversationsEvent());
             },
             child: ListView.separated(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 80),
@@ -337,10 +335,8 @@ class _ChatListPageState extends State<ChatListPage>
                     Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => BlocProvider(
-                          create: (_) => sl<ChatBloc>(),
-                          child: ConversationPage(conversation: conv),
-                        ),
+                        pageBuilder: (_, __, ___) =>
+                            ConversationPage(conversation: conv),
                         transitionsBuilder: (_, animation, __, child) {
                           return SlideTransition(
                             position: Tween<Offset>(
