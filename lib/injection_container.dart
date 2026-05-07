@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // ── Core ──────────────────────────────────────────────────────────────────────
 import 'core/constants/api_constants.dart';
+import 'core/network/api_logging_interceptor.dart';
 import 'core/network/auth_interceptor.dart';
 import 'core/theme/theme_cubit.dart';
 
@@ -94,6 +95,7 @@ Future<void> init() async {
       ),
     );
     dio.interceptors.add(AuthInterceptor(sl()));
+    dio.interceptors.add(ApiLoggingInterceptor());
     return dio;
   });
   sl.registerLazySingleton<AuthRemoteDataSource>(

@@ -92,7 +92,7 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  Widget get _currentPage {
+  Widget _pageForTab() {
     switch (_selectedTab) {
       case 0:
         return const HighlightFeedPage();
@@ -100,9 +100,9 @@ class _MainPageState extends State<MainPage> {
         return const ChatListPage();
       case 3:
         return BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, authState) {
+          builder: (context, state) {
             final playerId =
-                authState is AuthAuthenticated ? authState.user.id : '';
+                state is AuthAuthenticated ? state.user.id : '';
             return BlocProvider(
               key: ValueKey<String>(playerId),
               create: (_) {
@@ -132,43 +132,60 @@ class _MainPageState extends State<MainPage> {
     setState(() => _selectedTab = index);
   }
 
+  static const _navItemsFull = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.play_circle_outline_rounded),
+      activeIcon: Icon(Icons.play_circle_rounded),
+      label: 'Highlights',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.add_box_outlined),
+      activeIcon: Icon(Icons.add_box_rounded),
+      label: 'Upload',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.chat_bubble_outline_rounded),
+      activeIcon: Icon(Icons.chat_bubble_rounded),
+      label: 'Chat',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person_outline_rounded),
+      activeIcon: Icon(Icons.person_rounded),
+      label: 'Profile',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is! AuthAuthenticated && _selectedTab != 0) {
+          setState(() => _selectedTab = 0);
+        }
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          final authed = authState is AuthAuthenticated;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: _currentPage,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedTab,
-        onTap: _onTabTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        selectedItemColor: AppColors.primaryGreen,
-        unselectedItemColor: AppColors.gray,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle_outline_rounded),
-            activeIcon: Icon(Icons.play_circle_rounded),
-            label: "Highlights",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined),
-            activeIcon: Icon(Icons.add_box_rounded),
-            label: "Upload",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline_rounded),
-            activeIcon: Icon(Icons.chat_bubble_rounded),
-            label: "Chat",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline_rounded),
-            activeIcon: Icon(Icons.person_rounded),
-            label: "Profile",
-          ),
-        ],
+          return Scaffold(
+            body: authed ? _pageForTab() : const HighlightFeedPage(),
+            bottomNavigationBar: authed
+                ? BottomNavigationBar(
+                    currentIndex: _selectedTab.clamp(0, 3),
+                    onTap: _onTabTapped,
+                    type: BottomNavigationBarType.fixed,
+                    backgroundColor: isDark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurface,
+                    selectedItemColor: AppColors.primaryGreen,
+                    unselectedItemColor: AppColors.gray,
+                    showUnselectedLabels: true,
+                    items: _navItemsFull,
+                  )
+                : null,
+          );
+        },
       ),
     );
   }
