@@ -19,16 +19,16 @@ class NoInternetCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.wifi_off_rounded,
-            color: Colors.red,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(
+                  Icons.wifi_off_rounded,
+                  color: Colors.red,
+                  size: 20,
+                ),
+                const SizedBox(height: 8),
                 Text(
                   'No Internet Connection',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
