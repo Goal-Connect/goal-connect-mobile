@@ -5,6 +5,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../injection_container.dart';
 import '../bloc/comment_bloc.dart';
 import '../bloc/comment_event.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../auth/presentation/pages/login_page.dart';
 import 'comment_sheet.dart';
 import '../../../profile/presentation/pages/player_profile_page.dart';
 import 'fancy_glass_button.dart';
@@ -207,6 +210,16 @@ class VideoOverlayContent extends StatelessWidget {
   }
 
   void _openComments(BuildContext context, String highlightId) {
+    final auth = context.read<AuthBloc>().state;
+
+    if (auth is! AuthAuthenticated) {
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+      );
+      return;
+    }
+
     final future = showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,

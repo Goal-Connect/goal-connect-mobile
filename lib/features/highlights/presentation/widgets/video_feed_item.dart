@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../auth/presentation/pages/login_page.dart';
 import '../../domain/entities/highlight.dart';
 import '../../../../injection_container.dart';
 import '../../domain/usecases/toggle_like_highlight_usecase.dart';
@@ -110,8 +111,16 @@ class _VideoFeedItemState extends State<VideoFeedItem>
   Future<void> _toggleLike() async {
     HapticFeedback.mediumImpact();
     final auth = context.read<AuthBloc>().state;
-    final uid = auth is AuthAuthenticated ? auth.user.id : null;
 
+    if (auth is! AuthAuthenticated) {
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+      );
+      return;
+    }
+
+    final uid = auth.user.id;
     final result =
         await sl<ToggleLikeHighlightUsecase>()(highlightId: widget.highlight.id);
 
@@ -125,9 +134,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
       (r) {
         setState(() {
           _likeCount = r.likesCount;
-          if (uid != null) {
-            _isLiked = r.likedUserIds.contains(uid);
-          }
+          _isLiked = r.likedUserIds.contains(uid);
         });
       },
     );
