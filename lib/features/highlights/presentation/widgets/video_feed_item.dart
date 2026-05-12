@@ -113,10 +113,12 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     final auth = context.read<AuthBloc>().state;
 
     if (auth is! AuthAuthenticated) {
-      Navigator.push(
+      _pauseVideo();
+      await Navigator.push(
         context,
         MaterialPageRoute<void>(builder: (_) => const LoginPage()),
       );
+      _resumeVideo();
       return;
     }
 

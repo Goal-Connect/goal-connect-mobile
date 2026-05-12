@@ -213,10 +213,10 @@ class VideoOverlayContent extends StatelessWidget {
     final auth = context.read<AuthBloc>().state;
 
     if (auth is! AuthAuthenticated) {
-      Navigator.push(
+      onBottomSheetOpened(Navigator.push(
         context,
         MaterialPageRoute<void>(builder: (_) => const LoginPage()),
-      );
+      ));
       return;
     }
 
