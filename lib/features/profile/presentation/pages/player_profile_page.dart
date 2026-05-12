@@ -392,74 +392,8 @@ class _PlayerProfileView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: isToggling
-                                ? null
-                                : () => context
-                                    .read<PlayerProfileBloc>()
-                                    .add(ToggleFollowEvent(profile.id)),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              height: 42,
-                              decoration: BoxDecoration(
-                                gradient: profile.isFollowing
-                                    ? null
-                                    : const LinearGradient(
-                                        colors: [AppColors.primaryGreen, Color(0xFF00C278)],
-                                      ),
-                                color: profile.isFollowing
-                                    ? (isDark ? Colors.white : Colors.black).withOpacity(0.08)
-                                    : null,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: profile.isFollowing
-                                    ? []
-                                    : [
-                                        BoxShadow(
-                                          color: AppColors.primaryGreen.withOpacity(0.3),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
-                              ),
-                              child: Center(
-                                child: isToggling
-                                    ? const SizedBox(
-                                        width: 16, height: 16,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2, color: Colors.black54),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            profile.isFollowing
-                                                ? Icons.check_rounded
-                                                : Icons.person_add_rounded,
-                                            color: profile.isFollowing
-                                                ? AppColors.primaryGreen
-                                                : Colors.black,
-                                            size: 18,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            profile.isFollowing ? 'Following' : 'Follow',
-                                            style: TextStyle(
-                                              color: profile.isFollowing
-                                                  ? AppColors.primaryGreen
-                                                  : Colors.black,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
                         GestureDetector(
                           onTap: () => _initiateChat(context, profile),
                           child: Container(
