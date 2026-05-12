@@ -105,12 +105,12 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/app_logo.png"
+  image_path: "assets/app_icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/app_logo.png
+  image: assets/splash.png
   android: true
   ios: true
