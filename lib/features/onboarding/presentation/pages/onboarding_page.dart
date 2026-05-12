@@ -122,6 +122,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           height: MediaQuery.of(context).size.height * 0.4,
           child: Lottie.asset(
             page.animationPath,
+            fit: BoxFit.contain,
             controller: _currentPage == 0 ? _animationController : null,
             onLoaded: (composition) {
               if (_currentPage == 0) {
@@ -129,8 +130,23 @@ class _OnboardingPageState extends State<OnboardingPage>
                 _animationController.forward();
               }
             },
-            errorBuilder: (context, error, stackTrace) =>
-                Center(child: Text("⚽", style: TextStyle(fontSize: 100))),
+            errorBuilder: (context, error, stackTrace) {
+              debugPrint('Animation load error: $error');
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("⚽", style: TextStyle(fontSize: 100)),
+                    const SizedBox(height: 10),
+                    Text(
+                      error.toString(),
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
 
