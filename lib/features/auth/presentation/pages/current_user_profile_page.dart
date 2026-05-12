@@ -7,6 +7,7 @@ import 'package:goal_connect/features/auth/presentation/bloc/auth_state.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_bloc.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_state.dart';
+import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/settings_page.dart';
 import 'package:goal_connect/injection_container.dart';
 
@@ -239,6 +240,31 @@ class _CurrentUserProfileView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () {
+                            final profileId = user.playerProfileId ?? user.id;
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => UploadHighlightPage(playerId: profileId),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: (isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.video_call_rounded,
+                              color: isDark ? Colors.white70 : AppColors.lightText,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
                         Container(
                           width: 42,
                           height: 42,
@@ -300,7 +326,7 @@ class _CurrentUserProfileView extends StatelessWidget {
                 const SizedBox(height: 8),
                 _infoRow('Role:', user.role, textColor),
                 const SizedBox(height: 8),
-                _infoRow('ID:', user.id, textColor),
+                _infoRow('Name:', user.fullName, textColor),
               ],
             ),
           ),

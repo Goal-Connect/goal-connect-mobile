@@ -8,6 +8,7 @@ class User {
   final String position;
   final int age;
   final String country;
+  final String fullName;
 
   /// Football profile document id from `GET /auth/me` → `profile.id` (for `GET /players/:id`).
   final String? playerProfileId;
@@ -22,6 +23,7 @@ class User {
     required this.age,
     required this.country,
     this.playerProfileId,
+    this.fullName = '',
   });
-  
+
 }

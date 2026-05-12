@@ -11,6 +11,7 @@ class UserModel extends User {
     required super.age,
     required super.country,
     super.playerProfileId,
+    super.fullName,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -100,6 +101,7 @@ class UserModel extends User {
           profile?['country'] as String? ??
           country,
       playerProfileId: playerProfileId,
+      fullName: profile?['fullName'] as String? ?? '',
     );
   }
 
@@ -169,6 +171,7 @@ class UserModel extends User {
       age: user.age,
       country: user.country,
       playerProfileId: user.playerProfileId,
+      fullName: user.fullName,
     );
   }
 }
