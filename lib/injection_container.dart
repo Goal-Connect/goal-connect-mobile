@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 // ── Core ──────────────────────────────────────────────────────────────────────
 import 'core/constants/api_constants.dart';
 import 'core/network/api_logging_interceptor.dart';
 import 'core/network/auth_interceptor.dart';
 import 'core/theme/theme_cubit.dart';
+import 'core/connection/internet_connection_cubit.dart';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
@@ -81,6 +83,10 @@ Future<void> init() async {
 
   // ── Theme ───────────────────────────────────────────────────────────────────
   sl.registerLazySingleton(() => ThemeCubit(prefs: sl()));
+
+  // ── Internet Connection ─────────────────────────────────────────────────────
+  sl.registerLazySingleton(() => InternetConnection());
+  sl.registerLazySingleton(() => InternetConnectionCubit(sl<InternetConnection>()));
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   sl.registerLazySingleton<AuthTokenLocalDataSource>(

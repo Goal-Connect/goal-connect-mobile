@@ -4,6 +4,9 @@ import 'package:goal_connect/core/theme/app_colors.dart';
 import 'package:goal_connect/core/theme/theme_cubit.dart';
 import 'package:goal_connect/core/theme/theme_state.dart';
 import 'package:goal_connect/core/theme/app_theme.dart';
+import 'package:goal_connect/core/connection/internet_connection_cubit.dart';
+import 'package:goal_connect/core/connection/internet_connection_state.dart';
+import 'package:goal_connect/core/widgets/no_internet_card.dart';
 import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -57,6 +60,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<ThemeCubit>()),
         BlocProvider(create: (_) => sl<HighlightBloc>()),
         BlocProvider(create: (_) => sl<ChatBloc>()),
+        BlocProvider(create: (_) => sl<InternetConnectionCubit>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
@@ -184,7 +188,20 @@ class _MainPageState extends State<MainPage> {
           final isDark = Theme.of(context).brightness == Brightness.dark;
 
           return Scaffold(
-            body: authed ? _pageForTab() : const HighlightFeedPage(),
+            body: Column(
+              children: [
+                BlocBuilder<InternetConnectionCubit, InternetConnectionState>(
+                  builder: (context, connectionState) {
+                    return connectionState.isConnected
+                        ? const SizedBox.shrink()
+                        : const NoInternetCard();
+                  },
+                ),
+                Expanded(
+                  child: authed ? _pageForTab() : const HighlightFeedPage(),
+                ),
+              ],
+            ),
             bottomNavigationBar: authed
                 ? BottomNavigationBar(
                     currentIndex: _selectedTab.clamp(0, 3),
