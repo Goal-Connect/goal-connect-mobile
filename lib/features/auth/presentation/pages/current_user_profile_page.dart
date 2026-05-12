@@ -239,31 +239,33 @@ class _CurrentUserProfileView extends StatelessWidget {
                             size: 18,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {
-                            final profileId = user.playerProfileId ?? user.id;
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => UploadHighlightPage(playerId: profileId),
+                        if (user.role.toLowerCase() == 'player') ...[
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              final profileId = user.playerProfileId ?? user.id;
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => UploadHighlightPage(playerId: profileId),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            );
-                          },
-                          child: Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: (isDark ? Colors.white : Colors.black)
-                                  .withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.video_call_rounded,
-                              color: isDark ? Colors.white70 : AppColors.lightText,
-                              size: 18,
+                              child: Icon(
+                                Icons.video_call_rounded,
+                                color: isDark ? Colors.white70 : AppColors.lightText,
+                                size: 18,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                         const SizedBox(width: 10),
                         Container(
                           width: 42,
