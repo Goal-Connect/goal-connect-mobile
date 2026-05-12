@@ -50,20 +50,26 @@ class VideoOverlayContent extends StatelessWidget {
                   onTap: () => _openProfile(context),
                   child: Row(
                     children: [
-                      Text(
-                        "@${highlight.player.username.toLowerCase()}",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20,
-                          letterSpacing: 0.5,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black54,
-                              blurRadius: 10,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
+                      Expanded(
+                        child: Text(
+                          highlight.player.fullName.isNotEmpty
+                              ? highlight.player.fullName
+                              : highlight.player.username,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 20,
+                            letterSpacing: 0.5,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black54,
+                                blurRadius: 10,
+                                offset: Offset(2, 2),
+                              ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 6),
