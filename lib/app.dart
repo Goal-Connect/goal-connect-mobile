@@ -22,8 +22,10 @@ import 'package:goal_connect/features/profile/presentation/pages/players_search_
 import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
+import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_state.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_status_usecase.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
+import 'package:goal_connect/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:goal_connect/injection_container.dart';
 import 'package:goal_connect/features/profile/presentation/pages/player_profile_page.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/player_search_bloc.dart';
@@ -63,7 +65,14 @@ class App extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: state.themeMode,
-            home: const MainPage(),
+            home: BlocBuilder<OnboardingBloc, OnboardingState>(
+              builder: (context, onboardingState) {
+                if (onboardingState is OnboardingNotShown) {
+                  return const OnboardingPage();
+                }
+                return const MainPage();
+              },
+            ),
           );
         },
       ),
