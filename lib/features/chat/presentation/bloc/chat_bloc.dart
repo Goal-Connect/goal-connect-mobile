@@ -91,8 +91,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Emitter<ChatState> emit,
   ) async {
     final current = state;
-    final currentMessages =
-        current is MessagesLoaded ? current.messages : <Message>[];
+    // Allow sending even if message history failed to load
+    List<Message> currentMessages = <Message>[];
+    if (current is MessagesLoaded) {
+      currentMessages = current.messages;
+    } else if (current is MessageSending) {
+      currentMessages = current.messages;
+    }
 
     emit(MessageSending(
       conversationId: event.peerThread.id,

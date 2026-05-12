@@ -316,6 +316,49 @@ class _ConversationPageState extends State<ConversationPage> {
               );
             }
 
+            if (state is ChatError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      color: AppColors.habeshaRed.withOpacity(0.6),
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Unable to load messages',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : AppColors.lightText,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      state.message,
+                      style: const TextStyle(
+                        color: AppColors.gray,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    TextButton(
+                      onPressed: () {
+                        context.read<ChatBloc>().add(GetMessagesEvent(widget.conversation.id));
+                      },
+                      child: const Text(
+                        'Try again',
+                        style: TextStyle(color: AppColors.primaryGreen),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             List<Message> messages = [];
             bool isSending = false;
             if (state is MessagesLoaded) messages = state.messages;
