@@ -22,8 +22,8 @@ import 'package:goal_connect/features/chat/data/services/chat_socket_service.dar
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/players_search_page.dart';
-import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
+import 'package:goal_connect/features/auth/presentation/pages/current_user_profile_page.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_state.dart';
 import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_status_usecase.dart';
@@ -119,24 +119,7 @@ class _MainPageState extends State<MainPage> {
       case 2:
         return const ChatListPage();
       case 3:
-        return BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            final playerId = state is AuthAuthenticated
-                ? (state.user.playerProfileId ?? state.user.id)
-                : '';
-            return BlocProvider(
-              key: ValueKey<String>(playerId),
-              create: (_) {
-                final bloc = sl<HighlightBloc>();
-                if (playerId.isNotEmpty) {
-                  bloc.add(GetPlayerHighlightsEvent(playerId));
-                }
-                return bloc;
-              },
-              child: const ProfilePage(),
-            );
-          },
-        );
+        return const CurrentUserProfilePage(embeddedInShell: true);
       default:
         return const HighlightFeedPage();
     }
@@ -223,46 +206,3 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-
-
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is! AuthAuthenticated) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: AppColors.primaryGreen),
-            ),
-          );
-        }
-        final profileId =
-            state.user.playerProfileId ?? state.user.id;
-        return Scaffold(
-          body: PlayerProfilePage(
-            playerId: profileId,
-            embeddedInShell: true,
-            provideHighlightBloc: false,
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => UploadHighlightPage(playerId: profileId),
-                ),
-              );
-            },
-            backgroundColor: AppColors.primaryGreen,
-            foregroundColor: Colors.black,
-            icon: const Icon(Icons.video_call_rounded),
-            label: const Text('Upload highlight'),
-          ),
-        );
-      },
-    );
-  }
-}
