@@ -8,7 +8,7 @@ class OnboardingModel {
     required this.title,
     required this.highlightText,
     required this.description,
-    required this.animationPath,
+    this.animationPath = '',
   });
 }
 
@@ -18,7 +18,6 @@ final List<OnboardingModel> onboardingPages = [
     highlightText: "Talent",
     description:
         "The digital home for Ethiopia's rising stars. Create your profile and let the world see your skills.",
-    animationPath: 'assets/animations/juggling-kick.json',
   ),
   OnboardingModel(
     title: "Performance Insights for ",

@@ -17,40 +17,12 @@ class OnboardingPage extends StatefulWidget {
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage>
-    with TickerProviderStateMixin {
+class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  late AnimationController _animationController;
-  bool _hasAutoSwiped = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(vsync: this);
-    _animationController.addListener(_onAnimationFrameChange);
-  }
-
-  void _onAnimationFrameChange() {
-    if (_currentPage == 0 && !_hasAutoSwiped) {
-      // The kick happens around 33% through the animation (frame 60 out of ~180)
-      if (_animationController.value >= 0.33) {
-        _hasAutoSwiped = true;
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (_pageController.hasClients && _currentPage == 0) {
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeOutQuart,
-            );
-          }
-        });
-      }
-    }
-  }
 
   @override
   void dispose() {
-    _animationController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -118,39 +90,33 @@ class _OnboardingPageState extends State<OnboardingPage>
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.4,
-          child: Lottie.asset(
-            page.animationPath,
-            fit: BoxFit.contain,
-            controller: _currentPage == 0 ? _animationController : null,
-            onLoaded: (composition) {
-              if (_currentPage == 0) {
-                _animationController.duration = composition.duration;
-                _animationController.forward();
-              }
-            },
-            errorBuilder: (context, error, stackTrace) {
-              debugPrint('Animation load error: $error');
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("⚽", style: TextStyle(fontSize: 100)),
-                    const SizedBox(height: 10),
-                    Text(
-                      error.toString(),
-                      style: const TextStyle(color: Colors.red, fontSize: 12),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            },
+        if (page.animationPath.isNotEmpty)
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: Lottie.asset(
+              page.animationPath,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                debugPrint('Animation load error: $error');
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("⚽", style: TextStyle(fontSize: 100)),
+                      const SizedBox(height: 10),
+                      Text(
+                        error.toString(),
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
 
-        const SizedBox(height: 20),
+        if (page.animationPath.isNotEmpty) const SizedBox(height: 20),
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
