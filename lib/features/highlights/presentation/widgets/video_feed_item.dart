@@ -35,6 +35,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
 
   late bool _isLiked;
   late int _likeCount;
+  late int _commentCount;
   bool _showHeart = false;
   bool _seededLike = false;
 
@@ -55,6 +56,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     super.initState();
     _isLiked = false;
     _likeCount = widget.highlight.likes;
+    _commentCount = widget.highlight.commentCount;
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
@@ -224,8 +226,13 @@ class _VideoFeedItemState extends State<VideoFeedItem>
           rotationAnimation: _rotationController,
           isLiked: _isLiked,
           likeCount: _likeCount,
+          commentCount: _commentCount,
           onLikeTap: _toggleLike,
           onOptionsTap: _openOptions,
+          onCommentCountChanged: (n) {
+            if (!mounted || n == _commentCount) return;
+            setState(() => _commentCount = n);
+          },
           onNavigateAway: _navigateAway,
           onBottomSheetOpened: _onBottomSheetOpened,
         ),

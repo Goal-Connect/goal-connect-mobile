@@ -27,11 +27,18 @@ class PlayerProfile {
   final String? academyName;
   final String? academyRegion;
   final String secondaryPosition;
+  final String primaryPosition;
   final int jerseyNumber;
   final String strongFoot;
   final int yellowCards;
   final int redCards;
   final bool isAgeVerified;
+  final DateTime? dateOfBirth;
+  final int? heightCm;
+  final int? weightKg;
+  final String nationality;
+  final List<String> playingStyleTags;
+  final List<String> clubHistory;
 
   PlayerProfile({
     required this.id,
@@ -56,11 +63,18 @@ class PlayerProfile {
     this.academyName,
     this.academyRegion,
     this.secondaryPosition = '',
+    this.primaryPosition = '',
     this.jerseyNumber = 0,
     this.strongFoot = '',
     this.yellowCards = 0,
     this.redCards = 0,
     this.isAgeVerified = false,
+    this.dateOfBirth,
+    this.heightCm,
+    this.weightKg,
+    this.nationality = '',
+    this.playingStyleTags = const [],
+    this.clubHistory = const [],
   });
 
   bool get isPlayer => role == 'player';

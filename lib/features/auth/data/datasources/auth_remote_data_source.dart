@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:goal_connect/core/constants/api_constants.dart';
 import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
+import 'package:goal_connect/features/auth/data/models/player_profile_model.dart';
 import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
+import 'package:goal_connect/features/auth/data/models/scout_profile_model.dart';
 import 'package:goal_connect/features/auth/data/models/user_model.dart';
+import 'package:goal_connect/features/auth/domain/entities/current_user_profile.dart';
 
 class AuthApiException implements Exception {
   final String message;
@@ -26,8 +29,10 @@ abstract class AuthRemoteDataSource {
     ScoutAccountRegistrationModel registration,
   );
 
-  /// `GET /auth/me` — returns parsed user and optional JSON string of `profile`.
-  Future<(UserModel user, String? profileJson)> getCurrentUser();
+  /// `GET /auth/me` — returns parsed user, the role-branched profile
+  /// (when present), and the raw `profile` JSON for caching.
+  Future<({UserModel user, CurrentUserProfile? profile, String? profileJson})>
+      getCurrentUser();
 
   /// `PUT /auth/updatepassword` — returns new session (README: fresh JWT + user).
   Future<AuthRemoteSession> updatePassword({
@@ -85,7 +90,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<(UserModel, String?)> getCurrentUser() async {
+  Future<({UserModel user, CurrentUserProfile? profile, String? profileJson})>
+      getCurrentUser() async {
     try {
       final response = await _dio.get<dynamic>(ApiConstants.authMe);
       final body = response.data;
@@ -105,17 +111,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       final dataMap = Map<String, dynamic>.from(data);
       final user = UserModel.fromMeEnvelope(dataMap);
+      CurrentUserProfile? profile;
       String? profileJson;
       final prof = dataMap['profile'];
       if (prof is Map && prof.isNotEmpty) {
-        profileJson = jsonEncode(prof);
+        final profMap = Map<String, dynamic>.from(prof);
+        profile = _parseProfileForRole(user.role, profMap);
+        profileJson = jsonEncode(profMap);
       }
-      return (user, profileJson);
+      return (user: user, profile: profile, profileJson: profileJson);
     } on DioException catch (e) {
       throw AuthApiException(
         _messageFromDio(e),
         statusCode: e.response?.statusCode,
       );
+    }
+  }
+
+  CurrentUserProfile? _parseProfileForRole(
+    String role,
+    Map<String, dynamic> profileJson,
+  ) {
+    switch (role) {
+      case 'player':
+        return CurrentUserProfilePlayer(
+          PlayerProfileModel.fromJson(profileJson),
+        );
+      case 'scout':
+        return CurrentUserProfileScout(
+          ScoutProfileModel.fromJson(profileJson),
+        );
+      default:
+        return null;
     }
   }
 

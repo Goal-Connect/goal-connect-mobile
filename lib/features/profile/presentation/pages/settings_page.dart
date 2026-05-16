@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,10 +14,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _notificationsEnabled = true;
-  bool _publicProfile = true;
-  bool _autoPlayVideos = true;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -46,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   _buildAppearanceSection(
                       context, isDark, textColor, cardColor, borderColor, dividerColor),
                   const SizedBox(height: 24),
-                  _buildPreferencesSection(
+                  _buildSecuritySection(
                       isDark, textColor, cardColor, borderColor, dividerColor),
                   const SizedBox(height: 24),
                   _buildAccountSection(
@@ -408,7 +405,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildPreferencesSection(
+  Widget _buildSecuritySection(
     bool isDark,
     Color textColor,
     Color cardColor,
@@ -418,7 +415,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('Preferences'),
+        _sectionHeader('Security'),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
@@ -426,97 +423,30 @@ class _SettingsPageState extends State<SettingsPage> {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: borderColor),
           ),
-          child: Column(
-            children: [
-              _buildSwitchTile(
-                icon: Icons.notifications_outlined,
-                iconColor: const Color(0xFF6C63FF),
-                label: 'Notifications',
-                subtitle: 'Get match & scout alerts',
-                value: _notificationsEnabled,
-                textColor: textColor,
-                onChanged: (v) =>
-                    setState(() => _notificationsEnabled = v),
-              ),
-              Divider(height: 1, indent: 60, color: dividerColor),
-              _buildSwitchTile(
-                icon: Icons.public_rounded,
-                iconColor: AppColors.primaryGreen,
-                label: 'Public Profile',
-                subtitle: 'Let scouts find you',
-                value: _publicProfile,
-                textColor: textColor,
-                onChanged: (v) => setState(() => _publicProfile = v),
-              ),
-              Divider(height: 1, indent: 60, color: dividerColor),
-              _buildSwitchTile(
-                icon: Icons.play_circle_outline_rounded,
-                iconColor: AppColors.accentGold,
-                label: 'Auto-play Videos',
-                subtitle: 'Play highlights automatically',
-                value: _autoPlayVideos,
-                textColor: textColor,
-                onChanged: (v) =>
-                    setState(() => _autoPlayVideos = v),
-              ),
-            ],
+          child: _buildActionTile(
+            icon: Icons.lock_outline_rounded,
+            iconColor: AppColors.primaryGreen,
+            label: 'Update password',
+            textColor: textColor,
+            onTap: () => _openUpdatePasswordSheet(context, isDark, textColor),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSwitchTile({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String subtitle,
-    required bool value,
-    required Color textColor,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: iconColor, size: 18),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: AppColors.gray.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeColor: AppColors.primaryGreen,
-          ),
-        ],
+  Future<void> _openUpdatePasswordSheet(
+    BuildContext context,
+    bool isDark,
+    Color textColor,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        value: context.read<AuthBloc>(),
+        child: _UpdatePasswordSheet(isDark: isDark, textColor: textColor),
       ),
     );
   }
@@ -755,6 +685,285 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _UpdatePasswordSheet extends StatefulWidget {
+  final bool isDark;
+  final Color textColor;
+
+  const _UpdatePasswordSheet({
+    required this.isDark,
+    required this.textColor,
+  });
+
+  @override
+  State<_UpdatePasswordSheet> createState() => _UpdatePasswordSheetState();
+}
+
+class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _currentController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
+  bool _obscureCurrent = true;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  bool _submitting = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  void _submit(BuildContext context) {
+    if (_submitting) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() {
+      _submitting = true;
+      _errorMessage = null;
+    });
+    context.read<AuthBloc>().add(UpdatePasswordRequested(
+          currentPassword: _currentController.text,
+          newPassword: _newController.text,
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sheetBg =
+        widget.isDark ? const Color(0xFF14141C) : Colors.white;
+
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (prev, curr) => _submitting && prev != curr,
+      listener: (context, state) {
+        if (state is AuthFailure) {
+          setState(() {
+            _submitting = false;
+            _errorMessage = state.message.isNotEmpty
+                ? state.message
+                : 'Could not update password';
+          });
+        } else if (state is AuthAuthenticated) {
+          setState(() {
+            _submitting = false;
+            _errorMessage = null;
+          });
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password updated successfully'),
+              backgroundColor: AppColors.primaryGreen,
+            ),
+          );
+        }
+      },
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: sheetBg,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.gray.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'Update password',
+                      style: TextStyle(
+                        color: widget.textColor,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'You\'ll stay signed in on this device.',
+                      style: TextStyle(
+                        color: AppColors.gray.withOpacity(0.7),
+                        fontSize: 13,
+                      ),
+                    ),
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 14),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.habeshaRed.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.habeshaRed.withOpacity(0.35),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline_rounded,
+                                color: AppColors.habeshaRed, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(
+                                  color: AppColors.habeshaRed,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 18),
+                    _passwordField(
+                      controller: _currentController,
+                      label: 'Current password',
+                      obscure: _obscureCurrent,
+                      onToggle: () => setState(
+                          () => _obscureCurrent = !_obscureCurrent),
+                      validator: (v) => (v == null || v.isEmpty)
+                          ? 'Enter your current password'
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
+                    _passwordField(
+                      controller: _newController,
+                      label: 'New password',
+                      obscure: _obscureNew,
+                      onToggle: () =>
+                          setState(() => _obscureNew = !_obscureNew),
+                      validator: (v) {
+                        if (v == null || v.length < 6) {
+                          return 'At least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _passwordField(
+                      controller: _confirmController,
+                      label: 'Confirm new password',
+                      obscure: _obscureConfirm,
+                      onToggle: () => setState(
+                          () => _obscureConfirm = !_obscureConfirm),
+                      validator: (v) {
+                        if (v != _newController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 22),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed:
+                            _submitting ? null : () => _submit(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryGreen,
+                          foregroundColor: Colors.black,
+                          disabledBackgroundColor:
+                              AppColors.primaryGreen.withOpacity(0.5),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child: _submitting
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : const Text(
+                                'Update password',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _passwordField({
+    required TextEditingController controller,
+    required String label,
+    required bool obscure,
+    required VoidCallback onToggle,
+    required FormFieldValidator<String> validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      validator: validator,
+      style: TextStyle(color: widget.textColor),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: AppColors.gray.withOpacity(0.8)),
+        filled: true,
+        fillColor: widget.isDark
+            ? Colors.white.withOpacity(0.06)
+            : Colors.black.withOpacity(0.04),
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscure
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            color: AppColors.gray,
+          ),
+          onPressed: onToggle,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: AppColors.primaryGreen,
+            width: 1.4,
+          ),
+        ),
+      ),
     );
   }
 }

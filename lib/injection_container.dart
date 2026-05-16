@@ -198,6 +198,7 @@ Future<void> init() async {
       conversationLocal: sl(),
       userLocal: sl(),
       socketService: sl(),
+      playerProfileRepository: sl(),
     ),
   );
   sl.registerLazySingleton(() => GetConversationsUsecase(sl()));

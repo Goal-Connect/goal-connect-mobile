@@ -25,11 +25,18 @@ class PlayerProfileModel extends PlayerProfile {
     super.academyName,
     super.academyRegion,
     super.secondaryPosition = '',
+    super.primaryPosition = '',
     super.jerseyNumber = 0,
     super.strongFoot = '',
     super.yellowCards = 0,
     super.redCards = 0,
     super.isAgeVerified = false,
+    super.dateOfBirth,
+    super.heightCm,
+    super.weightKg,
+    super.nationality = '',
+    super.playingStyleTags = const [],
+    super.clubHistory = const [],
   });
 
   factory PlayerProfileModel.fromJson(Map<String, dynamic> json) {
@@ -107,7 +114,9 @@ class PlayerProfileModel extends PlayerProfile {
       payload = root;
     }
 
-    final flatPlayerDoc = payload['user'] == null &&
+    final userField = payload['user'];
+    final hasNestedUser = userField is Map;
+    final flatPlayerDoc = !hasNestedUser &&
         (payload.containsKey('fullName') ||
             payload.containsKey('profileImageUrl') ||
             payload.containsKey('nationality'));
@@ -133,10 +142,17 @@ class PlayerProfileModel extends PlayerProfile {
     final email = u['email'] as String? ?? '';
     final role = u['role'] as String? ?? 'player';
     final fullName = prof?['fullName'] as String?;
-    final username = (fullName != null && fullName.trim().isNotEmpty)
-        ? fullName.trim()
-        : (u['username'] as String? ??
-            (email.contains('@') ? email.split('@').first : id));
+    final rawUsername = u['username'] as String?;
+    String username;
+    if (fullName != null && fullName.trim().isNotEmpty) {
+      username = fullName.trim();
+    } else if (rawUsername != null && rawUsername.trim().isNotEmpty) {
+      username = rawUsername.trim();
+    } else if (email.contains('@')) {
+      username = email.split('@').first;
+    } else {
+      username = 'Player';
+    }
     final image = (prof?['profileImageUrl'] ??
             prof?['avatarUrl'] ??
             prof?['profileImage'] ??
@@ -210,7 +226,7 @@ class PlayerProfileModel extends PlayerProfile {
   static PlayerProfileModel _fromFlatPlayerPayload(Map<String, dynamic> p) {
     final id = p['id']?.toString() ?? p['_id']?.toString() ?? '';
     final fullName = p['fullName'] as String? ?? '';
-    final username = fullName.trim().isNotEmpty ? fullName.trim() : id;
+    final username = fullName.trim().isNotEmpty ? fullName.trim() : 'Player';
     final image = p['profileImageUrl']?.toString() ?? '';
     final position = p['primaryPosition'] as String? ??
         p['position'] as String? ??
@@ -242,6 +258,12 @@ class PlayerProfileModel extends PlayerProfile {
 
     final stats = PlayerStatsModel.fromFlatPlayerApi(p);
 
+    final dob = DateTime.tryParse(p['dateOfBirth']?.toString() ?? '');
+    final heightCm = PlayerProfileModel._asInt(p['height'], null, 0);
+    final weightKg = PlayerProfileModel._asInt(p['weight'], null, 0);
+    final tags = _stringList(p['playingStyleTags']);
+    final clubs = _stringList(p['clubHistory']);
+
     return PlayerProfileModel(
       id: id,
       userId: p['user']?.toString(),
@@ -265,12 +287,29 @@ class PlayerProfileModel extends PlayerProfile {
       academyName: academyName,
       academyRegion: academyRegion,
       secondaryPosition: p['secondaryPosition'] as String? ?? '',
+      primaryPosition: p['primaryPosition'] as String? ?? '',
       jerseyNumber: PlayerProfileModel._asInt(p['jerseyNumber'], null, 0),
       strongFoot: p['strongFoot']?.toString() ?? '',
       yellowCards: yellow,
       redCards: red,
       isAgeVerified: p['isAgeVerified'] as bool? ?? false,
+      dateOfBirth: dob,
+      heightCm: heightCm > 0 ? heightCm : null,
+      weightKg: weightKg > 0 ? weightKg : null,
+      nationality: p['nationality'] as String? ?? '',
+      playingStyleTags: tags,
+      clubHistory: clubs,
     );
+  }
+
+  static List<String> _stringList(dynamic v) {
+    if (v is List) {
+      return v
+          .map((e) => e?.toString() ?? '')
+          .where((s) => s.isNotEmpty)
+          .toList();
+    }
+    return const [];
   }
 
   static int _asInt(dynamic a, dynamic b, int fallback) {

@@ -239,17 +239,6 @@ class _PlayerProfileView extends StatelessWidget {
               ),
             ),
           ),
-        Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.more_horiz_rounded, color: Colors.white, size: 22),
-            onPressed: () {},
-          ),
-        ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
@@ -518,6 +507,18 @@ class _PlayerProfileView extends StatelessWidget {
           if (profile.isPlayer && profile.stats != null) ...[
             _buildPlayerInfo(profile, isDark, textColor),
             const SizedBox(height: 24),
+            if (profile.playingStyleTags.isNotEmpty) ...[
+              _buildTagsCard(
+                  'Playing style', profile.playingStyleTags, isDark, textColor),
+              const SizedBox(height: 24),
+            ],
+            if (profile.clubHistory.isNotEmpty) ...[
+              _buildTagsCard(
+                  'Club history', profile.clubHistory, isDark, textColor),
+              const SizedBox(height: 24),
+            ],
+            _buildDisciplinaryCard(profile, isDark, textColor),
+            const SizedBox(height: 24),
             _buildMatchStats(profile.stats!, isDark, textColor),
             const SizedBox(height: 24),
           ],
@@ -543,6 +544,49 @@ class _PlayerProfileView extends StatelessWidget {
 
   Widget _buildPlayerInfo(PlayerProfile profile, bool isDark, Color textColor) {
     final stats = profile.stats!;
+    final height = profile.heightCm ?? stats.heightCm;
+    final weight = profile.weightKg ?? stats.weightKg;
+    final foot = profile.strongFoot.isNotEmpty
+        ? _capitalize(profile.strongFoot)
+        : stats.preferredFoot;
+    final primary = profile.primaryPosition.isNotEmpty
+        ? _capitalize(profile.primaryPosition)
+        : profile.position;
+    final tiles = <Widget>[
+      InfoChip(icon: Icons.cake_rounded, label: 'Age', value: '${profile.age}'),
+      InfoChip(icon: Icons.height_rounded, label: 'Height', value: '${height}cm'),
+      InfoChip(icon: Icons.fitness_center_rounded, label: 'Weight', value: '${weight}kg'),
+      InfoChip(
+        icon: foot == 'Left' ? Icons.back_hand_rounded : Icons.front_hand_rounded,
+        label: 'Foot',
+        value: foot,
+      ),
+      if (profile.jerseyNumber > 0)
+        InfoChip(
+          icon: Icons.tag_rounded,
+          label: 'Jersey',
+          value: '#${profile.jerseyNumber}',
+        ),
+      InfoChip(icon: Icons.sports_soccer_rounded, label: 'Position', value: primary),
+      if (profile.secondaryPosition.isNotEmpty)
+        InfoChip(
+          icon: Icons.swap_horiz_rounded,
+          label: 'Secondary',
+          value: _capitalize(profile.secondaryPosition),
+        ),
+      if (profile.nationality.isNotEmpty)
+        InfoChip(
+          icon: Icons.flag_rounded,
+          label: 'Nationality',
+          value: profile.nationality,
+        ),
+      if (profile.dateOfBirth != null)
+        InfoChip(
+          icon: Icons.calendar_today_rounded,
+          label: 'DOB',
+          value: _formatDate(profile.dateOfBirth!),
+        ),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -555,18 +599,7 @@ class _PlayerProfileView extends StatelessWidget {
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
           childAspectRatio: 0.85,
-          children: [
-            InfoChip(icon: Icons.cake_rounded, label: 'Age', value: '${profile.age}'),
-            InfoChip(icon: Icons.height_rounded, label: 'Height', value: '${stats.heightCm}cm'),
-            InfoChip(icon: Icons.fitness_center_rounded, label: 'Weight', value: '${stats.weightKg}kg'),
-            InfoChip(
-              icon: stats.preferredFoot == 'Left'
-                  ? Icons.back_hand_rounded
-                  : Icons.front_hand_rounded,
-              label: 'Foot',
-              value: stats.preferredFoot,
-            ),
-          ],
+          children: tiles,
         ),
         if (stats.currentClub != null) ...[
           const SizedBox(height: 10),
@@ -602,6 +635,123 @@ class _PlayerProfileView extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  Widget _buildTagsCard(
+      String title, List<String> items, bool isDark, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle(title, textColor),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: items
+              .map((t) => Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGreen.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      t,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDisciplinaryCard(
+      PlayerProfile profile, bool isDark, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle('Disciplinary record', textColor),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _cardChip(
+                color: const Color(0xFFFFC107),
+                label: 'Yellow cards',
+                value: '${profile.yellowCards}',
+                textColor: textColor,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _cardChip(
+                color: const Color(0xFFE53935),
+                label: 'Red cards',
+                value: '${profile.redCards}',
+                textColor: textColor,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _cardChip({
+    required Color color,
+    required String label,
+    required String value,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          Container(width: 10, height: 14, color: color),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
+
+  String _formatDate(DateTime d) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[d.month - 1]} ${d.day}, ${d.year}';
   }
 
   Widget _buildStatsSection(PlayerStats stats, bool isDark, Color textColor) {

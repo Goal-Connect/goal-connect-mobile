@@ -6,6 +6,7 @@ import 'package:goal_connect/features/chat/data/models/conversation_model.dart';
 import 'package:goal_connect/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:goal_connect/features/chat/data/services/chat_socket_service.dart';
 import 'package:goal_connect/features/chat/domain/entities/conversation.dart';
+import 'package:goal_connect/features/profile/domain/repositories/player_profile_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockChatRemote extends Mock implements ChatRemoteDataSource {}
@@ -16,24 +17,30 @@ class MockAuthUserLocal extends Mock implements AuthUserLocalDataSource {}
 
 class MockChatSocket extends Mock implements ChatSocketService {}
 
+class MockPlayerProfileRepository extends Mock
+    implements PlayerProfileRepository {}
+
 void main() {
   late ChatRepositoryImpl repository;
   late MockChatRemote mockRemote;
   late MockConversationLocal mockLocal;
   late MockAuthUserLocal mockUserLocal;
   late MockChatSocket mockSocket;
+  late MockPlayerProfileRepository mockPlayerProfileRepository;
 
   setUp(() {
     mockRemote = MockChatRemote();
     mockLocal = MockConversationLocal();
     mockUserLocal = MockAuthUserLocal();
     mockSocket = MockChatSocket();
+    mockPlayerProfileRepository = MockPlayerProfileRepository();
     when(() => mockSocket.isConnected).thenReturn(false);
     repository = ChatRepositoryImpl(
       remoteDataSource: mockRemote,
       conversationLocal: mockLocal,
       userLocal: mockUserLocal,
       socketService: mockSocket,
+      playerProfileRepository: mockPlayerProfileRepository,
     );
   });
 

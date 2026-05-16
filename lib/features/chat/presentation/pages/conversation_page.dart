@@ -407,10 +407,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      authState is AuthAuthenticated &&
-                              authState.user.role == 'player'
-                          ? 'When a scout messages you, you can reply here.'
-                          : 'Say hello to ${widget.conversation.participantName}!',
+                      'Say hello to ${widget.conversation.participantName}!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.gray.withOpacity(0.6),
@@ -510,23 +507,9 @@ class _ConversationPageState extends State<ConversationPage> {
     ThemeData theme,
     bool isDark,
   ) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        return BlocBuilder<ChatBloc, ChatState>(
-          builder: (context, chatState) {
-            List<Message> messages = [];
-            if (chatState is MessagesLoaded) {
-              messages = chatState.messages;
-            }
-            if (chatState is MessageSending) {
-              messages = chatState.messages;
-            }
-            final composerLocked = authState is AuthAuthenticated &&
-                authState.user.role == 'player' &&
-                messages.isEmpty &&
-                chatState is MessagesLoaded;
-
-            return Container(
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, chatState) {
+        return Container(
               padding: EdgeInsets.fromLTRB(
                   16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 16),
               decoration: BoxDecoration(
@@ -545,18 +528,6 @@ class _ConversationPageState extends State<ConversationPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (composerLocked)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          'Only scouts can start a chat. You can reply once a scout has messaged you.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.gray.withOpacity(0.75),
-                            height: 1.35,
-                          ),
-                        ),
-                      ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -595,7 +566,6 @@ class _ConversationPageState extends State<ConversationPage> {
                                   child: TextField(
                                     controller: _inputController,
                                     focusNode: _focusNode,
-                                    enabled: !composerLocked,
                                     style: TextStyle(
                                       color: theme.colorScheme.onSurface,
                                       fontSize: 14,
@@ -603,13 +573,9 @@ class _ConversationPageState extends State<ConversationPage> {
                                     maxLines: 4,
                                     minLines: 1,
                                     textInputAction: TextInputAction.send,
-                                    onSubmitted: (_) {
-                                      if (!composerLocked) _sendMessage();
-                                    },
+                                    onSubmitted: (_) => _sendMessage(),
                                     decoration: InputDecoration(
-                                      hintText: composerLocked
-                                          ? 'Waiting for scout…'
-                                          : 'Type a message…',
+                                      hintText: 'Type a message…',
                                       hintStyle: TextStyle(
                                         color:
                                             AppColors.gray.withOpacity(0.5),
@@ -624,7 +590,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                     ),
                                   ),
                                 ),
-                                if (!_showSendButton && !composerLocked)
+                                if (!_showSendButton)
                                   Padding(
                                     padding: const EdgeInsets.only(
                                         right: 12, bottom: 10),
@@ -641,9 +607,7 @@ class _ConversationPageState extends State<ConversationPage> {
                         ),
                         const SizedBox(width: 10),
                         AnimatedScale(
-                          scale: _showSendButton && !composerLocked
-                              ? 1.0
-                              : 0.0,
+                          scale: _showSendButton ? 1.0 : 0.0,
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeOutBack,
                           child: Container(
@@ -671,7 +635,7 @@ class _ConversationPageState extends State<ConversationPage> {
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                onTap: composerLocked ? null : _sendMessage,
+                                onTap: _sendMessage,
                                 customBorder: const CircleBorder(),
                                 child: const Center(
                                   child: Icon(Icons.send_rounded,
@@ -689,8 +653,6 @@ class _ConversationPageState extends State<ConversationPage> {
             );
           },
         );
-      },
-    );
   }
 }
 

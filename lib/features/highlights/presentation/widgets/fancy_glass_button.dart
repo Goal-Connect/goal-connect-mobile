@@ -8,6 +8,10 @@ class FancyGlassButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool isPulsing;
 
+  /// When true, the button uses [color] as a solid filled background and the
+  /// icon renders white — for "active" states like a liked heart.
+  final bool isActive;
+
   const FancyGlassButton({
     super.key,
     required this.icon,
@@ -15,10 +19,15 @@ class FancyGlassButton extends StatelessWidget {
     required this.onTap,
     this.color = Colors.white,
     this.isPulsing = false,
+    this.isActive = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = isActive ? color : color.withOpacity(0.15);
+    final borderColor = isActive ? color : color.withOpacity(0.3);
+    final iconColor = isActive ? Colors.white : color;
+
     return Column(
       children: [
         GestureDetector(
@@ -27,24 +36,26 @@ class FancyGlassButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(50),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
                 height: 56,
                 width: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.15),
-                  border: Border.all(color: color.withOpacity(0.3), width: 1.5),
-                  boxShadow: isPulsing
+                  color: bgColor,
+                  border: Border.all(color: borderColor, width: 1.5),
+                  boxShadow: (isPulsing || isActive)
                       ? [
                           BoxShadow(
-                            color: color.withOpacity(0.3),
+                            color: color.withOpacity(isActive ? 0.5 : 0.3),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
                         ]
                       : [],
                 ),
-                child: Icon(icon, color: color, size: 28),
+                child: Icon(icon, color: iconColor, size: 28),
               ),
             ),
           ),

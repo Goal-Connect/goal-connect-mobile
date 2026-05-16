@@ -142,8 +142,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatSocketMessageReceivedEvent event,
     Emitter<ChatState> emit,
   ) async {
-    final user = await getCachedUser();
-    if (user == null) return;
+    final cached = await getCachedUser();
+    if (cached == null) return;
+    final user = cached.user;
 
     final raw = event.raw;
     final myId = user.id;

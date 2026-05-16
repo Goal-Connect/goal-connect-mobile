@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/entities/comment.dart';
 import '../../domain/entities/highlight.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection_container.dart';
 import '../bloc/comment_bloc.dart';
 import '../bloc/comment_event.dart';
+import '../bloc/comment_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/login_page.dart';
@@ -17,8 +21,10 @@ class VideoOverlayContent extends StatelessWidget {
   final Animation<double> rotationAnimation;
   final bool isLiked;
   final int likeCount;
+  final int commentCount;
   final VoidCallback onLikeTap;
   final VoidCallback onOptionsTap;
+  final ValueChanged<int> onCommentCountChanged;
   final Future<void> Function(Widget page) onNavigateAway;
   final void Function(Future<void> sheetFuture) onBottomSheetOpened;
 
@@ -28,8 +34,10 @@ class VideoOverlayContent extends StatelessWidget {
     required this.rotationAnimation,
     required this.isLiked,
     required this.likeCount,
+    required this.commentCount,
     required this.onLikeTap,
     required this.onOptionsTap,
+    required this.onCommentCountChanged,
     required this.onNavigateAway,
     required this.onBottomSheetOpened,
   });
@@ -174,28 +182,17 @@ class VideoOverlayContent extends StatelessWidget {
                   FancyGlassButton(
                     icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                     label: _formatCount(likeCount),
-                    color: isLiked ? Colors.redAccent : Colors.white,
+                    color: isLiked ? Colors.red : Colors.white,
+                    isActive: isLiked,
                     onTap: onLikeTap,
                   ),
                   const SizedBox(height: 14),
                   FancyGlassButton(
                     icon: Icons.chat_bubble_rounded,
-                    label: _formatCount(highlight.commentCount),
+                    label: _formatCount(commentCount),
                     color: AppColors.primaryGreen,
                     isPulsing: true,
                     onTap: () => _openComments(context, highlight.id),
-                  ),
-                  const SizedBox(height: 14),
-                  FancyGlassButton(
-                    icon: Icons.more_horiz_rounded,
-                    label: "More",
-                    onTap: onOptionsTap,
-                  ),
-                  const SizedBox(height: 14),
-                  FancyGlassButton(
-                    icon: Icons.share_rounded,
-                    label: "Share",
-                    onTap: () {},
                   ),
                 ],
               ),
@@ -226,16 +223,41 @@ class VideoOverlayContent extends StatelessWidget {
       return;
     }
 
+    final bloc = sl<CommentBloc>()..add(GetCommentsEvent(highlightId));
+    final sub = bloc.stream.listen((state) {
+      if (state is CommentsLoaded) {
+        onCommentCountChanged(_countComments(state.comments));
+      }
+    });
+
     final future = showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider(
-        create: (_) => sl<CommentBloc>()..add(GetCommentsEvent(highlightId)),
+      builder: (_) => BlocProvider.value(
+        value: bloc,
         child: CommentSheet(highlightId: highlightId),
       ),
     );
-    onBottomSheetOpened(future.then((_) {}));
+    onBottomSheetOpened(future.then((_) async {
+      await sub.cancel();
+      await bloc.close();
+    }));
+  }
+
+  int _countComments(List<Comment> list) {
+    var n = 0;
+    void walk(Comment c) {
+      n += 1;
+      for (final r in c.replies) {
+        walk(r);
+      }
+    }
+
+    for (final c in list) {
+      walk(c);
+    }
+    return n;
   }
 
   String _formatCount(int count) {

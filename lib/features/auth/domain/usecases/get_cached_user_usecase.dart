@@ -1,4 +1,3 @@
-import 'package:goal_connect/features/auth/domain/entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class GetCachedUserUsecase {
@@ -6,5 +5,5 @@ class GetCachedUserUsecase {
 
   GetCachedUserUsecase(this.repository);
 
-  Future<User?> call() => repository.getCachedUser();
+  Future<CurrentUserData?> call() => repository.getCachedUser();
 }

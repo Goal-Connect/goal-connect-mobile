@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/fialures.dart';
 import '../../../auth/data/datasources/auth_user_local_datasource.dart';
+import '../../../profile/domain/repositories/player_profile_repository.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/chat_repository.dart';
@@ -16,22 +17,51 @@ class ChatRepositoryImpl implements ChatRepository {
     required ConversationLocalDataSource conversationLocal,
     required AuthUserLocalDataSource userLocal,
     required ChatSocketService socketService,
+    required PlayerProfileRepository playerProfileRepository,
   })  : _remote = remoteDataSource,
         _local = conversationLocal,
         _userLocal = userLocal,
-        _socket = socketService;
+        _socket = socketService,
+        _playerProfileRepository = playerProfileRepository;
 
   final ChatRemoteDataSource _remote;
   final ConversationLocalDataSource _local;
   final AuthUserLocalDataSource _userLocal;
   final ChatSocketService _socket;
+  final PlayerProfileRepository _playerProfileRepository;
+
+  /// In-memory cache so we only hit `/players/:id` once per peer per session
+  /// while resolving names for inbound socket messages.
+  final Map<String, String> _peerNameMemo = {};
 
   Future<String> _peerDisplayName(String peerUserId) async {
     final threads = await _local.loadThreads();
     for (final t in threads) {
-      if (t.id == peerUserId) return t.participantName;
+      if (t.id == peerUserId && t.participantName.isNotEmpty) {
+        return t.participantName;
+      }
     }
-    return 'Member';
+    final memo = _peerNameMemo[peerUserId];
+    if (memo != null) return memo;
+
+    // Try resolving against the players endpoint; the peer may be a player we
+    // haven't cached yet. For scouts (no equivalent public endpoint here) the
+    // lookup will fail and we fall back to a friendly label.
+    final lookup = await _playerProfileRepository.getPlayerProfile(
+      playerId: peerUserId,
+    );
+    return lookup.fold(
+      (_) {
+        _peerNameMemo[peerUserId] = 'Scout';
+        return 'Scout';
+      },
+      (player) {
+        final name = player.username.trim();
+        final resolved = name.isEmpty ? 'Player' : name;
+        _peerNameMemo[peerUserId] = resolved;
+        return resolved;
+      },
+    );
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_connect/core/error/fialures.dart' as core;
 import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
+import 'package:goal_connect/features/auth/domain/repositories/auth_repository.dart';
 import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -171,7 +172,9 @@ void main() {
 
   group('CheckAuthStatus', () {
     test('emits AuthAuthenticated from API on success', () async {
-      when(() => mockGetCurrent()).thenAnswer((_) async => Right(tUser));
+      when(() => mockGetCurrent()).thenAnswer(
+        (_) async => Right(CurrentUserData(user: tUser)),
+      );
 
       final bloc = buildBloc();
       final states = <AuthState>[];
@@ -190,7 +193,8 @@ void main() {
     test('falls back to cached user when getCurrentUser fails', () async {
       when(() => mockGetCurrent())
           .thenAnswer((_) async => Left(core.AuthFailure('network')));
-      when(() => mockGetCached()).thenAnswer((_) async => tUser);
+      when(() => mockGetCached())
+          .thenAnswer((_) async => CurrentUserData(user: tUser));
 
       final bloc = buildBloc();
       final states = <AuthState>[];

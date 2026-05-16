@@ -22,7 +22,6 @@ import 'package:goal_connect/features/chat/data/services/chat_socket_service.dar
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/players_search_page.dart';
-import 'package:goal_connect/features/highlights/presentation/bloc/highlight_event.dart';
 import 'package:goal_connect/features/auth/presentation/pages/current_user_profile_page.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_state.dart';
@@ -30,7 +29,6 @@ import 'package:goal_connect/features/onboarding/domain/usecases/get_onboarding_
 import 'package:goal_connect/features/onboarding/domain/usecases/set_onboarding_shown_usecase.dart';
 import 'package:goal_connect/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:goal_connect/injection_container.dart';
-import 'package:goal_connect/features/profile/presentation/pages/player_profile_page.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/player_search_bloc.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/player_search_event.dart';
 
@@ -84,7 +82,6 @@ class App extends StatelessWidget {
   }
 }
 
-
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -112,8 +109,8 @@ class _MainPageState extends State<MainPage> {
         return const HighlightFeedPage();
       case 1:
         return BlocProvider(
-          create: (_) => sl<PlayerSearchBloc>()
-            ..add(const PlayerSearchLoadFeatured()),
+          create: (_) =>
+              sl<PlayerSearchBloc>()..add(const PlayerSearchLoadFeatured()),
           child: const PlayersSearchPage(),
         );
       case 2:
@@ -205,4 +202,3 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
-

@@ -35,11 +35,10 @@ Goal Connect is a Flutter mobile application that bridges the gap between footba
   - View featured players
   - Save favorite players
 
+
 - **Video Analysis**
   - Watch player highlight videos
   - Like and comment on highlights
-  - Advanced performance metrics
-  - Player comparison tools
 
 - **Outreach**
   - Initiate conversations with players

@@ -123,7 +123,8 @@ void main() {
   group('getCurrentUser', () {
     test('caches user and profile on success', () async {
       when(() => mockRemote.getCurrentUser()).thenAnswer(
-        (_) async => (tUserModel, '{"x":1}'),
+        (_) async =>
+            (user: tUserModel, profile: null, profileJson: '{"x":1}'),
       );
 
       final result = await repository.getCurrentUser();

@@ -8,6 +8,8 @@ class PlayerSearchBloc extends Bloc<PlayerSearchEvent, PlayerSearchState> {
     on<PlayerSearchLoadFeatured>(_onLoadFeatured);
     on<PlayerSearchQuerySubmitted>(_onQuerySubmitted);
     on<PlayerSearchLoadMore>(_onLoadMore);
+    on<PlayerSearchFiltersApplied>(_onFiltersApplied);
+    on<PlayerSearchFiltersCleared>(_onFiltersCleared);
   }
 
   final ListPlayersUsecase listPlayers;
@@ -45,11 +47,51 @@ class PlayerSearchBloc extends Bloc<PlayerSearchEvent, PlayerSearchState> {
       query: q,
       loadingSearch: true,
       clearError: true,
-      searchResults: q.isEmpty ? [] : state.searchResults,
-      searchPage: q.isEmpty ? 0 : state.searchPage,
+      searchResults: q.isEmpty && !state.filters.isActive ? [] : state.searchResults,
+      searchPage: q.isEmpty && !state.filters.isActive ? 0 : state.searchPage,
     ));
 
-    if (q.isEmpty) {
+    await _runSearch(emit, q, state.filters);
+  }
+
+  Future<void> _onFiltersApplied(
+    PlayerSearchFiltersApplied event,
+    Emitter<PlayerSearchState> emit,
+  ) async {
+    final next = PlayerSearchFilters(
+      position: event.position,
+      strongFoot: event.strongFoot,
+      minAge: event.minAge,
+      maxAge: event.maxAge,
+      minHeight: event.minHeight,
+      maxHeight: event.maxHeight,
+    );
+    emit(state.copyWith(
+      filters: next,
+      loadingSearch: true,
+      clearError: true,
+    ));
+    await _runSearch(emit, state.query, next);
+  }
+
+  Future<void> _onFiltersCleared(
+    PlayerSearchFiltersCleared event,
+    Emitter<PlayerSearchState> emit,
+  ) async {
+    emit(state.copyWith(
+      filters: PlayerSearchFilters.empty,
+      loadingSearch: true,
+      clearError: true,
+    ));
+    await _runSearch(emit, state.query, PlayerSearchFilters.empty);
+  }
+
+  Future<void> _runSearch(
+    Emitter<PlayerSearchState> emit,
+    String query,
+    PlayerSearchFilters filters,
+  ) async {
+    if (query.isEmpty && !filters.isActive) {
       emit(state.copyWith(
         loadingSearch: false,
         searchResults: [],
@@ -62,7 +104,13 @@ class PlayerSearchBloc extends Bloc<PlayerSearchEvent, PlayerSearchState> {
     final result = await listPlayers(
       page: 1,
       limit: _searchLimit,
-      search: q,
+      search: query.isEmpty ? null : query,
+      position: filters.position,
+      strongFoot: filters.strongFoot,
+      minAge: filters.minAge,
+      maxAge: filters.maxAge,
+      minHeight: filters.minHeight,
+      maxHeight: filters.maxHeight,
     );
     result.fold(
       (_) => emit(state.copyWith(
@@ -82,15 +130,19 @@ class PlayerSearchBloc extends Bloc<PlayerSearchEvent, PlayerSearchState> {
     PlayerSearchLoadMore event,
     Emitter<PlayerSearchState> emit,
   ) async {
-    if (!state.hasMoreSearch || state.loadingMore || state.query.isEmpty) {
-      return;
-    }
+    if (!state.hasMoreSearch || state.loadingMore) return;
     emit(state.copyWith(loadingMore: true));
     final nextPage = state.searchPage + 1;
     final result = await listPlayers(
       page: nextPage,
       limit: _searchLimit,
-      search: state.query,
+      search: state.query.isEmpty ? null : state.query,
+      position: state.filters.position,
+      strongFoot: state.filters.strongFoot,
+      minAge: state.filters.minAge,
+      maxAge: state.filters.maxAge,
+      minHeight: state.filters.minHeight,
+      maxHeight: state.filters.maxHeight,
     );
     result.fold(
       (_) => emit(state.copyWith(loadingMore: false)),

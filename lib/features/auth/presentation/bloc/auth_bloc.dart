@@ -43,8 +43,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       password: event.password,
     );
 
-    result.fold(
-      (failure) {
+    await result.fold<Future<void>>(
+      (failure) async {
         if (failure is fail.AuthFailure &&
             (failure.message ?? '').isNotEmpty) {
           emit(AuthFailure(failure.message!));
@@ -52,7 +52,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure('Login failed. Please try again.'));
         }
       },
-      (user) => emit(AuthAuthenticated(user)),
+      (user) async {
+        emit(AuthAuthenticated(user));
+        await _hydrateProfile(emit);
+      },
+    );
+  }
+
+  Future<void> _hydrateProfile(Emitter<AuthState> emit) async {
+    final me = await getCurrentUserUsecase();
+    me.fold(
+      (_) {},
+      (data) => emit(AuthAuthenticated(data.user, profile: data.profile)),
     );
   }
 
@@ -64,8 +75,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await createScoutAccountUsecase(event.registration);
 
-    result.fold(
-      (failure) {
+    await result.fold<Future<void>>(
+      (failure) async {
         if (failure is fail.ValidationFailure) {
           emit(const AuthFailure(
             'Please enter full name, email, password (at least 6 characters), phone number, and country.',
@@ -77,7 +88,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure('Could not create scout account'));
         }
       },
-      (user) => emit(AuthAuthenticated(user)),
+      (user) async {
+        emit(AuthAuthenticated(user));
+        await _hydrateProfile(emit);
+      },
     );
   }
 
@@ -91,13 +105,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async {
         final cached = await getCachedUserUsecase();
         if (cached != null) {
-          emit(AuthAuthenticated(cached));
+          emit(AuthAuthenticated(cached.user, profile: cached.profile));
         } else {
           emit(AuthUnauthenticated());
         }
       },
-      (user) async {
-        emit(AuthAuthenticated(user));
+      (data) async {
+        emit(AuthAuthenticated(data.user, profile: data.profile));
       },
     );
   }
@@ -123,8 +137,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       currentPassword: event.currentPassword,
       newPassword: event.newPassword,
     );
-    result.fold(
-      (failure) {
+    await result.fold<Future<void>>(
+      (failure) async {
         if (failure is fail.ValidationFailure) {
           emit(const AuthFailure(
             'Current password is required and new password must be at least 6 characters.',
@@ -136,7 +150,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure('Could not update password'));
         }
       },
-      (user) => emit(AuthAuthenticated(user)),
+      (user) async {
+        emit(AuthAuthenticated(user));
+        await _hydrateProfile(emit);
+      },
     );
   }
 }

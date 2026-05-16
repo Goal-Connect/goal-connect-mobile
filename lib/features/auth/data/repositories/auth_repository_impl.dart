@@ -9,6 +9,7 @@ import 'package:goal_connect/features/auth/domain/entities/scout_account_registr
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
+
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthTokenLocalDataSource tokenStorage;
@@ -68,14 +69,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> getCurrentUser() async {
+  Future<Either<Failure, CurrentUserData>> getCurrentUser() async {
     try {
-      final (user, profileJson) = await remoteDataSource.getCurrentUser();
+      final result = await remoteDataSource.getCurrentUser();
       await userCache.saveUserAndProfile(
-        user: user,
-        profileJson: profileJson,
+        user: result.user,
+        profileJson: result.profileJson,
       );
-      return Right(user);
+      return Right(CurrentUserData(user: result.user, profile: result.profile));
     } on AuthApiException catch (e) {
       if (e.statusCode == 401) {
         await tokenStorage.clearToken();
@@ -123,5 +124,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> getCachedUser() => userCache.readCachedUser();
+  Future<CurrentUserData?> getCachedUser() async {
+    final user = await userCache.readCachedUser();
+    if (user == null) return null;
+    final profile = await userCache.readCachedProfile();
+    return CurrentUserData(user: user, profile: profile);
+  }
 }
