@@ -69,4 +69,34 @@ class PlayerProfileRepositoryImpl implements PlayerProfileRepository {
       return Left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, List<PlayerProfile>>> getSavedPlayers() async {
+    try {
+      final result = await remoteDataSource.getSavedPlayers();
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> savePlayer({required String playerId}) async {
+    try {
+      await remoteDataSource.savePlayer(playerId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> unsavePlayer({required String playerId}) async {
+    try {
+      await remoteDataSource.unsavePlayer(playerId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
 }

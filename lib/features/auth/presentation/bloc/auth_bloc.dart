@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goal_connect/core/error/fialures.dart' as fail;
+import 'package:goal_connect/features/auth/domain/entities/user.dart';
 import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -53,6 +54,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
       (user) async {
+        if (_requiresApproval(user)) {
+          await _signOutForPending(emit, user, justRegistered: false);
+          return;
+        }
         emit(AuthAuthenticated(user));
         await _hydrateProfile(emit);
       },
@@ -61,10 +66,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _hydrateProfile(Emitter<AuthState> emit) async {
     final me = await getCurrentUserUsecase();
-    me.fold(
-      (_) {},
-      (data) => emit(AuthAuthenticated(data.user, profile: data.profile)),
+    await me.fold<Future<void>>(
+      (_) async {},
+      (data) async {
+        if (_requiresApproval(data.user)) {
+          await _signOutForPending(emit, data.user, justRegistered: false);
+          return;
+        }
+        emit(AuthAuthenticated(data.user, profile: data.profile));
+      },
     );
+  }
+
+  bool _requiresApproval(User user) {
+    return user.role.toLowerCase() == 'scout' && !user.isApproved;
+  }
+
+  Future<void> _signOutForPending(
+    Emitter<AuthState> emit,
+    User user, {
+    required bool justRegistered,
+  }) async {
+    await logoutUsecase();
+    emit(AuthPendingApproval(
+      email: user.email,
+      role: user.role,
+      justRegistered: justRegistered,
+    ));
   }
 
   Future<void> _onCreateScoutAccountRequested(
@@ -89,6 +117,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
       (user) async {
+        if (_requiresApproval(user)) {
+          await _signOutForPending(emit, user, justRegistered: true);
+          return;
+        }
         emit(AuthAuthenticated(user));
         await _hydrateProfile(emit);
       },
@@ -104,13 +136,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await result.fold<Future<void>>(
       (failure) async {
         final cached = await getCachedUserUsecase();
-        if (cached != null) {
-          emit(AuthAuthenticated(cached.user, profile: cached.profile));
-        } else {
+        if (cached == null) {
           emit(AuthUnauthenticated());
+          return;
         }
+        if (_requiresApproval(cached.user)) {
+          await _signOutForPending(emit, cached.user, justRegistered: false);
+          return;
+        }
+        emit(AuthAuthenticated(cached.user, profile: cached.profile));
       },
       (data) async {
+        if (_requiresApproval(data.user)) {
+          await _signOutForPending(emit, data.user, justRegistered: false);
+          return;
+        }
         emit(AuthAuthenticated(data.user, profile: data.profile));
       },
     );

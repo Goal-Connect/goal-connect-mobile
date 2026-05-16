@@ -19,6 +19,8 @@ abstract class ConversationLocalDataSource {
     String? participantRole,
     int unreadDelta,
   });
+
+  Future<void> clearAll();
 }
 
 class ConversationLocalDataSourceImpl implements ConversationLocalDataSource {
@@ -99,5 +101,10 @@ class ConversationLocalDataSourceImpl implements ConversationLocalDataSource {
     }
     threads.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     await saveThreads(threads);
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await _prefs.remove(_key);
   }
 }

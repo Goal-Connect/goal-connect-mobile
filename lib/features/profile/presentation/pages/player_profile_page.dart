@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../../../injection_container.dart';
 import '../../../chat/presentation/pages/conversation_page.dart';
 import '../../../chat/domain/entities/conversation.dart';
@@ -13,6 +14,11 @@ import '../../domain/entities/player_stats.dart';
 import '../bloc/player_profile_bloc.dart';
 import '../bloc/player_profile_event.dart';
 import '../bloc/player_profile_state.dart';
+import '../bloc/saved_players_bloc.dart';
+import '../bloc/saved_players_event.dart';
+import '../bloc/saved_players_state.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../widgets/stats_hexagon.dart';
 import '../widgets/info_chip.dart';
 import 'settings_page.dart';
@@ -151,8 +157,8 @@ class _PlayerProfileView extends StatelessWidget {
                     onPressed: () => context
                         .read<PlayerProfileBloc>()
                         .add(LoadPlayerProfileEvent(playerId)),
-                    child: const Text('Retry',
-                        style: TextStyle(color: AppColors.primaryGreen)),
+                    child: Text(AppLocalizations.of(context).commonRetry,
+                        style: const TextStyle(color: AppColors.primaryGreen)),
                   ),
                 ],
               ),
@@ -378,41 +384,39 @@ class _PlayerProfileView extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () => _initiateChat(context, profile),
-                          child: Container(
-                            width: 42, height: 42,
-                            decoration: BoxDecoration(
-                              color: (isDark ? Colors.white : Colors.black).withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(12),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, authState) {
+                      final isScout = authState is AuthAuthenticated &&
+                          authState.user.role.toLowerCase() == 'scout';
+                      if (!isScout) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () => _initiateChat(context, profile),
+                              child: Container(
+                                width: 42, height: 42,
+                                decoration: BoxDecoration(
+                                  color: (isDark ? Colors.white : Colors.black).withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.chat_bubble_outline_rounded,
+                                  color: isDark ? Colors.white70 : AppColors.lightText,
+                                  size: 18,
+                                ),
+                              ),
                             ),
-                            child: Icon(
-                              Icons.chat_bubble_outline_rounded,
-                              color: isDark ? Colors.white70 : AppColors.lightText,
-                              size: 18,
+                            _ScoutSaveProfileButton(
+                              playerId: profile.id,
+                              isDark: isDark,
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        Container(
-                          width: 42, height: 42,
-                          decoration: BoxDecoration(
-                            color: (isDark ? Colors.white : Colors.black).withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.share_rounded,
-                            color: isDark ? Colors.white70 : AppColors.lightText,
-                            size: 18,
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -444,6 +448,7 @@ class _PlayerProfileView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, PlayerProfile profile, bool isDark) {
     final textColor = isDark ? Colors.white : AppColors.lightText;
+    final l = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -454,24 +459,24 @@ class _PlayerProfileView extends StatelessWidget {
           Row(
             children: [
               if (_useServerStatsRow(profile)) ...[
-                _statColumn(profile.highlightsCount.toString(), 'Videos',
+                _statColumn(profile.highlightsCount.toString(), l.playerProfileVideos,
                     textColor),
                 _statColumn(
-                    '${profile.stats?.goals ?? 0}', 'Goals', textColor),
+                    '${profile.stats?.goals ?? 0}', l.playerProfileGoals, textColor),
                 _statColumn(
-                    '${profile.stats?.assists ?? 0}', 'Assists', textColor),
+                    '${profile.stats?.assists ?? 0}', l.playerProfileAssists, textColor),
                 _statColumn(
                     '${profile.stats?.matchesPlayed ?? 0}',
-                    'Matches',
+                    l.playerProfileMatches,
                     textColor),
               ] else ...[
-                _statColumn(profile.highlightsCount.toString(), 'Highlights',
+                _statColumn(profile.highlightsCount.toString(), l.playerProfileHighlights,
                     textColor),
-                _statColumn(profile.followersCount.toString(), 'Followers',
+                _statColumn(profile.followersCount.toString(), l.playerProfileFollowers,
                     textColor),
-                _statColumn(profile.followingCount.toString(), 'Following',
+                _statColumn(profile.followingCount.toString(), l.playerProfileFollowing,
                     textColor),
-                _statColumn(profile.totalLikes.toString(), 'Likes', textColor),
+                _statColumn(profile.totalLikes.toString(), l.playerProfileLikes, textColor),
               ],
             ],
           ),
@@ -501,25 +506,25 @@ class _PlayerProfileView extends StatelessWidget {
           if (profile.isPlayer &&
               profile.stats != null &&
               !_shouldHideSyntheticAbilityStats(profile)) ...[
-            _buildStatsSection(profile.stats!, isDark, textColor),
+            _buildStatsSection(context, profile.stats!, isDark, textColor),
             const SizedBox(height: 24),
           ],
           if (profile.isPlayer && profile.stats != null) ...[
-            _buildPlayerInfo(profile, isDark, textColor),
+            _buildPlayerInfo(context, profile, isDark, textColor),
             const SizedBox(height: 24),
             if (profile.playingStyleTags.isNotEmpty) ...[
               _buildTagsCard(
-                  'Playing style', profile.playingStyleTags, isDark, textColor),
+                  l.playerProfilePlayingStyle, profile.playingStyleTags, isDark, textColor),
               const SizedBox(height: 24),
             ],
             if (profile.clubHistory.isNotEmpty) ...[
               _buildTagsCard(
-                  'Club history', profile.clubHistory, isDark, textColor),
+                  l.playerProfileClubHistory, profile.clubHistory, isDark, textColor),
               const SizedBox(height: 24),
             ],
-            _buildDisciplinaryCard(profile, isDark, textColor),
+            _buildDisciplinaryCard(context, profile, isDark, textColor),
             const SizedBox(height: 24),
-            _buildMatchStats(profile.stats!, isDark, textColor),
+            _buildMatchStats(context, profile.stats!, isDark, textColor),
             const SizedBox(height: 24),
           ],
           _buildHighlightsSection(context, isDark, textColor),
@@ -542,7 +547,8 @@ class _PlayerProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayerInfo(PlayerProfile profile, bool isDark, Color textColor) {
+  Widget _buildPlayerInfo(BuildContext context, PlayerProfile profile, bool isDark, Color textColor) {
+    final l = AppLocalizations.of(context);
     final stats = profile.stats!;
     final height = profile.heightCm ?? stats.heightCm;
     final weight = profile.weightKg ?? stats.weightKg;
@@ -553,44 +559,44 @@ class _PlayerProfileView extends StatelessWidget {
         ? _capitalize(profile.primaryPosition)
         : profile.position;
     final tiles = <Widget>[
-      InfoChip(icon: Icons.cake_rounded, label: 'Age', value: '${profile.age}'),
-      InfoChip(icon: Icons.height_rounded, label: 'Height', value: '${height}cm'),
-      InfoChip(icon: Icons.fitness_center_rounded, label: 'Weight', value: '${weight}kg'),
+      InfoChip(icon: Icons.cake_rounded, label: l.playerProfileAge, value: '${profile.age}'),
+      InfoChip(icon: Icons.height_rounded, label: l.playerProfileHeight, value: '${height}cm'),
+      InfoChip(icon: Icons.fitness_center_rounded, label: l.playerProfileWeight, value: '${weight}kg'),
       InfoChip(
         icon: foot == 'Left' ? Icons.back_hand_rounded : Icons.front_hand_rounded,
-        label: 'Foot',
+        label: l.playerProfileFoot,
         value: foot,
       ),
       if (profile.jerseyNumber > 0)
         InfoChip(
           icon: Icons.tag_rounded,
-          label: 'Jersey',
+          label: l.playerProfileJersey,
           value: '#${profile.jerseyNumber}',
         ),
-      InfoChip(icon: Icons.sports_soccer_rounded, label: 'Position', value: primary),
+      InfoChip(icon: Icons.sports_soccer_rounded, label: l.playerProfilePosition, value: primary),
       if (profile.secondaryPosition.isNotEmpty)
         InfoChip(
           icon: Icons.swap_horiz_rounded,
-          label: 'Secondary',
+          label: l.playerProfileSecondary,
           value: _capitalize(profile.secondaryPosition),
         ),
       if (profile.nationality.isNotEmpty)
         InfoChip(
           icon: Icons.flag_rounded,
-          label: 'Nationality',
+          label: l.playerProfileNationality,
           value: profile.nationality,
         ),
       if (profile.dateOfBirth != null)
         InfoChip(
           icon: Icons.calendar_today_rounded,
-          label: 'DOB',
+          label: l.playerProfileDob,
           value: _formatDate(profile.dateOfBirth!),
         ),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Player Info', textColor),
+        _sectionTitle(l.playerProfilePlayerInfo, textColor),
         const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: 4,
@@ -625,9 +631,9 @@ class _PlayerProfileView extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                const Text(
-                  'Current Club',
-                  style: TextStyle(color: AppColors.gray, fontSize: 11),
+                Text(
+                  l.playerProfileCurrentClub,
+                  style: const TextStyle(color: AppColors.gray, fontSize: 11),
                 ),
               ],
             ),
@@ -671,18 +677,19 @@ class _PlayerProfileView extends StatelessWidget {
   }
 
   Widget _buildDisciplinaryCard(
-      PlayerProfile profile, bool isDark, Color textColor) {
+      BuildContext context, PlayerProfile profile, bool isDark, Color textColor) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Disciplinary record', textColor),
+        _sectionTitle(l.playerProfileDisciplinary, textColor),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: _cardChip(
                 color: const Color(0xFFFFC107),
-                label: 'Yellow cards',
+                label: l.playerProfileYellowCards,
                 value: '${profile.yellowCards}',
                 textColor: textColor,
               ),
@@ -691,7 +698,7 @@ class _PlayerProfileView extends StatelessWidget {
             Expanded(
               child: _cardChip(
                 color: const Color(0xFFE53935),
-                label: 'Red cards',
+                label: l.playerProfileRedCards,
                 value: '${profile.redCards}',
                 textColor: textColor,
               ),
@@ -754,13 +761,14 @@ class _PlayerProfileView extends StatelessWidget {
     return '${months[d.month - 1]} ${d.day}, ${d.year}';
   }
 
-  Widget _buildStatsSection(PlayerStats stats, bool isDark, Color textColor) {
+  Widget _buildStatsSection(BuildContext context, PlayerStats stats, bool isDark, Color textColor) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            _sectionTitle('Ability Stats', textColor),
+            _sectionTitle(l.playerProfileAbilityStats, textColor),
             const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -771,7 +779,7 @@ class _PlayerProfileView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'OVR ${stats.overall}',
+                l.playerProfileOverall(stats.overall),
                 style: const TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w900,
@@ -784,12 +792,12 @@ class _PlayerProfileView extends StatelessWidget {
         const SizedBox(height: 16),
         Center(child: StatsHexagon(stats: stats)),
         const SizedBox(height: 16),
-        _statBar('Pace', stats.pace, isDark),
-        _statBar('Shooting', stats.shooting, isDark),
-        _statBar('Passing', stats.passing, isDark),
-        _statBar('Dribbling', stats.dribbling, isDark),
-        _statBar('Defending', stats.defending, isDark),
-        _statBar('Physical', stats.physical, isDark),
+        _statBar(l.playerProfilePace, stats.pace, isDark),
+        _statBar(l.playerProfileShooting, stats.shooting, isDark),
+        _statBar(l.playerProfilePassing, stats.passing, isDark),
+        _statBar(l.playerProfileDribbling, stats.dribbling, isDark),
+        _statBar(l.playerProfileDefending, stats.defending, isDark),
+        _statBar(l.playerProfilePhysical, stats.physical, isDark),
       ],
     );
   }
@@ -835,26 +843,27 @@ class _PlayerProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildMatchStats(PlayerStats stats, bool isDark, Color textColor) {
+  Widget _buildMatchStats(BuildContext context, PlayerStats stats, bool isDark, Color textColor) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Match Record', textColor),
+        _sectionTitle(l.playerProfileMatchRecord, textColor),
         const SizedBox(height: 12),
         Row(
           children: [
             _matchStatCard(
-              '${stats.matchesPlayed}', 'Matches', Icons.sports_soccer_rounded,
+              '${stats.matchesPlayed}', l.playerProfileMatches, Icons.sports_soccer_rounded,
               AppColors.primaryGreen, isDark,
             ),
             const SizedBox(width: 10),
             _matchStatCard(
-              '${stats.goals}', 'Goals', Icons.sports_score_rounded,
+              '${stats.goals}', l.playerProfileGoals, Icons.sports_score_rounded,
               AppColors.accentGold, isDark,
             ),
             const SizedBox(width: 10),
             _matchStatCard(
-              '${stats.assists}', 'Assists', Icons.handshake_rounded,
+              '${stats.assists}', l.playerProfileAssists, Icons.handshake_rounded,
               const Color(0xFF6C63FF), isDark,
             ),
           ],
@@ -898,7 +907,7 @@ class _PlayerProfileView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle('Highlights', textColor),
+        _sectionTitle(AppLocalizations.of(context).playerProfileHighlights, textColor),
         const SizedBox(height: 12),
         BlocBuilder<HighlightBloc, HighlightState>(
           builder: (context, state) {
@@ -997,8 +1006,8 @@ class _PlayerProfileView extends StatelessWidget {
                     Icon(Icons.videocam_off_rounded,
                         color: AppColors.gray.withOpacity(0.3), size: 40),
                     const SizedBox(height: 12),
-                    const Text('No highlights yet',
-                        style: TextStyle(color: AppColors.gray, fontSize: 13)),
+                    Text(AppLocalizations.of(context).highlightsNoHighlightsYet,
+                        style: const TextStyle(color: AppColors.gray, fontSize: 13)),
                   ],
                 ),
               ),
@@ -1064,4 +1073,82 @@ Widget _profileStatusChip(String label, IconData icon, bool isDark) {
       ],
     ),
   );
+}
+
+class _ScoutSaveProfileButton extends StatelessWidget {
+  final String playerId;
+  final bool isDark;
+  const _ScoutSaveProfileButton({
+    required this.playerId,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthBloc>().state;
+    if (auth is! AuthAuthenticated ||
+        auth.user.role.toLowerCase() != 'scout') {
+      return const SizedBox.shrink();
+    }
+
+    return BlocBuilder<SavedPlayersBloc, SavedPlayersState>(
+      builder: (context, state) {
+        final saved = state.players.any((p) => p.id == playerId);
+        final pending = state.pendingIds.contains(playerId);
+        final fg = saved
+            ? AppColors.primaryGreen
+            : (isDark ? Colors.white70 : AppColors.lightText);
+        final bg = saved
+            ? AppColors.primaryGreen.withOpacity(0.15)
+            : (isDark ? Colors.white : Colors.black).withOpacity(0.08);
+
+        return Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: GestureDetector(
+            onTap: pending
+                ? null
+                : () {
+                    final bloc = context.read<SavedPlayersBloc>();
+                    if (saved) {
+                      bloc.add(SavedPlayerRemoved(playerId));
+                    } else {
+                      bloc.add(SavedPlayerAdded(playerId));
+                    }
+                  },
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(12),
+                border: saved
+                    ? Border.all(
+                        color: AppColors.primaryGreen.withOpacity(0.5),
+                        width: 1,
+                      )
+                    : null,
+              ),
+              alignment: Alignment.center,
+              child: pending
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primaryGreen,
+                      ),
+                    )
+                  : Icon(
+                      saved
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_outline_rounded,
+                      color: fg,
+                      size: 18,
+                    ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

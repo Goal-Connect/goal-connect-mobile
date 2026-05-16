@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
 
 class ConversationTile extends StatelessWidget {
@@ -12,13 +13,13 @@ class ConversationTile extends StatelessWidget {
     required this.onTap,
   });
 
-  String _timeAgo(DateTime dt) {
+  String _timeAgo(AppLocalizations l, DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'now';
-    if (diff.inHours < 1) return '${diff.inMinutes}m';
-    if (diff.inDays < 1) return '${diff.inHours}h';
-    if (diff.inDays < 7) return '${diff.inDays}d';
-    return '${(diff.inDays / 7).floor()}w';
+    if (diff.inMinutes < 1) return l.chatTimeNow;
+    if (diff.inHours < 1) return l.chatTimeMinutes(diff.inMinutes);
+    if (diff.inDays < 1) return l.chatTimeHours(diff.inHours);
+    if (diff.inDays < 7) return l.chatTimeDays(diff.inDays);
+    return l.chatTimeWeeks((diff.inDays / 7).floor());
   }
 
   IconData _roleIcon(String role) {
@@ -135,7 +136,7 @@ class ConversationTile extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _timeAgo(conversation.updatedAt),
+                          _timeAgo(AppLocalizations.of(context), conversation.updatedAt),
                           style: TextStyle(
                             fontSize: 11,
                             color: hasUnread
@@ -237,13 +238,14 @@ class ConversationTile extends StatelessWidget {
           CircleAvatar(
             radius: 28,
             backgroundColor: roleClr.withOpacity(0.08),
-            backgroundImage: conversation.participantImage != null
-                ? NetworkImage(conversation.participantImage!)
-                : null,
-            child: conversation.participantImage == null
-                ? Icon(Icons.person_rounded,
-                    color: roleClr.withOpacity(0.6), size: 28)
-                : null,
+            backgroundImage:
+                (conversation.participantImage?.isNotEmpty ?? false)
+                    ? NetworkImage(conversation.participantImage!)
+                    : null,
+            child: (conversation.participantImage?.isNotEmpty ?? false)
+                ? null
+                : Icon(Icons.person_rounded,
+                    color: roleClr.withOpacity(0.6), size: 28),
           ),
           Positioned(
             bottom: 1,

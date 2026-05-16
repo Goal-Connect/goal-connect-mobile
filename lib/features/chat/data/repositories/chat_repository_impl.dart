@@ -126,6 +126,7 @@ class ChatRepositoryImpl implements ChatRepository {
           text: trimmed,
           createdAt: DateTime.now(),
           isRead: false,
+          isMine: true,
         );
       } else {
         sent = await _remote.postDirectMessage(

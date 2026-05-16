@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
 import '../bloc/chat_state.dart';
@@ -14,26 +15,19 @@ class ChatListPage extends StatefulWidget {
   State<ChatListPage> createState() => _ChatListPageState();
 }
 
-class _ChatListPageState extends State<ChatListPage>
-    with SingleTickerProviderStateMixin {
+class _ChatListPageState extends State<ChatListPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  late AnimationController _fabController;
 
   @override
   void initState() {
     super.initState();
     context.read<ChatBloc>().add(const GetConversationsEvent());
-    _fabController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..forward();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _fabController.dispose();
     super.dispose();
   }
 
@@ -44,47 +38,19 @@ class _ChatListPageState extends State<ChatListPage>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      floatingActionButton: ScaleTransition(
-        scale:
-            CurvedAnimation(parent: _fabController, curve: Curves.elasticOut),
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [AppColors.primaryGreen, Color(0xFF00E896)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primaryGreen.withOpacity(0.4),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child:
-                const Icon(Icons.edit_rounded, color: Colors.black, size: 22),
-          ),
-        ),
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(theme, isDark),
-            _buildSearchBar(isDark),
-            Expanded(child: _buildBody(theme, isDark)),
+            _buildHeader(context, theme, isDark),
+            _buildSearchBar(context, isDark),
+            Expanded(child: _buildBody(context, theme, isDark)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(ThemeData theme, bool isDark) {
+  Widget _buildHeader(BuildContext context, ThemeData theme, bool isDark) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
       child: Row(
@@ -97,9 +63,9 @@ class _ChatListPageState extends State<ChatListPage>
                   shaderCallback: (bounds) => const LinearGradient(
                     colors: [AppColors.primaryGreen, Color(0xFF00E896)],
                   ).createShader(bounds),
-                  child: const Text(
-                    'Messages',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context).chatListTitle,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 30,
                       color: Colors.white,
@@ -109,7 +75,7 @@ class _ChatListPageState extends State<ChatListPage>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Scouts & coaches reach out here',
+                  AppLocalizations.of(context).chatListSubtitle,
                   style: TextStyle(
                     color: isDark ? Colors.white30 : Colors.black38,
                     fontSize: 13,
@@ -143,7 +109,7 @@ class _ChatListPageState extends State<ChatListPage>
     );
   }
 
-  Widget _buildSearchBar(bool isDark) {
+  Widget _buildSearchBar(BuildContext context, bool isDark) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
       child: Container(
@@ -166,7 +132,7 @@ class _ChatListPageState extends State<ChatListPage>
             fontSize: 14,
           ),
           decoration: InputDecoration(
-            hintText: 'Search conversations...',
+            hintText: AppLocalizations.of(context).chatListSearchHint,
             hintStyle: TextStyle(
                 color: AppColors.gray.withOpacity(0.6), fontSize: 14),
             prefixIcon: Padding(
@@ -183,7 +149,7 @@ class _ChatListPageState extends State<ChatListPage>
     );
   }
 
-  Widget _buildBody(ThemeData theme, bool isDark) {
+  Widget _buildBody(BuildContext context, ThemeData theme, bool isDark) {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
         if (state is ChatLoading) {
@@ -208,7 +174,7 @@ class _ChatListPageState extends State<ChatListPage>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Loading conversations...',
+                  AppLocalizations.of(context).chatListLoading,
                   style: TextStyle(
                     color: AppColors.gray.withOpacity(0.6),
                     fontSize: 13,
@@ -235,7 +201,7 @@ class _ChatListPageState extends State<ChatListPage>
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Connection issue',
+                  AppLocalizations.of(context).chatListConnectionIssue,
                   style: TextStyle(
                     color: isDark ? Colors.white : AppColors.lightText,
                     fontWeight: FontWeight.w700,
@@ -258,9 +224,9 @@ class _ChatListPageState extends State<ChatListPage>
                       color: AppColors.primaryGreen.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      'Try again',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).commonTryAgain,
+                      style: const TextStyle(
                         color: AppColors.primaryGreen,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -290,7 +256,7 @@ class _ChatListPageState extends State<ChatListPage>
                       size: 48, color: AppColors.gray.withOpacity(0.3)),
                   const SizedBox(height: 16),
                   Text(
-                    'No results found',
+                    AppLocalizations.of(context).chatListNoResults,
                     style: TextStyle(
                       color: isDark ? Colors.white70 : AppColors.lightText,
                       fontWeight: FontWeight.w700,
@@ -299,7 +265,7 @@ class _ChatListPageState extends State<ChatListPage>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Try a different search term',
+                    AppLocalizations.of(context).chatListTryDifferentSearch,
                     style: TextStyle(
                         color: AppColors.gray.withOpacity(0.6), fontSize: 13),
                   ),
@@ -400,7 +366,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 28),
           Text(
-            'No conversations yet',
+            AppLocalizations.of(context).chatListEmptyTitle,
             style: TextStyle(
               color: isDark ? Colors.white : AppColors.lightText,
               fontSize: 18,
@@ -410,7 +376,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'When scouts and coaches message you,\nthey\'ll appear here',
+            AppLocalizations.of(context).chatListEmptySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.gray.withOpacity(0.6),

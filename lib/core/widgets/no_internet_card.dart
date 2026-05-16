@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:goal_connect/generated/l10n/app_localizations.dart';
 
 class NoInternetCard extends StatelessWidget {
   const NoInternetCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-
+    final l = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(12),
@@ -30,7 +31,7 @@ class NoInternetCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'No Internet Connection',
+                  l.noInternetTitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Colors.red,
@@ -38,7 +39,7 @@ class NoInternetCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Check your connection and try again',
+                  l.noInternetSubtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.red.withValues(alpha: 0.7),
                       ),

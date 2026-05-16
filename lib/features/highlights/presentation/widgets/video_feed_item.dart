@@ -6,6 +6,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../domain/entities/highlight.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../../../injection_container.dart';
 import '../../domain/usecases/toggle_like_highlight_usecase.dart';
 import 'video_overlay_content.dart';
@@ -125,14 +126,25 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     }
 
     final uid = auth.user.id;
+    final previousLiked = _isLiked;
+    final previousCount = _likeCount;
+    setState(() {
+      _isLiked = !previousLiked;
+      _likeCount = previousCount + (_isLiked ? 1 : -1);
+    });
+
     final result =
         await sl<ToggleLikeHighlightUsecase>()(highlightId: widget.highlight.id);
 
     if (!mounted) return;
     result.fold(
       (_) {
+        setState(() {
+          _isLiked = previousLiked;
+          _likeCount = previousCount;
+        });
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          const SnackBar(content: Text('Could not update like')),
+          SnackBar(content: Text(AppLocalizations.of(context).highlightsCouldNotLike)),
         );
       },
       (r) {

@@ -26,4 +26,10 @@ abstract class PlayerProfileRepository {
     String? sortOrder,
     String? meta,
   });
+
+  Future<Either<Failure, List<PlayerProfile>>> getSavedPlayers();
+
+  Future<Either<Failure, void>> savePlayer({required String playerId});
+
+  Future<Either<Failure, void>> unsavePlayer({required String playerId});
 }

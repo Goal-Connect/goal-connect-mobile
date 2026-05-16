@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../../../injection_container.dart';
 import '../../domain/entities/highlight.dart';
 import '../../domain/usecases/delete_highlight_usecase.dart';
@@ -57,6 +58,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
 
   Future<void> _editVideo() async {
     HapticFeedback.lightImpact();
+    final l = AppLocalizations.of(context);
     final titleCtrl =
         TextEditingController(text: widget.highlight.caption);
     final descCtrl =
@@ -70,8 +72,8 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => AlertDialog(
           backgroundColor: const Color(0xFF1E1E24),
-          title: const Text('Edit highlight',
-              style: TextStyle(color: Colors.white)),
+          title: Text(l.videoEditTitle,
+              style: const TextStyle(color: Colors.white)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -79,9 +81,9 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                 TextField(
                   controller: titleCtrl,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    labelStyle: TextStyle(color: Colors.white70),
+                  decoration: InputDecoration(
+                    labelText: l.videoEditFieldTitle,
+                    labelStyle: const TextStyle(color: Colors.white70),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -89,9 +91,9 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                   controller: descCtrl,
                   style: const TextStyle(color: Colors.white),
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    labelStyle: TextStyle(color: Colors.white70),
+                  decoration: InputDecoration(
+                    labelText: l.videoEditFieldDescription,
+                    labelStyle: const TextStyle(color: Colors.white70),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -99,13 +101,13 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                   value: privacy,
                   dropdownColor: const Color(0xFF2A2A32),
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Privacy',
-                    labelStyle: TextStyle(color: Colors.white70),
+                  decoration: InputDecoration(
+                    labelText: l.videoEditFieldPrivacy,
+                    labelStyle: const TextStyle(color: Colors.white70),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'public', child: Text('public')),
-                    DropdownMenuItem(value: 'private', child: Text('private')),
+                  items: [
+                    DropdownMenuItem(value: 'public', child: Text(l.videoEditPrivacyPublic)),
+                    DropdownMenuItem(value: 'private', child: Text(l.videoEditPrivacyPrivate)),
                   ],
                   onChanged: (v) =>
                       setModalState(() => privacy = v ?? 'public'),
@@ -114,9 +116,9 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                 TextField(
                   controller: drillCtrl,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Drill type',
-                    labelStyle: TextStyle(color: Colors.white70),
+                  decoration: InputDecoration(
+                    labelText: l.videoEditFieldDrillType,
+                    labelStyle: const TextStyle(color: Colors.white70),
                   ),
                 ),
               ],
@@ -125,7 +127,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(l.commonCancel),
             ),
             TextButton(
               onPressed: () async {
@@ -145,7 +147,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                   (_) {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Could not update video')),
+                      SnackBar(content: Text(l.videoEditCouldNotUpdate)),
                     );
                   },
                   (_) {
@@ -153,12 +155,12 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                     Navigator.pop(context);
                     widget.onVideoChanged?.call();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Video updated')),
+                      SnackBar(content: Text(l.videoEditUpdated)),
                     );
                   },
                 );
               },
-              child: const Text('Save'),
+              child: Text(l.commonSave),
             ),
           ],
         ),
@@ -172,24 +174,25 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
 
   Future<void> _deleteVideo() async {
     HapticFeedback.lightImpact();
+    final l = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E24),
-        title: const Text('Delete video?',
-            style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'This removes the video from Goal Connect and Cloudinary.',
-          style: TextStyle(color: Colors.white70),
+        title: Text(l.videoDeleteTitle,
+            style: const TextStyle(color: Colors.white)),
+        content: Text(
+          l.videoDeleteMessage,
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child: Text(l.commonDelete, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -203,14 +206,14 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
     r.fold(
       (_) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not delete video')),
+          SnackBar(content: Text(l.videoDeleteCouldNotDelete)),
         );
       },
       (_) {
         Navigator.pop(context);
         widget.onVideoChanged?.call();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Video deleted')),
+          SnackBar(content: Text(l.videoDeleted)),
         );
       },
     );
@@ -218,6 +221,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return DraggableScrollableSheet(
       initialChildSize: 0.45,
       minChildSize: 0.3,
@@ -251,15 +255,15 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                     children: [
                       _OptionTile(
                         icon: Icons.edit_outlined,
-                        label: 'Edit highlight',
-                        subtitle: 'Title, description, privacy, drill type',
+                        label: l.videoOptionsEdit,
+                        subtitle: l.videoOptionsEditSubtitle,
                         color: AppColors.primaryGreen,
                         onTap: _editVideo,
                       ),
                       _OptionTile(
                         icon: Icons.delete_outline_rounded,
-                        label: 'Delete video',
-                        subtitle: 'Remove from Goal Connect',
+                        label: l.videoOptionsDelete,
+                        subtitle: l.videoOptionsDeleteSubtitle,
                         color: Colors.redAccent,
                         onTap: _deleteVideo,
                       ),
@@ -271,22 +275,22 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                       ),
                       _OptionTile(
                         icon: Icons.bookmark_outline_rounded,
-                        label: 'Save Video',
-                        subtitle: 'Add to your saved collection',
+                        label: l.videoOptionsSave,
+                        subtitle: l.videoOptionsSaveSubtitle,
                         color: AppColors.primaryGreen,
-                        onTap: () => _handleOption('Video saved'),
+                        onTap: () => _handleOption(l.videoOptionsVideoSaved),
                       ),
                       _OptionTile(
                         icon: Icons.link_rounded,
-                        label: 'Copy Link',
-                        subtitle: 'Share via link',
+                        label: l.videoOptionsCopyLink,
+                        subtitle: l.videoOptionsCopyLinkSubtitle,
                         color: Colors.blueAccent,
-                        onTap: () => _handleOption('Link copied'),
+                        onTap: () => _handleOption(l.videoOptionsLinkCopied),
                       ),
                       _OptionTile(
                         icon: Icons.download_rounded,
-                        label: 'Download',
-                        subtitle: 'Save to device',
+                        label: l.videoOptionsDownload,
+                        subtitle: l.videoOptionsDownloadSubtitle,
                         color: Colors.tealAccent,
                         onTap: () => _downloadVideo(context),
                       ),
@@ -298,34 +302,34 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                       ),
                       _OptionTile(
                         icon: Icons.not_interested_rounded,
-                        label: 'Not Interested',
-                        subtitle: 'See fewer posts like this',
+                        label: l.videoOptionsNotInterested,
+                        subtitle: l.videoOptionsNotInterestedSubtitle,
                         color: Colors.orangeAccent,
                         onTap: () =>
-                            _handleOption('We\'ll show fewer like this'),
+                            _handleOption(l.videoOptionsShowFewer),
                       ),
                       _OptionTile(
                         icon: Icons.person_remove_outlined,
-                        label: 'Unfollow @${widget.highlight.player.username}',
-                        subtitle: 'Stop seeing their highlights',
+                        label: l.videoOptionsUnfollow(widget.highlight.player.username),
+                        subtitle: l.videoOptionsUnfollowSubtitle,
                         color: Colors.amber,
                         onTap: () => _handleOption(
-                            'Unfollowed @${widget.highlight.player.username}'),
+                            l.videoOptionsUnfollowed(widget.highlight.player.username)),
                       ),
                       _OptionTile(
                         icon: Icons.flag_outlined,
-                        label: 'Report',
-                        subtitle: 'Report this highlight',
+                        label: l.videoOptionsReport,
+                        subtitle: l.videoOptionsReportSubtitle,
                         color: Colors.redAccent,
                         onTap: () => _showReportDialog(context),
                       ),
                       _OptionTile(
                         icon: Icons.block_rounded,
-                        label: 'Block @${widget.highlight.player.username}',
-                        subtitle: 'They won\'t be able to see your profile',
+                        label: l.videoOptionsBlock(widget.highlight.player.username),
+                        subtitle: l.videoOptionsBlockSubtitle,
                         color: Colors.red,
                         onTap: () => _handleOption(
-                            'Blocked @${widget.highlight.player.username}'),
+                            l.videoOptionsBlocked(widget.highlight.player.username)),
                       ),
                     ],
                   ),
@@ -360,9 +364,9 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
           const Icon(Icons.more_horiz_rounded,
               color: Colors.white54, size: 22),
           const SizedBox(width: 10),
-          const Text(
-            'Options',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context).videoOptionsTitle,
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w800,
               fontSize: 17,
@@ -387,14 +391,15 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
   }
 
   Future<void> _downloadVideo(BuildContext context) async {
+    final l = AppLocalizations.of(context);
     Navigator.pop(context);
 
     if (kIsWeb) {
-      _showToast(context, 'Download not supported on web');
+      _showToast(context, l.downloadNotSupportedOnWeb);
       return;
     }
 
-    _showToast(context, 'Downloading video...');
+    _showToast(context, l.downloadInProgress);
 
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -411,11 +416,11 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
       await dio.download(widget.highlight.videoUrl, savePath);
 
       if (context.mounted) {
-        _showToast(context, 'Video saved to GoalConnect folder');
+        _showToast(context, l.downloadSavedToFolder);
       }
     } catch (e) {
       if (context.mounted) {
-        _showToast(context, 'Download failed. Please try again.');
+        _showToast(context, l.downloadFailed);
       }
     }
   }
@@ -430,6 +435,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
   }
 
   void _showReportDialog(BuildContext context) {
+    final l = AppLocalizations.of(context);
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -441,7 +447,7 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
           final overlay = Overlay.of(context);
           final entry = OverlayEntry(
             builder: (_) =>
-                const _ConfirmationToast(message: 'Report submitted'),
+                _ConfirmationToast(message: l.videoOptionsReportSubmitted),
           );
           overlay.insert(entry);
           Future.delayed(const Duration(seconds: 2), () => entry.remove());
@@ -534,18 +540,20 @@ class _ReportSheet extends StatefulWidget {
 class _ReportSheetState extends State<_ReportSheet> {
   String? _selectedReason;
 
-  final _reasons = [
-    'Spam or misleading',
-    'Inappropriate content',
-    'Harassment or bullying',
-    'Violence or dangerous acts',
-    'Fake or edited highlight',
-    'Intellectual property violation',
-    'Other',
-  ];
+  List<String> _buildReasons(AppLocalizations l) => [
+        l.reportReasonSpam,
+        l.reportReasonInappropriate,
+        l.reportReasonHarassment,
+        l.reportReasonViolence,
+        l.reportReasonFake,
+        l.reportReasonIp,
+        l.reportReasonOther,
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final reasons = _buildReasons(l);
     return Container(
       constraints:
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
@@ -567,15 +575,15 @@ class _ReportSheetState extends State<_ReportSheet> {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 6, 20, 14),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 14),
             child: Row(
               children: [
-                Icon(Icons.flag_rounded, color: Colors.redAccent, size: 22),
-                SizedBox(width: 10),
+                const Icon(Icons.flag_rounded, color: Colors.redAccent, size: 22),
+                const SizedBox(width: 10),
                 Text(
-                  'Report Highlight',
-                  style: TextStyle(
+                  l.reportSheetTitle,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
                     fontSize: 17,
@@ -588,7 +596,7 @@ class _ReportSheetState extends State<_ReportSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
             child: Text(
-              'Why are you reporting this highlight?',
+              l.reportSheetQuestion,
               style: TextStyle(
                   color: Colors.white.withOpacity(0.5), fontSize: 13),
             ),
@@ -597,7 +605,7 @@ class _ReportSheetState extends State<_ReportSheet> {
             child: ListView(
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              children: _reasons.map((reason) {
+              children: reasons.map((reason) {
                 final isSelected = _selectedReason == reason;
                 return GestureDetector(
                   onTap: () => setState(() => _selectedReason = reason),
@@ -663,9 +671,9 @@ class _ReportSheetState extends State<_ReportSheet> {
                       borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
                 ),
-                child: const Text('Submit Report',
+                child: Text(l.reportSheetSubmit,
                     style:
-                        TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                        const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
               ),
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/entities/comment.dart';
@@ -126,14 +127,14 @@ class _CommentSheetState extends State<CommentSheet>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Replying to @${_replyingTo!.username}',
+              AppLocalizations.of(context).commentsReplyingTo(_replyingTo!.username),
               style: const TextStyle(color: Colors.white70, fontSize: 13),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           TextButton(
             onPressed: () => setState(() => _replyingTo = null),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context).commonCancel),
           ),
         ],
       ),
@@ -166,9 +167,9 @@ class _CommentSheetState extends State<CommentSheet>
                   : 0;
               return Row(
                 children: [
-                  const Text(
-                    'Comments',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context).commentsTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 17,
@@ -249,9 +250,9 @@ class _CommentSheetState extends State<CommentSheet>
                       color: Colors.white24, size: 40),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'No comments yet',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context).commentsEmptyTitle,
+                  style: const TextStyle(
                     color: Colors.white54,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -259,7 +260,7 @@ class _CommentSheetState extends State<CommentSheet>
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Be the first to share your thoughts!',
+                  AppLocalizations.of(context).commentsEmptySubtitle,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.3),
                     fontSize: 13,
@@ -343,8 +344,8 @@ class _CommentSheetState extends State<CommentSheet>
               onSubmitted: (_) => _submitComment(),
               decoration: InputDecoration(
                 hintText: _replyingTo != null
-                    ? 'Write a reply…'
-                    : 'Add a comment…',
+                    ? AppLocalizations.of(context).commentsReplyHint
+                    : AppLocalizations.of(context).commentsAddHint,
                 hintStyle: TextStyle(
                   color: Colors.white.withOpacity(0.25),
                   fontSize: 14,
@@ -446,13 +447,13 @@ class _CommentTile extends StatelessWidget {
     required this.onReply,
   });
 
-  String _timeAgo(DateTime dt) {
+  String _timeAgo(AppLocalizations l, DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inHours < 1) return '${diff.inMinutes}m';
-    if (diff.inDays < 1) return '${diff.inHours}h';
-    if (diff.inDays < 7) return '${diff.inDays}d';
-    return '${(diff.inDays / 7).floor()}w';
+    if (diff.inMinutes < 1) return l.commentsJustNow;
+    if (diff.inHours < 1) return l.chatTimeMinutes(diff.inMinutes);
+    if (diff.inDays < 1) return l.chatTimeHours(diff.inHours);
+    if (diff.inDays < 7) return l.chatTimeDays(diff.inDays);
+    return l.chatTimeWeeks((diff.inDays / 7).floor());
   }
 
   @override
@@ -529,7 +530,7 @@ class _CommentTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _timeAgo(comment.createdAt),
+                      _timeAgo(AppLocalizations.of(context), comment.createdAt),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.3),
                         fontSize: 12,
@@ -590,7 +591,7 @@ class _CommentTile extends StatelessWidget {
                     GestureDetector(
                       onTap: onReply,
                       child: Text(
-                        'Reply',
+                        AppLocalizations.of(context).commonReply,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.35),
                           fontSize: 12,

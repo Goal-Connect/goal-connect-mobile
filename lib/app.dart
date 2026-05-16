@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:goal_connect/core/theme/app_colors.dart';
 import 'package:goal_connect/core/theme/theme_cubit.dart';
 import 'package:goal_connect/core/theme/theme_state.dart';
 import 'package:goal_connect/core/theme/app_theme.dart';
+import 'package:goal_connect/core/locale/locale_cubit.dart';
+import 'package:goal_connect/core/locale/locale_state.dart';
+import 'package:goal_connect/generated/l10n/app_localizations.dart';
 import 'package:goal_connect/core/connection/internet_connection_cubit.dart';
 import 'package:goal_connect/core/connection/internet_connection_state.dart';
 import 'package:goal_connect/core/widgets/no_internet_card.dart';
@@ -22,6 +26,9 @@ import 'package:goal_connect/features/chat/data/services/chat_socket_service.dar
 import 'package:goal_connect/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/players_search_page.dart';
+import 'package:goal_connect/features/profile/presentation/pages/saved_players_page.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/saved_players_bloc.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/saved_players_event.dart';
 import 'package:goal_connect/features/auth/presentation/pages/current_user_profile_page.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import 'package:goal_connect/features/onboarding/presentation/bloc/onboarding_state.dart';
@@ -56,25 +63,39 @@ class App extends StatelessWidget {
           ),
         ),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
+        BlocProvider(create: (_) => sl<LocaleCubit>()),
         BlocProvider(create: (_) => sl<HighlightBloc>()),
         BlocProvider(create: (_) => sl<ChatBloc>()),
+        BlocProvider(create: (_) => sl<SavedPlayersBloc>()),
         BlocProvider(create: (_) => sl<InternetConnectionCubit>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: state.themeMode,
-            home: BlocBuilder<OnboardingBloc, OnboardingState>(
-              builder: (context, onboardingState) {
-                if (onboardingState is OnboardingNotShown) {
-                  return const OnboardingPage();
-                }
-                return const MainPage();
-              },
-            ),
+          return BlocBuilder<LocaleCubit, LocaleState>(
+            builder: (context, localeState) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: state.themeMode,
+                locale: localeState.locale,
+                supportedLocales: LocaleCubit.supportedLocales,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                home: BlocBuilder<OnboardingBloc, OnboardingState>(
+                  builder: (context, onboardingState) {
+                    if (onboardingState is OnboardingNotShown) {
+                      return const OnboardingPage();
+                    }
+                    return const MainPage();
+                  },
+                ),
+              );
+            },
           );
         },
       ),
@@ -90,7 +111,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  // Tab order: 0=Highlights, 1=Search, 2=Chat, 3=Profile
+  // Player tabs: 0=Highlights, 1=Search, 2=Chat, 3=Profile
+  // Scout tabs:  0=Highlights, 1=Search, 2=Saved, 3=Chat, 4=Profile
   int _selectedTab = 0;
 
   @override
@@ -103,51 +125,90 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  Widget _pageForTab() {
-    switch (_selectedTab) {
-      case 0:
+  Widget _pageForTab(bool isScout) {
+    final key = _tabKey(_selectedTab, isScout);
+    switch (key) {
+      case _Tab.highlights:
         return const HighlightFeedPage();
-      case 1:
+      case _Tab.search:
         return BlocProvider(
           create: (_) =>
               sl<PlayerSearchBloc>()..add(const PlayerSearchLoadFeatured()),
           child: const PlayersSearchPage(),
         );
-      case 2:
+      case _Tab.saved:
+        return const SavedPlayersPage();
+      case _Tab.chat:
         return const ChatListPage();
-      case 3:
+      case _Tab.profile:
         return const CurrentUserProfilePage(embeddedInShell: true);
-      default:
-        return const HighlightFeedPage();
     }
+  }
+
+  _Tab _tabKey(int index, bool isScout) {
+    if (isScout) {
+      switch (index) {
+        case 0:
+          return _Tab.highlights;
+        case 1:
+          return _Tab.search;
+        case 2:
+          return _Tab.saved;
+        case 3:
+          return _Tab.chat;
+        case 4:
+          return _Tab.profile;
+      }
+      return _Tab.highlights;
+    }
+    switch (index) {
+      case 0:
+        return _Tab.highlights;
+      case 1:
+        return _Tab.search;
+      case 2:
+        return _Tab.chat;
+      case 3:
+        return _Tab.profile;
+    }
+    return _Tab.highlights;
   }
 
   void _onTabTapped(int index) {
     setState(() => _selectedTab = index);
   }
 
-  static const _navItemsFull = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.play_circle_outline_rounded),
-      activeIcon: Icon(Icons.play_circle_rounded),
-      label: 'Highlights',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.search_rounded),
-      activeIcon: Icon(Icons.search_rounded),
-      label: 'Search',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.chat_bubble_outline_rounded),
-      activeIcon: Icon(Icons.chat_bubble_rounded),
-      label: 'Chat',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.person_outline_rounded),
-      activeIcon: Icon(Icons.person_rounded),
-      label: 'Profile',
-    ),
-  ];
+  List<_FancyNavItem> _navItems(AppLocalizations l, bool isScout) {
+    final highlights = _FancyNavItem(
+      icon: Icons.play_circle_outline_rounded,
+      activeIcon: Icons.play_circle_rounded,
+      label: l.navHighlights,
+    );
+    final search = _FancyNavItem(
+      icon: Icons.search_rounded,
+      activeIcon: Icons.search_rounded,
+      label: l.navSearch,
+    );
+    final saved = _FancyNavItem(
+      icon: Icons.bookmark_outline_rounded,
+      activeIcon: Icons.bookmark_rounded,
+      label: l.navSaved,
+    );
+    final chat = _FancyNavItem(
+      icon: Icons.chat_bubble_outline_rounded,
+      activeIcon: Icons.chat_bubble_rounded,
+      label: l.navChat,
+    );
+    final profile = _FancyNavItem(
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+      label: l.navProfile,
+    );
+    if (isScout) {
+      return [highlights, search, saved, chat, profile];
+    }
+    return [highlights, search, chat, profile];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +219,11 @@ class _MainPageState extends State<MainPage> {
         }
         if (state is AuthAuthenticated) {
           sl<ChatSocketService>().connect();
+          if (state.user.role.toLowerCase() == 'scout') {
+            context
+                .read<SavedPlayersBloc>()
+                .add(const SavedPlayersLoaded());
+          }
         } else {
           sl<ChatSocketService>().disconnect();
         }
@@ -165,7 +231,11 @@ class _MainPageState extends State<MainPage> {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, authState) {
           final authed = authState is AuthAuthenticated;
+          final isScout = authed &&
+              (authState).user.role.toLowerCase() == 'scout';
           final isDark = Theme.of(context).brightness == Brightness.dark;
+          final navItems = _navItems(AppLocalizations.of(context), isScout);
+          final maxIndex = navItems.length - 1;
 
           return Scaffold(
             body: Column(
@@ -178,26 +248,153 @@ class _MainPageState extends State<MainPage> {
                   },
                 ),
                 Expanded(
-                  child: authed ? _pageForTab() : const HighlightFeedPage(),
+                  child: authed
+                      ? _pageForTab(isScout)
+                      : const HighlightFeedPage(),
                 ),
               ],
             ),
             bottomNavigationBar: authed
-                ? BottomNavigationBar(
-                    currentIndex: _selectedTab.clamp(0, 3),
+                ? _FancyBottomNav(
+                    items: navItems,
+                    currentIndex: _selectedTab.clamp(0, maxIndex),
                     onTap: _onTabTapped,
-                    type: BottomNavigationBarType.fixed,
-                    backgroundColor: isDark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurface,
-                    selectedItemColor: AppColors.primaryGreen,
-                    unselectedItemColor: AppColors.gray,
-                    showUnselectedLabels: true,
-                    items: _navItemsFull,
+                    isDark: isDark,
                   )
                 : null,
           );
         },
+      ),
+    );
+  }
+}
+
+enum _Tab { highlights, search, saved, chat, profile }
+
+class _FancyNavItem {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  const _FancyNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
+}
+
+class _FancyBottomNav extends StatelessWidget {
+  final List<_FancyNavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final bool isDark;
+
+  const _FancyBottomNav({
+    required this.items,
+    required this.currentIndex,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  static const _green = AppColors.primaryGreen;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isDark ? const Color(0xFF0E0E16) : Colors.white;
+    final inactive = isDark
+        ? Colors.white.withOpacity(0.55)
+        : AppColors.lightText.withOpacity(0.55);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        border: Border(
+          top: BorderSide(
+            color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 64,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final slotWidth = constraints.maxWidth / items.length;
+              const underlineWidth = 22.0;
+              return Stack(
+                children: [
+                  Row(
+                    children: List.generate(items.length, (i) {
+                      final item = items[i];
+                      final selected = i == currentIndex;
+                      final color = selected ? _green : inactive;
+                      return Expanded(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => onTap(i),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  selected ? item.activeIcon : item.icon,
+                                  size: 24,
+                                  color: color,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.label,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: selected
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 280),
+                    curve: Curves.easeOutCubic,
+                    bottom: 0,
+                    left: slotWidth * currentIndex +
+                        (slotWidth - underlineWidth) / 2,
+                    child: Container(
+                      width: underlineWidth,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: _green,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(2),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _green.withOpacity(0.5),
+                            blurRadius: 8,
+                            offset: const Offset(0, -1),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }

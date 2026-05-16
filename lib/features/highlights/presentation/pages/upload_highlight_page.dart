@@ -11,6 +11,7 @@ import '../bloc/highlight_bloc.dart';
 import '../bloc/highlight_event.dart';
 import '../bloc/highlight_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -101,8 +102,8 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Camera not available on this device. Please use "Choose from Gallery" instead.',
+            content: Text(
+              AppLocalizations.of(context).highlightsCameraNotAvailable,
             ),
             backgroundColor: AppColors.habeshaRed,
             behavior: SnackBarBehavior.floating,
@@ -264,13 +265,13 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
             ),
           ),
           const SizedBox(height: 28),
-          const Text(
-            'Uploading highlight...',
-            style: TextStyle(color: Colors.white60, fontSize: 16, fontWeight: FontWeight.w500),
+          Text(
+            AppLocalizations.of(context).highlightsUploading,
+            style: const TextStyle(color: Colors.white60, fontSize: 16, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           Text(
-            'This may take a moment',
+            AppLocalizations.of(context).highlightsUploadingSubtitle,
             style: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 13),
           ),
         ],
@@ -318,9 +319,9 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                     shaderCallback: (bounds) => const LinearGradient(
                       colors: [AppColors.primaryGreen, Color(0xFF00E5A0)],
                     ).createShader(bounds),
-                    child: const Text(
-                      'Create Highlight',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).highlightsCreateTitle,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
@@ -330,22 +331,22 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Show scouts & coaches your best moves',
+                    AppLocalizations.of(context).highlightsCreateSubtitle,
                     style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 15),
                   ),
                   const SizedBox(height: 48),
                   _buildOptionCard(
                     icon: Icons.videocam_rounded,
-                    title: 'Record Video',
-                    subtitle: 'Use your camera · up to ${_maxSeconds}s',
+                    title: AppLocalizations.of(context).highlightsRecordVideo,
+                    subtitle: AppLocalizations.of(context).highlightsRecordVideoSubtitle(_maxSeconds),
                     gradient: const [AppColors.primaryGreen, Color(0xFF00B870)],
                     onTap: _initCamera,
                   ),
                   const SizedBox(height: 14),
                   _buildOptionCard(
                     icon: Icons.photo_library_rounded,
-                    title: 'Choose from Gallery',
-                    subtitle: 'Pick an existing video clip',
+                    title: AppLocalizations.of(context).highlightsChooseFromGallery,
+                    subtitle: AppLocalizations.of(context).highlightsChooseFromGallerySubtitle,
                     gradient: const [Color(0xFF6C63FF), Color(0xFF4A3FCC)],
                     onTap: _pickVideo,
                   ),
@@ -433,11 +434,11 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Pro Tip', style: TextStyle(
+                Text(AppLocalizations.of(context).highlightsProTipTitle, style: const TextStyle(
                   color: AppColors.accentGold, fontWeight: FontWeight.w700, fontSize: 13)),
                 const SizedBox(height: 2),
                 Text(
-                  'Keep clips under 30s and showcase one skill per highlight.',
+                  AppLocalizations.of(context).highlightsProTipBody,
                   style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 12, height: 1.4),
                 ),
               ],
@@ -565,7 +566,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                     )
                   else
                     Text(
-                      'Max ${_maxSeconds}s',
+                      AppLocalizations.of(context).highlightsMaxSeconds(_maxSeconds),
                       style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                   const Spacer(),
@@ -591,14 +592,14 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                   if (!_isRecording)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24),
-                      child: Text('Tap to record',
+                      child: Text(AppLocalizations.of(context).highlightsTapToRecord,
                         style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 13)),
                     ),
                   if (_isRecording)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24),
                       child: Text(
-                        'Recording... ${_fmt(_recordingSeconds)} / ${_fmt(_maxSeconds)}',
+                        AppLocalizations.of(context).highlightsRecordingProgress(_fmt(_recordingSeconds), _fmt(_maxSeconds)),
                         style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -804,7 +805,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                       maxLength: 150,
                       style: const TextStyle(color: Colors.white, fontSize: 15),
                       decoration: InputDecoration(
-                        hintText: 'Write a caption...',
+                        hintText: AppLocalizations.of(context).highlightsCaptionHint,
                         hintStyle: TextStyle(color: Colors.white.withOpacity(0.22)),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(16),
@@ -818,7 +819,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                       Expanded(
                         child: _pill(
                           icon: Icons.refresh_rounded,
-                          label: 'Retake',
+                          label: AppLocalizations.of(context).highlightsRetake,
                           fg: Colors.white60,
                           bg: Colors.white.withOpacity(0.06),
                           onTap: _retake,
@@ -829,7 +830,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                         flex: 2,
                         child: _pill(
                           icon: Icons.upload_rounded,
-                          label: 'Post Highlight',
+                          label: AppLocalizations.of(context).highlightsPost,
                           fg: Colors.black,
                           bg: AppColors.primaryGreen,
                           onTap: () {
@@ -842,8 +843,8 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                                     : '');
                             if (resolved.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Sign in as a player to upload.'),
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context).highlightsSignInToUpload),
                                 ),
                               );
                               return;
@@ -863,7 +864,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                   const Spacer(),
                   Center(
                     child: Text(
-                      'Visible to scouts & coaches after posting',
+                      AppLocalizations.of(context).highlightsVisibleAfterPosting,
                       style: TextStyle(color: Colors.white.withOpacity(0.18), fontSize: 12),
                     ),
                   ),
@@ -934,9 +935,9 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
             shaderCallback: (bounds) => const LinearGradient(
               colors: [AppColors.primaryGreen, Color(0xFF00E5A0)],
             ).createShader(bounds),
-            child: const Text(
-              'NEW HIGHLIGHT',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context).highlightsTopBarTitle,
+              style: const TextStyle(
                 fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Colors.white,
               ),
             ),

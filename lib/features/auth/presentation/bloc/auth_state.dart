@@ -25,6 +25,26 @@ class AuthAuthenticated extends AuthState {
 
 class AuthUnauthenticated extends AuthState {}
 
+/// Login/registration succeeded but the account is not yet approved
+/// (e.g. scout awaiting admin verification). The session has been signed out.
+class AuthPendingApproval extends AuthState {
+  final String email;
+  final String role;
+
+  /// True when the user just submitted a registration; false when an
+  /// already-registered user tried to sign in while still pending.
+  final bool justRegistered;
+
+  const AuthPendingApproval({
+    required this.email,
+    required this.role,
+    this.justRegistered = false,
+  });
+
+  @override
+  List<Object?> get props => [email, role, justRegistered];
+}
+
 class AuthFailure extends AuthState {
   final String message;
 

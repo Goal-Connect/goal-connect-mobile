@@ -1,0 +1,454 @@
+{
+  "@@locale": "am",
+
+  "appName": "ጎል ኮኔክት",
+  "appTagline": "ለቆንጆው ጨዋታ በፍቅር ተሰርቷል",
+
+  "navHighlights": "ድምቀቶች",
+  "navSearch": "ፍለጋ",
+  "navSaved": "የተቀመጡ",
+  "navChat": "መልዕክት",
+  "navProfile": "መገለጫ",
+
+  "noInternetTitle": "የኢንተርኔት ግንኙነት የለም",
+  "noInternetSubtitle": "ግንኙነትዎን ይመልከቱ እና እንደገና ይሞክሩ",
+
+  "commonCancel": "ሰርዝ",
+  "commonSave": "አስቀምጥ",
+  "commonDelete": "አጥፋ",
+  "commonRetry": "እንደገና ሞክር",
+  "commonTryAgain": "እንደገና ሞክር",
+  "commonReply": "መልስ",
+  "commonReset": "ዳግም አስጀምር",
+  "commonClear": "አጽዳ",
+  "commonApply": "ማጣሪያዎችን ተግብር",
+  "commonNext": "ቀጣይ",
+  "commonGetStarted": "ጀምር",
+  "commonSkip": "ዝለል",
+  "commonLoading": "በመጫን ላይ…",
+
+  "onboardingPage1Title": "ችሎታዎን ",
+  "onboardingPage1Highlight": "ያሳዩ",
+  "onboardingPage1Description": "ለኢትዮጵያ ብቅ ላሉ ኮከቦች ዲጂታል መኖሪያ። መገለጫዎን ይፍጠሩ እና ዓለም ችሎታዎን ይመልከት።",
+
+  "onboardingPage2Title": "ለስካውቲንግ የተሰራ ",
+  "onboardingPage2Highlight": "የብቃት ትንታኔ",
+  "onboardingPage2Description": "የእርስዎን አፈጻጸም ለሙያዊ ስካውቶች በዓለም አቀፍ ደረጃ የሚያቀርብ የላቀ የቪዲዮ ትንታኔ።",
+
+  "onboardingPage3Title": "ወደ ህልምዎ ",
+  "onboardingPage3Highlight": "ድልድይ",
+  "onboardingPage3Description": "የአካባቢውን ተሰጥኦ ከአካዳሚዎች እና ከዓለም አቀፍ ስካውቶች ጋር በቀጥታ ማገናኘት። ጉዞዎ የሚጀምረው ከዚህ ነው።",
+
+  "loginHeadlineLine1": "ወጣት ኮከቦችን ያገናኙ",
+  "loginHeadlineLine2Prefix": "ከ",
+  "loginHeadlineLine2Highlight": "ህልማቸው",
+  "loginWelcomeBack": "እንኳን ደህና መጡ",
+  "loginContinueSubtitle": "ወደ መለያዎ ለመቀጠል ይግቡ",
+  "loginEmailLabel": "ኢሜይል አድራሻ",
+  "loginEmailRequired": "ኢሜይል ያስፈልጋል",
+  "loginEmailInvalid": "ትክክለኛ ኢሜይል ያስገቡ",
+  "loginPasswordLabel": "የይለፍ ቃል",
+  "loginPasswordRequired": "የይለፍ ቃል ያስፈልጋል",
+  "loginForgotPassword": "የይለፍ ቃል ረሱ?",
+  "loginButton": "ወደ መለያ ግባ",
+  "loginOr": "ወይም",
+  "loginCreateScoutAccount": "የስካውት መለያ ይፍጠሩ",
+
+  "scoutRegisterAppBarTitle": "የስካውት መለያ ይፍጠሩ",
+  "scoutRegisterStepOf": "ደረጃ {current} ከ {total}",
+  "@scoutRegisterStepOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "scoutRegisterStep1Title": "የመለያ ዝርዝሮች",
+  "scoutRegisterStep1Subtitle": "በመሠረታዊ መረጃዎ እንጀምር።",
+  "scoutRegisterStep2Title": "ማንነት እና ማረጋገጫ",
+  "scoutRegisterStep2Subtitle": "እንደ የተመዘገበ ስካውት እንድንረጋግጥ ይረዳናል።",
+  "scoutRegisterStep3Title": "ሙያዊ ዳራ",
+  "scoutRegisterStep3Subtitle": "ስለ ስካውቲንግ ስራዎ ይንገሩን።",
+  "scoutRegisterReview": "ግምገማ",
+  "scoutRegisterReviewName": "ስም",
+  "scoutRegisterReviewEmail": "ኢሜይል",
+  "scoutRegisterReviewPhone": "ስልክ",
+  "scoutRegisterReviewCountry": "አገር",
+  "scoutRegisterReviewLicence": "ፈቃድ",
+  "scoutRegisterReviewUploaded": "ተጭኗል",
+  "scoutRegisterReviewNotUploaded": "አልተጫነም",
+  "scoutRegisterContinue": "ቀጥል",
+  "scoutRegisterBack": "ተመለስ",
+  "scoutRegisterFieldRequired": "{field} ያስፈልጋል",
+  "@scoutRegisterFieldRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+  "scoutRegisterMinChars": "ቢያንስ 6 ቁምፊዎች",
+  "scoutRegisterEmailInvalid": "ትክክለኛ ኢሜይል ያስገቡ",
+  "scoutRegisterTitle": "የስካውት ምዝገባ",
+  "scoutRegisterSubtitle": "ዝርዝሮችዎን ያቅርቡ እና የስካውቲንግ ፈቃድዎን ግልጽ ፎቶ ይጫኑ።",
+  "scoutRegisterFullName": "ሙሉ ስም",
+  "scoutRegisterEmail": "ኢሜይል",
+  "scoutRegisterPassword": "የይለፍ ቃል (ቢያንስ 6 ቁምፊዎች)",
+  "scoutRegisterNationalId": "ብሔራዊ መታወቂያ / የፋን ቁጥር",
+  "scoutRegisterPhone": "የስልክ ቁጥር",
+  "scoutRegisterOrganization": "ድርጅት / ክለብ (አማራጭ)",
+  "scoutRegisterCountry": "አገር",
+  "scoutRegisterYearsExperience": "የልምድ ዓመታት (አማራጭ)",
+  "scoutRegisterLicencePhoto": "የፈቃድ ፎቶ",
+  "scoutRegisterUploadLicence": "የፈቃድ ፎቶ ይጫኑ",
+  "scoutRegisterChangeLicence": "የፈቃድ ፎቶ ይቀይሩ",
+  "scoutRegisterPhotoSelected": "ፎቶ ተመርጧል",
+  "scoutRegisterSubmit": "የስካውት መለያ ይፍጠሩ",
+
+  "highlightsCreateTitle": "ድምቀት ይፍጠሩ",
+  "highlightsCreateSubtitle": "ለስካውቶች እና አሰልጣኞች ምርጥ እንቅስቃሴዎችዎን ያሳዩ",
+  "highlightsRecordVideo": "ቪዲዮ ይቅረጹ",
+  "highlightsRecordVideoSubtitle": "ካሜራዎን ይጠቀሙ · እስከ {seconds} ሰከንዶች",
+  "@highlightsRecordVideoSubtitle": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "highlightsChooseFromGallery": "ከጋለሪ ይምረጡ",
+  "highlightsChooseFromGallerySubtitle": "ቀደም ብሎ ያለ ቪዲዮ ይምረጡ",
+  "highlightsProTipTitle": "ጠቃሚ ምክር",
+  "highlightsProTipBody": "ቅንጥቦቹን ከ30 ሰከንድ በታች ያድርጉ እና በአንድ ድምቀት አንድ ችሎታን ያሳዩ።",
+  "highlightsMaxSeconds": "ቢበዛ {seconds} ሰከንዶች",
+  "@highlightsMaxSeconds": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "highlightsTapToRecord": "ለመቅረጽ ይንኩ",
+  "highlightsRecordingProgress": "በመቅረጽ ላይ... {elapsed} / {total}",
+  "@highlightsRecordingProgress": {
+    "placeholders": {
+      "elapsed": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "highlightsCameraNotAvailable": "በዚህ መሣሪያ ላይ ካሜራ አይገኝም። እባክዎ \"ከጋለሪ ይምረጡ\" ይጠቀሙ።",
+  "highlightsCaptionHint": "መግለጫ ይጻፉ...",
+  "highlightsRetake": "እንደገና ያንሱ",
+  "highlightsPost": "ድምቀት ይለጥፉ",
+  "highlightsVisibleAfterPosting": "ከመለጠፉ በኋላ ለስካውቶች እና አሰልጣኞች ይታያል",
+  "highlightsUploading": "ድምቀት በመጫን ላይ...",
+  "highlightsUploadingSubtitle": "ይህ ጥቂት ጊዜ ሊወስድ ይችላል",
+  "highlightsTopBarTitle": "አዲስ ድምቀት",
+  "highlightsSignInToUpload": "ለመጫን እንደ ተጫዋች ይግቡ።",
+  "highlightsCouldNotLike": "መውደድን ማዘመን አልተቻለም",
+  "highlightsNoHighlightsYet": "እስካሁን ድምቀቶች የሉም",
+
+  "videoOptionsTitle": "አማራጮች",
+  "videoOptionsEdit": "ድምቀት ያርትዑ",
+  "videoOptionsEditSubtitle": "ርዕስ፣ መግለጫ፣ ግላዊነት፣ የልምምድ ዓይነት",
+  "videoOptionsDelete": "ቪዲዮ አጥፋ",
+  "videoOptionsDeleteSubtitle": "ከጎል ኮኔክት አስወግድ",
+  "videoOptionsSave": "ቪዲዮ አስቀምጥ",
+  "videoOptionsSaveSubtitle": "ወደ ተቀመጠው ስብስብዎ ያክሉ",
+  "videoOptionsCopyLink": "አገናኝ ይቅዱ",
+  "videoOptionsCopyLinkSubtitle": "በአገናኝ ያጋሩ",
+  "videoOptionsDownload": "አውርድ",
+  "videoOptionsDownloadSubtitle": "ወደ መሣሪያ አስቀምጥ",
+  "videoOptionsNotInterested": "ፍላጎት የለኝም",
+  "videoOptionsNotInterestedSubtitle": "እንደዚህ ያሉ ጥቂት ልጥፎችን ይመልከቱ",
+  "videoOptionsUnfollow": "@{username}ን አለመከታተል",
+  "@videoOptionsUnfollow": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsUnfollowSubtitle": "ድምቀቶቻቸውን ማየት አቁም",
+  "videoOptionsReport": "ሪፖርት",
+  "videoOptionsReportSubtitle": "ይህን ድምቀት ሪፖርት ያድርጉ",
+  "videoOptionsBlock": "@{username}ን አግድ",
+  "@videoOptionsBlock": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsBlockSubtitle": "መገለጫዎን ማየት አይችሉም",
+  "videoOptionsUnfollowed": "@{username} ሳይከተል ቀርቷል",
+  "@videoOptionsUnfollowed": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsBlocked": "@{username} ታግዷል",
+  "@videoOptionsBlocked": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsLinkCopied": "አገናኝ ተቀድቷል",
+  "videoOptionsVideoSaved": "ቪዲዮ ተቀምጧል",
+  "videoOptionsShowFewer": "እንደዚህ ያሉትን በመቀነስ እናሳያለን",
+  "videoOptionsReportSubmitted": "ሪፖርት ቀርቧል",
+
+  "videoEditTitle": "ድምቀት ያርትዑ",
+  "videoEditFieldTitle": "ርዕስ",
+  "videoEditFieldDescription": "መግለጫ",
+  "videoEditFieldPrivacy": "ግላዊነት",
+  "videoEditPrivacyPublic": "ይፋዊ",
+  "videoEditPrivacyPrivate": "የግል",
+  "videoEditFieldDrillType": "የልምምድ ዓይነት",
+  "videoEditCouldNotUpdate": "ቪዲዮውን ማዘመን አልተቻለም",
+  "videoEditUpdated": "ቪዲዮ ተዘምኗል",
+
+  "videoDeleteTitle": "ቪዲዮ ይጠፋ?",
+  "videoDeleteMessage": "ይህ ቪዲዮውን ከጎል ኮኔክት እና ከCloudinary ያስወግዳል።",
+  "videoDeleteCouldNotDelete": "ቪዲዮውን ማጥፋት አልተቻለም",
+  "videoDeleted": "ቪዲዮ ጠፍቷል",
+
+  "downloadNotSupportedOnWeb": "በድር ላይ ማውረድ አይደገፍም",
+  "downloadInProgress": "ቪዲዮ በማውረድ ላይ...",
+  "downloadSavedToFolder": "ቪዲዮ ወደ GoalConnect ፎልደር ተቀምጧል",
+  "downloadFailed": "ማውረዱ አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+  "downloadUnavailable": "ቪዲዮ አይገኝም",
+  "downloadSavedToGallery": "ወደ ጋለሪዎ ተቀምጧል",
+  "downloadCouldNotDownload": "ቪዲዮውን ማውረድ አልተቻለም",
+  "downloadLabel": "አውርድ",
+
+  "reportSheetTitle": "ድምቀት ሪፖርት",
+  "reportSheetQuestion": "ይህን ድምቀት ለምን ሪፖርት እያደረጉ ነው?",
+  "reportSheetSubmit": "ሪፖርት አስገባ",
+  "reportReasonSpam": "ስፓም ወይም አሳሳች",
+  "reportReasonInappropriate": "ተገቢ ያልሆነ ይዘት",
+  "reportReasonHarassment": "ትንኮሳ ወይም ጉልበተኝነት",
+  "reportReasonViolence": "ጥቃት ወይም አደገኛ ድርጊቶች",
+  "reportReasonFake": "ሐሰተኛ ወይም የተስተካከለ ድምቀት",
+  "reportReasonIp": "የአዕምሮ ንብረት ጥሰት",
+  "reportReasonOther": "ሌላ",
+
+  "commentsTitle": "አስተያየቶች",
+  "commentsAddHint": "አስተያየት ይጨምሩ…",
+  "commentsReplyHint": "መልስ ይጻፉ…",
+  "commentsReplyingTo": "ለ@{username} በመመለስ ላይ",
+  "@commentsReplyingTo": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "commentsEmptyTitle": "እስካሁን አስተያየቶች የሉም",
+  "commentsEmptySubtitle": "ሃሳብዎን የመጀመሪያው አጋር ይሁኑ!",
+  "commentsJustNow": "አሁን",
+
+  "saveActionSave": "አስቀምጥ",
+  "saveActionSaved": "ተቀምጧል",
+  "saveActionPending": "…",
+
+  "chatListTitle": "መልዕክቶች",
+  "chatListSubtitle": "ስካውቶች እና አሰልጣኞች እዚህ ይደርሳሉ",
+  "chatListSearchHint": "ውይይቶችን ይፈልጉ...",
+  "chatListLoading": "ውይይቶችን በመጫን ላይ...",
+  "chatListConnectionIssue": "የግንኙነት ችግር",
+  "chatListNoResults": "ምንም ውጤት አልተገኘም",
+  "chatListTryDifferentSearch": "የተለየ የፍለጋ ቃል ይሞክሩ",
+  "chatListEmptyTitle": "እስካሁን ውይይቶች የሉም",
+  "chatListEmptySubtitle": "ስካውቶች እና አሰልጣኞች መልዕክት ሲልኩ\nእዚህ ይታያሉ",
+
+  "chatConversationActiveNow": "አሁን ንቁ",
+  "chatConversationInputHint": "መልዕክት ይጻፉ…",
+  "chatConversationStartTitle": "ውይይት ይጀምሩ",
+  "chatConversationStartSubtitle": "ለ{name} ሰላም ይበሉ!",
+  "@chatConversationStartSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "chatConversationUnableToLoad": "መልዕክቶችን መጫን አልተቻለም",
+  "chatDateToday": "ዛሬ",
+  "chatDateYesterday": "ትናንት",
+  "chatTimeNow": "አሁን",
+  "chatTimeMinutes": "{minutes} ደቂቃ",
+  "@chatTimeMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "chatTimeHours": "{hours} ሰዓት",
+  "@chatTimeHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "chatTimeDays": "{days} ቀን",
+  "@chatTimeDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chatTimeWeeks": "{weeks} ሳምንት",
+  "@chatTimeWeeks": {
+    "placeholders": {
+      "weeks": { "type": "int" }
+    }
+  },
+
+  "searchTitle": "ፍለጋ",
+  "searchPlayersHint": "ተጫዋቾችን ይፈልጉ…",
+  "searchNoPlayersToShow": "እስካሁን የሚታይ ተጫዋች የለም።",
+  "searchEmptyHint": "ተጫዋቾችን ለማግኘት በስም ይፈልጉ ወይም ማጣሪያዎችን ይጠቀሙ።",
+  "searchResults": "ውጤቶች",
+  "searchNoMatchQuery": "ከ\"{query}\" ጋር የሚስማማ ተጫዋች የለም።",
+  "@searchNoMatchQuery": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "searchNoMatchFilters": "ከተመረጡት ማጣሪያዎች ጋር የሚስማማ ተጫዋች የለም።",
+  "searchPlayersSection": "ተጫዋቾች",
+
+  "filtersTitle": "ተጫዋቾችን አጣራ",
+  "filtersPosition": "ቦታ",
+  "filtersStrongFoot": "ጠንካራ እግር",
+  "filtersAge": "ዕድሜ",
+  "filtersHeightCm": "ቁመት (ሴሜ)",
+  "filtersMin": "ዝቅተኛ",
+  "filtersMax": "ከፍተኛ",
+  "filtersPositionGoalkeeper": "ግብ ጠባቂ",
+  "filtersPositionDefender": "ተከላካይ",
+  "filtersPositionMidfielder": "የመሀል መስመር",
+  "filtersPositionForward": "አጥቂ",
+  "filtersFootLeft": "ግራ",
+  "filtersFootRight": "ቀኝ",
+  "filtersFootBoth": "ሁለቱም",
+  "filtersChipFoot": "{foot} እግር",
+  "@filtersChipFoot": {
+    "placeholders": {
+      "foot": { "type": "String" }
+    }
+  },
+  "filtersChipAge": "ዕድሜ {min}–{max}",
+  "@filtersChipAge": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "filtersChipHeight": "ቁመት {min}–{max} ሴሜ",
+  "@filtersChipHeight": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+
+  "savedPlayersTitle": "የተቀመጡ ተጫዋቾች",
+  "savedPlayersEmptyTitle": "እስካሁን የተቀመጡ ተጫዋቾች የሉም",
+  "savedPlayersEmptySubtitle": "ለፈጣን መዳረሻ ከፍለጋ ተጫዋቾችን ይያዙ።",
+  "savedPlayersRemoveTooltip": "ከተቀመጡት አስወግድ",
+
+  "playerProfileVideos": "ቪዲዮዎች",
+  "playerProfileGoals": "ጎሎች",
+  "playerProfileAssists": "ድጋፎች",
+  "playerProfileMatches": "ግጥሚያዎች",
+  "playerProfileHighlights": "ድምቀቶች",
+  "playerProfileFollowers": "ተከታዮች",
+  "playerProfileFollowing": "የሚከተል",
+  "playerProfileLikes": "መውደዶች",
+  "playerProfilePlayerInfo": "የተጫዋች መረጃ",
+  "playerProfileAge": "ዕድሜ",
+  "playerProfileHeight": "ቁመት",
+  "playerProfileWeight": "ክብደት",
+  "playerProfileFoot": "እግር",
+  "playerProfileJersey": "ጀርሲ",
+  "playerProfilePosition": "ቦታ",
+  "playerProfileSecondary": "ሁለተኛ",
+  "playerProfileNationality": "ዜግነት",
+  "playerProfileDob": "የልደት ቀን",
+  "playerProfileCurrentClub": "የአሁኑ ክለብ",
+  "playerProfilePlayingStyle": "የመጫወት ዘይቤ",
+  "playerProfileClubHistory": "የክለብ ታሪክ",
+  "playerProfileDisciplinary": "የስነ-ምግባር መዝገብ",
+  "playerProfileYellowCards": "ቢጫ ካርዶች",
+  "playerProfileRedCards": "ቀይ ካርዶች",
+  "playerProfileAbilityStats": "የብቃት ስታቲስቲክስ",
+  "playerProfileOverall": "አጠቃላይ {value}",
+  "@playerProfileOverall": {
+    "placeholders": {
+      "value": { "type": "int" }
+    }
+  },
+  "playerProfilePace": "ፍጥነት",
+  "playerProfileShooting": "መተኮስ",
+  "playerProfilePassing": "ማስተላለፍ",
+  "playerProfileDribbling": "ድሪብል",
+  "playerProfileDefending": "መከላከል",
+  "playerProfilePhysical": "ሰውነት",
+  "playerProfileMatchRecord": "የግጥሚያ መዝገብ",
+
+  "currentUserProfileUserInfo": "የተጠቃሚ መረጃ",
+  "currentUserProfileEmail": "ኢሜይል",
+  "currentUserProfileRole": "ሚና",
+  "currentUserProfileName": "ስም",
+  "currentUserProfileOrganization": "ድርጅት",
+  "currentUserProfilePhone": "ስልክ",
+  "currentUserProfileCountry": "አገር",
+  "currentUserProfileScoutingPreferences": "የስካውቲንግ ምርጫዎች",
+  "currentUserProfileNoPreferences": "እስካሁን ምርጫዎች አልተቀመጡም",
+  "currentUserProfileAgeRange": "የዕድሜ ክልል",
+  "currentUserProfileAgeRangeValue": "{lo} – {hi} ዓመታት",
+  "@currentUserProfileAgeRangeValue": {
+    "placeholders": {
+      "lo": { "type": "String" },
+      "hi": { "type": "String" }
+    }
+  },
+  "currentUserProfilePositions": "ቦታዎች",
+  "currentUserProfileRegions": "ክልሎች",
+  "currentUserProfileSaved": "ተቀምጧል",
+  "currentUserProfileRecentlyViewed": "በቅርቡ የታዩ",
+  "currentUserProfileDocuments": "ሰነዶች",
+  "currentUserProfileDetails": "የተጫዋች ዝርዝሮች",
+  "currentUserProfileStrongFoot": "ጠንካራ እግር",
+  "currentUserProfileDateOfBirth": "የልደት ቀን",
+  "currentUserProfileAvailability": "ይገኝነት",
+  "currentUserProfileVerification": "ማረጋገጫ",
+  "currentUserProfileMinutes": "ደቂቃዎች",
+  "currentUserProfileYourHighlights": "የእርስዎ ድምቀቶች",
+  "currentUserProfileRadarGoals": "ጎሎች",
+  "currentUserProfileRadarAssists": "ድጋፎች",
+  "currentUserProfileRadarMatches": "ግጥሚያዎች",
+  "currentUserProfileRadarMinutes": "ደቂቃዎች",
+  "currentUserProfileRadarHeight": "ቁመት",
+  "currentUserProfileRadarDiscipline": "ስነ-ምግባር",
+  "currentUserProfileCardYellow": "ቢጫ",
+  "currentUserProfileCardRed": "ቀይ",
+
+  "settingsAppVersion": "v1.0.0",
+  "settingsTitle": "ቅንብሮች",
+  "settingsSubtitle": "የGoalConnect ተሞክሮዎን ያበጁ",
+  "settingsAppearance": "ገጽታ",
+  "settingsThemeLight": "ብርሃን",
+  "settingsThemeDark": "ጨለማ",
+  "settingsThemeSystem": "ስርዓት",
+  "settingsSecurity": "ደህንነት",
+  "settingsUpdatePassword": "የይለፍ ቃል አዘምን",
+  "settingsAccount": "መለያ",
+  "settingsLanguage": "ቋንቋ",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageAmharic": "አማርኛ",
+  "settingsPrivacyPolicy": "የግላዊነት መመሪያ",
+  "settingsTermsOfService": "የአገልግሎት ውሎች",
+  "settingsHelpSupport": "እርዳታ እና ድጋፍ",
+  "settingsAbout": "ስለ GoalConnect",
+  "settingsSignOut": "ውጣ",
+  "settingsBrand": "GoalConnect",
+  "settingsProfileSampleUsername": "EthioStar_10",
+  "settingsProfileSamplePosition": "አጥቂ",
+  "settingsProfileSampleCountry": "ኢትዮጵያ",
+
+  "updatePasswordTitle": "የይለፍ ቃል አዘምን",
+  "updatePasswordSubtitle": "በዚህ መሣሪያ ላይ ገብተው ይቆያሉ።",
+  "updatePasswordCurrent": "የአሁኑ የይለፍ ቃል",
+  "updatePasswordNew": "አዲስ የይለፍ ቃል",
+  "updatePasswordConfirm": "አዲሱን የይለፍ ቃል አረጋግጥ",
+  "updatePasswordEnterCurrent": "የአሁኑን የይለፍ ቃልዎን ያስገቡ",
+  "updatePasswordMinChars": "ቢያንስ 6 ቁምፊዎች",
+  "updatePasswordMismatch": "የይለፍ ቃላት አይዛመዱም",
+  "updatePasswordSuccess": "የይለፍ ቃል በተሳካ ሁኔታ ተዘምኗል",
+  "updatePasswordFailure": "የይለፍ ቃልን ማዘመን አልተቻለም"
+}

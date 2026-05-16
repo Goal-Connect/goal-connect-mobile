@@ -47,5 +47,9 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Goal Connect needs permission to save videos to your photo library.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Goal Connect needs permission to save videos to your photo library.</string>
 	</dict>
 </plist>

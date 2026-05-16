@@ -1,0 +1,460 @@
+{
+  "@@locale": "en",
+
+  "appName": "Goal Connect",
+  "@appName": {
+    "description": "Application name shown to the user."
+  },
+  "appTagline": "Made with passion for the beautiful game",
+  "@appTagline": {
+    "description": "Marketing tagline shown in the settings footer."
+  },
+
+  "navHighlights": "Highlights",
+  "navSearch": "Search",
+  "navSaved": "Saved",
+  "navChat": "Chat",
+  "navProfile": "Profile",
+
+  "noInternetTitle": "No Internet Connection",
+  "noInternetSubtitle": "Check your connection and try again",
+
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonRetry": "Retry",
+  "commonTryAgain": "Try again",
+  "commonReply": "Reply",
+  "commonReset": "Reset",
+  "commonClear": "Clear",
+  "commonApply": "Apply filters",
+  "commonNext": "NEXT",
+  "commonGetStarted": "GET STARTED",
+  "commonSkip": "Skip",
+  "commonLoading": "Loading…",
+
+  "onboardingPage1Title": "Showcase Your ",
+  "onboardingPage1Highlight": "Talent",
+  "onboardingPage1Description": "The digital home for Ethiopia's rising stars. Create your profile and let the world see your skills.",
+
+  "onboardingPage2Title": "Performance Insights for ",
+  "onboardingPage2Highlight": "Scouting",
+  "onboardingPage2Description": "Advanced video analysis that breaks down your performance for professional scouts globally.",
+
+  "onboardingPage3Title": "Bridge to your ",
+  "onboardingPage3Highlight": "Dreams",
+  "onboardingPage3Description": "Connecting local talent directly with academies and international scouts. Your journey starts here.",
+
+  "loginHeadlineLine1": "Connect Young Stars",
+  "loginHeadlineLine2Prefix": "With Their ",
+  "loginHeadlineLine2Highlight": "Dreams",
+  "loginWelcomeBack": "Welcome back",
+  "loginContinueSubtitle": "Sign in to continue to your account",
+  "loginEmailLabel": "Email Address",
+  "loginEmailRequired": "Email is required",
+  "loginEmailInvalid": "Enter a valid email",
+  "loginPasswordLabel": "Password",
+  "loginPasswordRequired": "Password is required",
+  "loginForgotPassword": "Forgot Password?",
+  "loginButton": "LOGIN TO ACCOUNT",
+  "loginOr": "OR",
+  "loginCreateScoutAccount": "Create scout account",
+
+  "scoutRegisterAppBarTitle": "Create scout account",
+  "scoutRegisterStepOf": "Step {current} of {total}",
+  "@scoutRegisterStepOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "scoutRegisterStep1Title": "Account details",
+  "scoutRegisterStep1Subtitle": "Let's start with your basic info.",
+  "scoutRegisterStep2Title": "Identity & verification",
+  "scoutRegisterStep2Subtitle": "Helps us verify you as a registered scout.",
+  "scoutRegisterStep3Title": "Professional background",
+  "scoutRegisterStep3Subtitle": "Tell us about your scouting work.",
+  "scoutRegisterReview": "Review",
+  "scoutRegisterReviewName": "Name",
+  "scoutRegisterReviewEmail": "Email",
+  "scoutRegisterReviewPhone": "Phone",
+  "scoutRegisterReviewCountry": "Country",
+  "scoutRegisterReviewLicence": "Licence",
+  "scoutRegisterReviewUploaded": "Uploaded",
+  "scoutRegisterReviewNotUploaded": "Not uploaded",
+  "scoutRegisterContinue": "Continue",
+  "scoutRegisterBack": "Back",
+  "scoutRegisterFieldRequired": "{field} is required",
+  "@scoutRegisterFieldRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+  "scoutRegisterMinChars": "At least 6 characters",
+  "scoutRegisterEmailInvalid": "Enter a valid email",
+  "scoutRegisterTitle": "Scout registration",
+  "scoutRegisterSubtitle": "Provide your details and upload a clear photo of your scouting licence.",
+  "scoutRegisterFullName": "Full name",
+  "scoutRegisterEmail": "Email",
+  "scoutRegisterPassword": "Password (min 6 characters)",
+  "scoutRegisterNationalId": "National ID / FAN number",
+  "scoutRegisterPhone": "Phone number",
+  "scoutRegisterOrganization": "Organization / club (optional)",
+  "scoutRegisterCountry": "Country",
+  "scoutRegisterYearsExperience": "Years of experience (optional)",
+  "scoutRegisterLicencePhoto": "Licence photo",
+  "scoutRegisterUploadLicence": "Upload licence photo",
+  "scoutRegisterChangeLicence": "Change licence photo",
+  "scoutRegisterPhotoSelected": "Photo selected",
+  "scoutRegisterSubmit": "CREATE SCOUT ACCOUNT",
+
+  "highlightsCreateTitle": "Create Highlight",
+  "highlightsCreateSubtitle": "Show scouts & coaches your best moves",
+  "highlightsRecordVideo": "Record Video",
+  "highlightsRecordVideoSubtitle": "Use your camera · up to {seconds}s",
+  "@highlightsRecordVideoSubtitle": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "highlightsChooseFromGallery": "Choose from Gallery",
+  "highlightsChooseFromGallerySubtitle": "Pick an existing video clip",
+  "highlightsProTipTitle": "Pro Tip",
+  "highlightsProTipBody": "Keep clips under 30s and showcase one skill per highlight.",
+  "highlightsMaxSeconds": "Max {seconds}s",
+  "@highlightsMaxSeconds": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "highlightsTapToRecord": "Tap to record",
+  "highlightsRecordingProgress": "Recording... {elapsed} / {total}",
+  "@highlightsRecordingProgress": {
+    "placeholders": {
+      "elapsed": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "highlightsCameraNotAvailable": "Camera not available on this device. Please use \"Choose from Gallery\" instead.",
+  "highlightsCaptionHint": "Write a caption...",
+  "highlightsRetake": "Retake",
+  "highlightsPost": "Post Highlight",
+  "highlightsVisibleAfterPosting": "Visible to scouts & coaches after posting",
+  "highlightsUploading": "Uploading highlight...",
+  "highlightsUploadingSubtitle": "This may take a moment",
+  "highlightsTopBarTitle": "NEW HIGHLIGHT",
+  "highlightsSignInToUpload": "Sign in as a player to upload.",
+  "highlightsCouldNotLike": "Could not update like",
+  "highlightsNoHighlightsYet": "No highlights yet",
+
+  "videoOptionsTitle": "Options",
+  "videoOptionsEdit": "Edit highlight",
+  "videoOptionsEditSubtitle": "Title, description, privacy, drill type",
+  "videoOptionsDelete": "Delete video",
+  "videoOptionsDeleteSubtitle": "Remove from Goal Connect",
+  "videoOptionsSave": "Save Video",
+  "videoOptionsSaveSubtitle": "Add to your saved collection",
+  "videoOptionsCopyLink": "Copy Link",
+  "videoOptionsCopyLinkSubtitle": "Share via link",
+  "videoOptionsDownload": "Download",
+  "videoOptionsDownloadSubtitle": "Save to device",
+  "videoOptionsNotInterested": "Not Interested",
+  "videoOptionsNotInterestedSubtitle": "See fewer posts like this",
+  "videoOptionsUnfollow": "Unfollow @{username}",
+  "@videoOptionsUnfollow": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsUnfollowSubtitle": "Stop seeing their highlights",
+  "videoOptionsReport": "Report",
+  "videoOptionsReportSubtitle": "Report this highlight",
+  "videoOptionsBlock": "Block @{username}",
+  "@videoOptionsBlock": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsBlockSubtitle": "They won't be able to see your profile",
+  "videoOptionsUnfollowed": "Unfollowed @{username}",
+  "@videoOptionsUnfollowed": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsBlocked": "Blocked @{username}",
+  "@videoOptionsBlocked": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsLinkCopied": "Link copied",
+  "videoOptionsVideoSaved": "Video saved",
+  "videoOptionsShowFewer": "We'll show fewer like this",
+  "videoOptionsReportSubmitted": "Report submitted",
+
+  "videoEditTitle": "Edit highlight",
+  "videoEditFieldTitle": "Title",
+  "videoEditFieldDescription": "Description",
+  "videoEditFieldPrivacy": "Privacy",
+  "videoEditPrivacyPublic": "public",
+  "videoEditPrivacyPrivate": "private",
+  "videoEditFieldDrillType": "Drill type",
+  "videoEditCouldNotUpdate": "Could not update video",
+  "videoEditUpdated": "Video updated",
+
+  "videoDeleteTitle": "Delete video?",
+  "videoDeleteMessage": "This removes the video from Goal Connect and Cloudinary.",
+  "videoDeleteCouldNotDelete": "Could not delete video",
+  "videoDeleted": "Video deleted",
+
+  "downloadNotSupportedOnWeb": "Download not supported on web",
+  "downloadInProgress": "Downloading video...",
+  "downloadSavedToFolder": "Video saved to GoalConnect folder",
+  "downloadFailed": "Download failed. Please try again.",
+  "downloadUnavailable": "Video unavailable",
+  "downloadSavedToGallery": "Saved to your gallery",
+  "downloadCouldNotDownload": "Could not download video",
+  "downloadLabel": "Download",
+
+  "reportSheetTitle": "Report Highlight",
+  "reportSheetQuestion": "Why are you reporting this highlight?",
+  "reportSheetSubmit": "Submit Report",
+  "reportReasonSpam": "Spam or misleading",
+  "reportReasonInappropriate": "Inappropriate content",
+  "reportReasonHarassment": "Harassment or bullying",
+  "reportReasonViolence": "Violence or dangerous acts",
+  "reportReasonFake": "Fake or edited highlight",
+  "reportReasonIp": "Intellectual property violation",
+  "reportReasonOther": "Other",
+
+  "commentsTitle": "Comments",
+  "commentsAddHint": "Add a comment…",
+  "commentsReplyHint": "Write a reply…",
+  "commentsReplyingTo": "Replying to @{username}",
+  "@commentsReplyingTo": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "commentsEmptyTitle": "No comments yet",
+  "commentsEmptySubtitle": "Be the first to share your thoughts!",
+  "commentsJustNow": "just now",
+
+  "saveActionSave": "Save",
+  "saveActionSaved": "Saved",
+  "saveActionPending": "…",
+
+  "chatListTitle": "Messages",
+  "chatListSubtitle": "Scouts & coaches reach out here",
+  "chatListSearchHint": "Search conversations...",
+  "chatListLoading": "Loading conversations...",
+  "chatListConnectionIssue": "Connection issue",
+  "chatListNoResults": "No results found",
+  "chatListTryDifferentSearch": "Try a different search term",
+  "chatListEmptyTitle": "No conversations yet",
+  "chatListEmptySubtitle": "When scouts and coaches message you,\nthey'll appear here",
+
+  "chatConversationActiveNow": "Active now",
+  "chatConversationInputHint": "Type a message…",
+  "chatConversationStartTitle": "Start a conversation",
+  "chatConversationStartSubtitle": "Say hello to {name}!",
+  "@chatConversationStartSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "chatConversationUnableToLoad": "Unable to load messages",
+  "chatDateToday": "Today",
+  "chatDateYesterday": "Yesterday",
+  "chatTimeNow": "now",
+  "chatTimeMinutes": "{minutes}m",
+  "@chatTimeMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "chatTimeHours": "{hours}h",
+  "@chatTimeHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "chatTimeDays": "{days}d",
+  "@chatTimeDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chatTimeWeeks": "{weeks}w",
+  "@chatTimeWeeks": {
+    "placeholders": {
+      "weeks": { "type": "int" }
+    }
+  },
+
+  "searchTitle": "Search",
+  "searchPlayersHint": "Search players…",
+  "searchNoPlayersToShow": "No players to show yet.",
+  "searchEmptyHint": "Search by name or use filters to find players.",
+  "searchResults": "Results",
+  "searchNoMatchQuery": "No players match \"{query}\".",
+  "@searchNoMatchQuery": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "searchNoMatchFilters": "No players match the selected filters.",
+  "searchPlayersSection": "Players",
+
+  "filtersTitle": "Filter players",
+  "filtersPosition": "Position",
+  "filtersStrongFoot": "Strong foot",
+  "filtersAge": "Age",
+  "filtersHeightCm": "Height (cm)",
+  "filtersMin": "Min",
+  "filtersMax": "Max",
+  "filtersPositionGoalkeeper": "Goalkeeper",
+  "filtersPositionDefender": "Defender",
+  "filtersPositionMidfielder": "Midfielder",
+  "filtersPositionForward": "Forward",
+  "filtersFootLeft": "Left",
+  "filtersFootRight": "Right",
+  "filtersFootBoth": "Both",
+  "filtersChipFoot": "{foot} foot",
+  "@filtersChipFoot": {
+    "placeholders": {
+      "foot": { "type": "String" }
+    }
+  },
+  "filtersChipAge": "Age {min}–{max}",
+  "@filtersChipAge": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "filtersChipHeight": "Height {min}–{max} cm",
+  "@filtersChipHeight": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+
+  "savedPlayersTitle": "Saved players",
+  "savedPlayersEmptyTitle": "No saved players yet",
+  "savedPlayersEmptySubtitle": "Bookmark players from search to keep them here for quick access.",
+  "savedPlayersRemoveTooltip": "Remove from saved",
+
+  "playerProfileVideos": "Videos",
+  "playerProfileGoals": "Goals",
+  "playerProfileAssists": "Assists",
+  "playerProfileMatches": "Matches",
+  "playerProfileHighlights": "Highlights",
+  "playerProfileFollowers": "Followers",
+  "playerProfileFollowing": "Following",
+  "playerProfileLikes": "Likes",
+  "playerProfilePlayerInfo": "Player Info",
+  "playerProfileAge": "Age",
+  "playerProfileHeight": "Height",
+  "playerProfileWeight": "Weight",
+  "playerProfileFoot": "Foot",
+  "playerProfileJersey": "Jersey",
+  "playerProfilePosition": "Position",
+  "playerProfileSecondary": "Secondary",
+  "playerProfileNationality": "Nationality",
+  "playerProfileDob": "DOB",
+  "playerProfileCurrentClub": "Current Club",
+  "playerProfilePlayingStyle": "Playing style",
+  "playerProfileClubHistory": "Club history",
+  "playerProfileDisciplinary": "Disciplinary record",
+  "playerProfileYellowCards": "Yellow cards",
+  "playerProfileRedCards": "Red cards",
+  "playerProfileAbilityStats": "Ability Stats",
+  "playerProfileOverall": "OVR {value}",
+  "@playerProfileOverall": {
+    "placeholders": {
+      "value": { "type": "int" }
+    }
+  },
+  "playerProfilePace": "Pace",
+  "playerProfileShooting": "Shooting",
+  "playerProfilePassing": "Passing",
+  "playerProfileDribbling": "Dribbling",
+  "playerProfileDefending": "Defending",
+  "playerProfilePhysical": "Physical",
+  "playerProfileMatchRecord": "Match Record",
+
+  "currentUserProfileUserInfo": "User Information",
+  "currentUserProfileEmail": "Email",
+  "currentUserProfileRole": "Role",
+  "currentUserProfileName": "Name",
+  "currentUserProfileOrganization": "Organization",
+  "currentUserProfilePhone": "Phone",
+  "currentUserProfileCountry": "Country",
+  "currentUserProfileScoutingPreferences": "Scouting preferences",
+  "currentUserProfileNoPreferences": "No preferences set yet",
+  "currentUserProfileAgeRange": "Age range",
+  "currentUserProfileAgeRangeValue": "{lo} – {hi} yrs",
+  "@currentUserProfileAgeRangeValue": {
+    "placeholders": {
+      "lo": { "type": "String" },
+      "hi": { "type": "String" }
+    }
+  },
+  "currentUserProfilePositions": "Positions",
+  "currentUserProfileRegions": "Regions",
+  "currentUserProfileSaved": "Saved",
+  "currentUserProfileRecentlyViewed": "Recently viewed",
+  "currentUserProfileDocuments": "Documents",
+  "currentUserProfileDetails": "Player Details",
+  "currentUserProfileStrongFoot": "Strong foot",
+  "currentUserProfileDateOfBirth": "Date of birth",
+  "currentUserProfileAvailability": "Availability",
+  "currentUserProfileVerification": "Verification",
+  "currentUserProfileMinutes": "Minutes",
+  "currentUserProfileYourHighlights": "Your Highlights",
+  "currentUserProfileRadarGoals": "GOALS",
+  "currentUserProfileRadarAssists": "ASSISTS",
+  "currentUserProfileRadarMatches": "MATCHES",
+  "currentUserProfileRadarMinutes": "MINUTES",
+  "currentUserProfileRadarHeight": "HEIGHT",
+  "currentUserProfileRadarDiscipline": "DISCIPLINE",
+  "currentUserProfileCardYellow": "Yellow",
+  "currentUserProfileCardRed": "Red",
+
+  "settingsAppVersion": "v1.0.0",
+  "settingsTitle": "Settings",
+  "settingsSubtitle": "Customise your GoalConnect experience",
+  "settingsAppearance": "Appearance",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "System",
+  "settingsSecurity": "Security",
+  "settingsUpdatePassword": "Update password",
+  "settingsAccount": "Account",
+  "settingsLanguage": "Language",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageAmharic": "አማርኛ",
+  "settingsPrivacyPolicy": "Privacy Policy",
+  "settingsTermsOfService": "Terms of Service",
+  "settingsHelpSupport": "Help & Support",
+  "settingsAbout": "About GoalConnect",
+  "settingsSignOut": "Sign Out",
+  "settingsBrand": "GoalConnect",
+  "settingsProfileSampleUsername": "EthioStar_10",
+  "settingsProfileSamplePosition": "FORWARD",
+  "settingsProfileSampleCountry": "Ethiopia",
+
+  "updatePasswordTitle": "Update password",
+  "updatePasswordSubtitle": "You'll stay signed in on this device.",
+  "updatePasswordCurrent": "Current password",
+  "updatePasswordNew": "New password",
+  "updatePasswordConfirm": "Confirm new password",
+  "updatePasswordEnterCurrent": "Enter your current password",
+  "updatePasswordMinChars": "At least 6 characters",
+  "updatePasswordMismatch": "Passwords do not match",
+  "updatePasswordSuccess": "Password updated successfully",
+  "updatePasswordFailure": "Could not update password"
+}

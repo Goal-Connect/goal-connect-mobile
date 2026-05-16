@@ -12,6 +12,7 @@ class UserModel extends User {
     required super.country,
     super.playerProfileId,
     super.fullName,
+    super.status,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +43,7 @@ class UserModel extends User {
           : int.tryParse('${json['age']}') ?? 0,
       country: json['country'] as String? ?? '',
       playerProfileId: json['playerProfileId']?.toString(),
+      status: json['status'] as String? ?? 'approved',
     );
   }
 
@@ -102,6 +104,7 @@ class UserModel extends User {
           country,
       playerProfileId: playerProfileId,
       fullName: profile?['fullName'] as String? ?? '',
+      status: user['status'] as String? ?? 'approved',
     );
   }
 
@@ -128,6 +131,7 @@ class UserModel extends User {
       age: 0,
       country: '',
       playerProfileId: null,
+      status: user['status'] as String? ?? 'approved',
     );
   }
 
@@ -156,6 +160,7 @@ class UserModel extends User {
       'position': position,
       'age': age,
       'country': country,
+      'status': status,
       if (playerProfileId != null) 'playerProfileId': playerProfileId,
     };
   }
@@ -172,6 +177,7 @@ class UserModel extends User {
       country: user.country,
       playerProfileId: user.playerProfileId,
       fullName: user.fullName,
+      status: user.status,
     );
   }
 }

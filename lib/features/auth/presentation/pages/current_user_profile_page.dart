@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goal_connect/core/theme/app_colors.dart';
+import 'package:goal_connect/generated/l10n/app_localizations.dart';
 import 'package:goal_connect/features/auth/domain/entities/current_user_profile.dart';
 import 'package:goal_connect/features/auth/domain/entities/player_profile.dart';
 import 'package:goal_connect/features/auth/domain/entities/scout_profile.dart';
@@ -261,12 +262,12 @@ class _CurrentUserProfileView extends StatelessWidget {
     final List<Widget> cards;
     switch (p) {
       case CurrentUserProfilePlayer(player: final player):
-        cards = _playerCards(isDark, textColor, player);
+        cards = _playerCards(context, isDark, textColor, player);
       case CurrentUserProfileScout(scout: final scout):
-        cards = _scoutCards(isDark, textColor, scout);
+        cards = _scoutCards(context, isDark, textColor, scout);
       case null:
         cards = [
-          _accountCard(isDark, textColor),
+          _accountCard(context, isDark, textColor),
           const SizedBox(height: 24),
         ];
     }
@@ -290,7 +291,8 @@ class _CurrentUserProfileView extends StatelessWidget {
     );
   }
 
-  List<Widget> _playerCards(bool isDark, Color textColor, PlayerProfile p) {
+  List<Widget> _playerCards(BuildContext context, bool isDark, Color textColor, PlayerProfile p) {
+    final l = AppLocalizations.of(context);
     return [
       if (p.bio.isNotEmpty) ...[
         Text(
@@ -303,54 +305,56 @@ class _CurrentUserProfileView extends StatelessWidget {
         ),
         const SizedBox(height: 20),
       ],
-      _statsRow(isDark, p),
+      _statsRow(context, isDark, p),
       const SizedBox(height: 20),
-      _playerDetailsCard(isDark, textColor, p),
+      _playerDetailsCard(context, isDark, textColor, p),
       const SizedBox(height: 20),
       if (p.playingStyleTags.isNotEmpty) ...[
-        _tagsCard(isDark, textColor, 'Playing style', p.playingStyleTags),
+        _tagsCard(isDark, textColor, l.playerProfilePlayingStyle, p.playingStyleTags),
         const SizedBox(height: 20),
       ],
-      _disciplinaryCard(isDark, textColor, p),
+      _disciplinaryCard(context, isDark, textColor, p),
       const SizedBox(height: 24),
     ];
   }
 
-  List<Widget> _scoutCards(bool isDark, Color textColor, ScoutProfile s) {
+  List<Widget> _scoutCards(BuildContext context, bool isDark, Color textColor, ScoutProfile s) {
     return [
-      _scoutOrganizationCard(isDark, textColor, s),
+      _scoutOrganizationCard(context, isDark, textColor, s),
       const SizedBox(height: 20),
-      _scoutPreferencesCard(isDark, textColor, s),
+      _scoutPreferencesCard(context, isDark, textColor, s),
       const SizedBox(height: 20),
-      _scoutActivityRow(isDark, s),
+      _scoutActivityRow(context, isDark, s),
       const SizedBox(height: 24),
     ];
   }
 
   Widget _scoutOrganizationCard(
-      bool isDark, Color textColor, ScoutProfile s) {
+      BuildContext context, bool isDark, Color textColor, ScoutProfile s) {
+    final l = AppLocalizations.of(context);
     return _sectionCard(
       isDark: isDark,
-      title: 'Organization',
+      title: l.currentUserProfileOrganization,
       children: [
-        if (s.fullName.isNotEmpty) _infoRow('Name', s.fullName, textColor),
-        _infoRow('Email', user.email, textColor),
+        if (s.fullName.isNotEmpty) _infoRow(l.currentUserProfileName, s.fullName, textColor),
+        _infoRow(l.currentUserProfileEmail, user.email, textColor),
         if (s.organization.isNotEmpty)
-          _infoRow('Organization', s.organization, textColor),
-        if (s.phone.isNotEmpty) _infoRow('Phone', s.phone, textColor),
-        if (s.country.isNotEmpty) _infoRow('Country', s.country, textColor),
+          _infoRow(l.currentUserProfileOrganization, s.organization, textColor),
+        if (s.phone.isNotEmpty) _infoRow(l.currentUserProfilePhone, s.phone, textColor),
+        if (s.country.isNotEmpty) _infoRow(l.currentUserProfileCountry, s.country, textColor),
       ],
     );
   }
 
   Widget _scoutPreferencesCard(
-      bool isDark, Color textColor, ScoutProfile s) {
+      BuildContext context, bool isDark, Color textColor, ScoutProfile s) {
+    final l = AppLocalizations.of(context);
     final range = s.preferredAgeRange;
     String? ageRangeText;
     if (range.hasAny) {
       final lo = range.min?.toString() ?? '—';
       final hi = range.max?.toString() ?? '—';
-      ageRangeText = '$lo – $hi yrs';
+      ageRangeText = l.currentUserProfileAgeRangeValue(lo, hi);
     }
 
     final hasAnything = ageRangeText != null ||
@@ -359,10 +363,10 @@ class _CurrentUserProfileView extends StatelessWidget {
     if (!hasAnything) {
       return _sectionCard(
         isDark: isDark,
-        title: 'Scouting preferences',
+        title: l.currentUserProfileScoutingPreferences,
         children: [
           Text(
-            'No preferences set yet',
+            l.currentUserProfileNoPreferences,
             style: TextStyle(
               color: textColor.withValues(alpha: 0.6),
               fontSize: 13,
@@ -374,19 +378,19 @@ class _CurrentUserProfileView extends StatelessWidget {
 
     return _sectionCard(
       isDark: isDark,
-      title: 'Scouting preferences',
+      title: l.currentUserProfileScoutingPreferences,
       children: [
         if (ageRangeText != null)
-          _infoRow('Age range', ageRangeText, textColor),
+          _infoRow(l.currentUserProfileAgeRange, ageRangeText, textColor),
         if (s.interestedPositions.isNotEmpty) ...[
           const SizedBox(height: 4),
-          _miniLabel('Positions', textColor),
+          _miniLabel(l.currentUserProfilePositions, textColor),
           const SizedBox(height: 8),
           _chipWrap(s.interestedPositions, textColor),
         ],
         if (s.preferredRegions.isNotEmpty) ...[
           const SizedBox(height: 12),
-          _miniLabel('Regions', textColor),
+          _miniLabel(l.currentUserProfileRegions, textColor),
           const SizedBox(height: 8),
           _chipWrap(s.preferredRegions, textColor),
         ],
@@ -394,15 +398,16 @@ class _CurrentUserProfileView extends StatelessWidget {
     );
   }
 
-  Widget _scoutActivityRow(bool isDark, ScoutProfile s) {
+  Widget _scoutActivityRow(BuildContext context, bool isDark, ScoutProfile s) {
+    final l = AppLocalizations.of(context);
     return Row(
       children: [
-        _statTile(isDark, label: 'Saved', value: '${s.savedPlayersCount}'),
+        _statTile(isDark, label: l.currentUserProfileSaved, value: '${s.savedPlayersCount}'),
         const SizedBox(width: 10),
         _statTile(
-            isDark, label: 'Recently viewed', value: '${s.recentlyViewedCount}'),
+            isDark, label: l.currentUserProfileRecentlyViewed, value: '${s.recentlyViewedCount}'),
         const SizedBox(width: 10),
-        _statTile(isDark, label: 'Documents', value: '${s.documentsCount}'),
+        _statTile(isDark, label: l.currentUserProfileDocuments, value: '${s.documentsCount}'),
       ],
     );
   }
@@ -444,28 +449,30 @@ class _CurrentUserProfileView extends StatelessWidget {
     );
   }
 
-  Widget _accountCard(bool isDark, Color textColor) {
+  Widget _accountCard(BuildContext context, bool isDark, Color textColor) {
+    final l = AppLocalizations.of(context);
     return _sectionCard(
       isDark: isDark,
-      title: 'User Information',
+      title: l.currentUserProfileUserInfo,
       children: [
-        _infoRow('Email', user.email, textColor),
-        _infoRow('Role', user.role, textColor),
-        if (user.fullName.isNotEmpty) _infoRow('Name', user.fullName, textColor),
+        _infoRow(l.currentUserProfileEmail, user.email, textColor),
+        _infoRow(l.currentUserProfileRole, user.role, textColor),
+        if (user.fullName.isNotEmpty) _infoRow(l.currentUserProfileName, user.fullName, textColor),
       ],
     );
   }
 
-  Widget _statsRow(bool isDark, PlayerProfile p) {
+  Widget _statsRow(BuildContext context, bool isDark, PlayerProfile p) {
+    final l = AppLocalizations.of(context);
     return Row(
       children: [
-        _statTile(isDark, label: 'Goals', value: '${p.totalGoals}'),
+        _statTile(isDark, label: l.playerProfileGoals, value: '${p.totalGoals}'),
         const SizedBox(width: 10),
-        _statTile(isDark, label: 'Assists', value: '${p.totalAssists}'),
+        _statTile(isDark, label: l.playerProfileAssists, value: '${p.totalAssists}'),
         const SizedBox(width: 10),
-        _statTile(isDark, label: 'Matches', value: '${p.totalMatches}'),
+        _statTile(isDark, label: l.playerProfileMatches, value: '${p.totalMatches}'),
         const SizedBox(width: 10),
-        _statTile(isDark, label: 'Minutes', value: '${p.totalMinutesPlayed}'),
+        _statTile(isDark, label: l.currentUserProfileMinutes, value: '${p.totalMinutesPlayed}'),
       ],
     );
   }
@@ -507,35 +514,36 @@ class _CurrentUserProfileView extends StatelessWidget {
     );
   }
 
-  Widget _playerDetailsCard(bool isDark, Color textColor, PlayerProfile p) {
-    final spokes = _radarSpokesFor(p);
+  Widget _playerDetailsCard(BuildContext context, bool isDark, Color textColor, PlayerProfile p) {
+    final l = AppLocalizations.of(context);
+    final spokes = _radarSpokesFor(context, p);
 
     final extraRows = <Widget>[
-      if (p.fullName.isNotEmpty) _infoRow('Name', p.fullName, textColor),
-      _infoRow('Email', user.email, textColor),
+      if (p.fullName.isNotEmpty) _infoRow(l.currentUserProfileName, p.fullName, textColor),
+      _infoRow(l.currentUserProfileEmail, user.email, textColor),
       if (p.jerseyNumber != null)
-        _infoRow('Jersey', '#${p.jerseyNumber}', textColor),
+        _infoRow(l.playerProfileJersey, '#${p.jerseyNumber}', textColor),
       if (p.primaryPosition.isNotEmpty)
-        _infoRow('Position', _capitalize(p.primaryPosition), textColor),
+        _infoRow(l.playerProfilePosition, _capitalize(p.primaryPosition), textColor),
       if ((p.secondaryPosition ?? '').isNotEmpty)
-        _infoRow('Secondary', _capitalize(p.secondaryPosition!), textColor),
+        _infoRow(l.playerProfileSecondary, _capitalize(p.secondaryPosition!), textColor),
       if ((p.strongFoot ?? '').isNotEmpty)
-        _infoRow('Strong foot', _capitalize(p.strongFoot!), textColor),
-      if (p.weight != null) _infoRow('Weight', '${p.weight} kg', textColor),
-      if (p.ageYears != null) _infoRow('Age', '${p.ageYears}', textColor),
+        _infoRow(l.currentUserProfileStrongFoot, _capitalize(p.strongFoot!), textColor),
+      if (p.weight != null) _infoRow(l.playerProfileWeight, '${p.weight} kg', textColor),
+      if (p.ageYears != null) _infoRow(l.playerProfileAge, '${p.ageYears}', textColor),
       if (p.dateOfBirth != null)
-        _infoRow('Date of birth', _formatDate(p.dateOfBirth!), textColor),
+        _infoRow(l.currentUserProfileDateOfBirth, _formatDate(p.dateOfBirth!), textColor),
       if (p.nationality.isNotEmpty)
-        _infoRow('Nationality', p.nationality, textColor),
+        _infoRow(l.playerProfileNationality, p.nationality, textColor),
       if (p.availabilityStatus.isNotEmpty)
-        _infoRow('Availability', p.availabilityStatus, textColor),
+        _infoRow(l.currentUserProfileAvailability, p.availabilityStatus, textColor),
       if (p.verificationStatus.isNotEmpty)
-        _infoRow('Verification', _capitalize(p.verificationStatus), textColor),
+        _infoRow(l.currentUserProfileVerification, _capitalize(p.verificationStatus), textColor),
     ];
 
     return _sectionCard(
       isDark: isDark,
-      title: 'Player Details',
+      title: l.currentUserProfileDetails,
       children: [
         _RadarChart(spokes: spokes, isDark: isDark, textColor: textColor),
         if (extraRows.isNotEmpty) const SizedBox(height: 18),
@@ -544,7 +552,8 @@ class _CurrentUserProfileView extends StatelessWidget {
     );
   }
 
-  List<_RadarSpoke> _radarSpokesFor(PlayerProfile p) {
+  List<_RadarSpoke> _radarSpokesFor(BuildContext context, PlayerProfile p) {
+    final l = AppLocalizations.of(context);
     double clamp01(double v) => v.clamp(0.0, 1.0);
 
     final cards = p.disciplinaryRecord.yellowCards +
@@ -555,12 +564,12 @@ class _CurrentUserProfileView extends StatelessWidget {
         : clamp01((p.height! - 150) / 50.0);
 
     return [
-      _RadarSpoke(label: 'GOALS', value: clamp01(p.totalGoals / 30.0), raw: '${p.totalGoals}'),
-      _RadarSpoke(label: 'ASSISTS', value: clamp01(p.totalAssists / 20.0), raw: '${p.totalAssists}'),
-      _RadarSpoke(label: 'MATCHES', value: clamp01(p.totalMatches / 50.0), raw: '${p.totalMatches}'),
-      _RadarSpoke(label: 'MINUTES', value: clamp01(p.totalMinutesPlayed / 4500.0), raw: '${p.totalMinutesPlayed}'),
-      _RadarSpoke(label: 'HEIGHT', value: heightScore, raw: p.height == null ? '—' : '${p.height}cm'),
-      _RadarSpoke(label: 'DISCIPLINE', value: discipline, raw: '${p.disciplinaryRecord.yellowCards}Y/${p.disciplinaryRecord.redCards}R'),
+      _RadarSpoke(label: l.currentUserProfileRadarGoals, value: clamp01(p.totalGoals / 30.0), raw: '${p.totalGoals}'),
+      _RadarSpoke(label: l.currentUserProfileRadarAssists, value: clamp01(p.totalAssists / 20.0), raw: '${p.totalAssists}'),
+      _RadarSpoke(label: l.currentUserProfileRadarMatches, value: clamp01(p.totalMatches / 50.0), raw: '${p.totalMatches}'),
+      _RadarSpoke(label: l.currentUserProfileRadarMinutes, value: clamp01(p.totalMinutesPlayed / 4500.0), raw: '${p.totalMinutesPlayed}'),
+      _RadarSpoke(label: l.currentUserProfileRadarHeight, value: heightScore, raw: p.height == null ? '—' : '${p.height}cm'),
+      _RadarSpoke(label: l.currentUserProfileRadarDiscipline, value: discipline, raw: '${p.disciplinaryRecord.yellowCards}Y/${p.disciplinaryRecord.redCards}R'),
     ];
   }
 
@@ -596,17 +605,18 @@ class _CurrentUserProfileView extends StatelessWidget {
     );
   }
 
-  Widget _disciplinaryCard(bool isDark, Color textColor, PlayerProfile p) {
+  Widget _disciplinaryCard(BuildContext context, bool isDark, Color textColor, PlayerProfile p) {
+    final l = AppLocalizations.of(context);
     return _sectionCard(
       isDark: isDark,
-      title: 'Disciplinary record',
+      title: l.playerProfileDisciplinary,
       children: [
         Row(
           children: [
             _cardChip(
               isDark: isDark,
               color: const Color(0xFFFFC107),
-              label: 'Yellow',
+              label: l.currentUserProfileCardYellow,
               value: '${p.disciplinaryRecord.yellowCards}',
               textColor: textColor,
             ),
@@ -614,7 +624,7 @@ class _CurrentUserProfileView extends StatelessWidget {
             _cardChip(
               isDark: isDark,
               color: const Color(0xFFE53935),
-              label: 'Red',
+              label: l.currentUserProfileCardRed,
               value: '${p.disciplinaryRecord.redCards}',
               textColor: textColor,
             ),
@@ -750,7 +760,7 @@ class _CurrentUserProfileView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Your Highlights',
+          AppLocalizations.of(context).currentUserProfileYourHighlights,
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.w800,
@@ -866,8 +876,8 @@ class _CurrentUserProfileView extends StatelessWidget {
                     Icon(Icons.videocam_off_rounded,
                         color: AppColors.gray.withValues(alpha: 0.3), size: 40),
                     const SizedBox(height: 12),
-                    const Text('No highlights yet',
-                        style: TextStyle(color: AppColors.gray, fontSize: 13)),
+                    Text(AppLocalizations.of(context).highlightsNoHighlightsYet,
+                        style: const TextStyle(color: AppColors.gray, fontSize: 13)),
                   ],
                 ),
               ),

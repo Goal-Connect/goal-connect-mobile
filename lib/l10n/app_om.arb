@@ -1,0 +1,454 @@
+{
+  "@@locale": "om",
+
+  "appName": "Goal Connect",
+  "appTagline": "Taphaa bareedaaf jaalalaan hojjetame",
+
+  "navHighlights": "Calaqqee",
+  "navSearch": "Barbaadi",
+  "navSaved": "Kuufamaa",
+  "navChat": "Ergaa",
+  "navProfile": "Profaayilii",
+
+  "noInternetTitle": "Walqunnamtii Interneetii Hin Jiru",
+  "noInternetSubtitle": "Walqunnamtii kee mirkaneessii ammas yaali",
+
+  "commonCancel": "Haquu",
+  "commonSave": "Kuusi",
+  "commonDelete": "Balleessi",
+  "commonRetry": "Ammas Yaali",
+  "commonTryAgain": "Ammas yaali",
+  "commonReply": "Deebisi",
+  "commonReset": "Haaromsi",
+  "commonClear": "Qulqulleessi",
+  "commonApply": "Qulqulleessitoota fayyadami",
+  "commonNext": "ITTI AANU",
+  "commonGetStarted": "JALQABI",
+  "commonSkip": "Darbi",
+  "commonLoading": "Fe'amaa jira…",
+
+  "onboardingPage1Title": "Dandeettii Kee ",
+  "onboardingPage1Highlight": "Agarsiisi",
+  "onboardingPage1Description": "Mana dijitaalaa urjiilee Itoophiyaa ol-ka'aniif. Profaayilii kee uumiitii addunyaan dandeettii kee haa argu.",
+
+  "onboardingPage2Title": "Hubannoo Raawwii ",
+  "onboardingPage2Highlight": "Ispoortii Barbaaduuf",
+  "onboardingPage2Description": "Xinxala viidiyoo guddaa raawwii kee ispoortii barbaadduu beekamoo addunyaa hundaaf addaan baasu.",
+
+  "onboardingPage3Title": "Gara Abjuu Keetiitti ",
+  "onboardingPage3Highlight": "Riqicha",
+  "onboardingPage3Description": "Dandeettii naannoo kallattiidhaan akkaadaamiiwwanii fi ispoortii barbaaddota addunyaa waliin walqabsiisuu. Imala kee asitti jalqaba.",
+
+  "loginHeadlineLine1": "Urjiilee Dargaggoo Walqabsiisi",
+  "loginHeadlineLine2Prefix": "Abjuu ",
+  "loginHeadlineLine2Highlight": "Isaaniif",
+  "loginWelcomeBack": "Baga deebitee dhufte",
+  "loginContinueSubtitle": "Itti fufuuf herrega keetti seeni",
+  "loginEmailLabel": "Teessoo Imeelii",
+  "loginEmailRequired": "Imeelii barbaachisaa",
+  "loginEmailInvalid": "Imeelii sirrii galchi",
+  "loginPasswordLabel": "Jecha Iccitii",
+  "loginPasswordRequired": "Jecha iccitii barbaachisaa",
+  "loginForgotPassword": "Jecha Iccitii Dagattanii?",
+  "loginButton": "GARA HERREEGAATTI SEENI",
+  "loginOr": "YKN",
+  "loginCreateScoutAccount": "Herrega ispoortii barbaaduu uumi",
+
+  "scoutRegisterAppBarTitle": "Herrega ispoortii barbaaduu uumi",
+  "scoutRegisterStepOf": "Tarkaanfii {current} / {total}",
+  "@scoutRegisterStepOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "scoutRegisterStep1Title": "Odeeffannoo herregaa",
+  "scoutRegisterStep1Subtitle": "Odeeffannoo bu'uuraa keessaan haa jalqabnu.",
+  "scoutRegisterStep2Title": "Eenyummaa fi mirkanaa'uu",
+  "scoutRegisterStep2Subtitle": "Akka ispoortii barbaaduu galmaa'eetti mirkaneessuuf nu gargaara.",
+  "scoutRegisterStep3Title": "Daandii ogummaa",
+  "scoutRegisterStep3Subtitle": "Waa'ee hojii ispoortii barbaaduu keetii nutti himi.",
+  "scoutRegisterReview": "Sakatta'i",
+  "scoutRegisterReviewName": "Maqaa",
+  "scoutRegisterReviewEmail": "Imeelii",
+  "scoutRegisterReviewPhone": "Bilbila",
+  "scoutRegisterReviewCountry": "Biyya",
+  "scoutRegisterReviewLicence": "Hayyama",
+  "scoutRegisterReviewUploaded": "Ol kaa'ame",
+  "scoutRegisterReviewNotUploaded": "Hin kaa'amne",
+  "scoutRegisterContinue": "Itti fufi",
+  "scoutRegisterBack": "Duuba",
+  "scoutRegisterFieldRequired": "{field} barbaachisaa",
+  "@scoutRegisterFieldRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+  "scoutRegisterMinChars": "Yoo xinnaate qubeewwan 6",
+  "scoutRegisterEmailInvalid": "Imeelii sirrii galchi",
+  "scoutRegisterTitle": "Galmee ispoortii barbaaduu",
+  "scoutRegisterSubtitle": "Odeeffannoo kee dhiyeessiitii suuraa hayyama ispoortii barbaaduu kee ifaan ol kaa'i.",
+  "scoutRegisterFullName": "Maqaa guutuu",
+  "scoutRegisterEmail": "Imeelii",
+  "scoutRegisterPassword": "Jecha iccitii (yoo xinnaate qubeewwan 6)",
+  "scoutRegisterNationalId": "Eenyummeessaa Biyyaalessaa / Lakkoofsa FAN",
+  "scoutRegisterPhone": "Lakkoofsa bilbilaa",
+  "scoutRegisterOrganization": "Dhaabbata / kilaboo (filannoo)",
+  "scoutRegisterCountry": "Biyya",
+  "scoutRegisterYearsExperience": "Waggoota muuxannoo (filannoo)",
+  "scoutRegisterLicencePhoto": "Suuraa hayyamaa",
+  "scoutRegisterUploadLicence": "Suuraa hayyamaa ol kaa'i",
+  "scoutRegisterChangeLicence": "Suuraa hayyamaa jijjiiri",
+  "scoutRegisterPhotoSelected": "Suuraan filatame",
+  "scoutRegisterSubmit": "HERREGA ISPOORTII BARBAADUU UUMI",
+
+  "highlightsCreateTitle": "Calaqqee Uumi",
+  "highlightsCreateSubtitle": "Ispoortii barbaaddotaa fi leenjisitootaaf sochii kee gaarii agarsiisi",
+  "highlightsRecordVideo": "Viidiyoo Galmeessi",
+  "highlightsRecordVideoSubtitle": "Kaameraa kee fayyadami · hanga sekondii {seconds}",
+  "@highlightsRecordVideoSubtitle": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "highlightsChooseFromGallery": "Galarii irraa Filadhu",
+  "highlightsChooseFromGallerySubtitle": "Viidiyoo duraan jiru filadhu",
+  "highlightsProTipTitle": "Yaada Beekkamtii",
+  "highlightsProTipBody": "Kutaalee gadii sekondii 30 godhi, dandeettii tokko qofa calaqqee tokko keessatti agarsiisi.",
+  "highlightsMaxSeconds": "Olaanaa sekondii {seconds}",
+  "@highlightsMaxSeconds": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "highlightsTapToRecord": "Galmeessuuf tuqi",
+  "highlightsRecordingProgress": "Galmeessuu jira... {elapsed} / {total}",
+  "@highlightsRecordingProgress": {
+    "placeholders": {
+      "elapsed": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "highlightsCameraNotAvailable": "Kaameraan meeshaa kana irratti hin argamu. Maaloo \"Galarii irraa Filadhu\" fayyadami.",
+  "highlightsCaptionHint": "Ibsa barreessi...",
+  "highlightsRetake": "Ammas Galmeessi",
+  "highlightsPost": "Calaqqee Maxxansi",
+  "highlightsVisibleAfterPosting": "Maxxansaa booda ispoortii barbaaddotaa fi leenjisitootaaf ni mul'ata",
+  "highlightsUploading": "Calaqqee ol kaa'aa jira...",
+  "highlightsUploadingSubtitle": "Kun yeroo xinnoo fudhachuu danda'a",
+  "highlightsTopBarTitle": "CALAQQEE HAARAA",
+  "highlightsSignInToUpload": "Ol kaa'uuf akka taphataatti seeni.",
+  "highlightsCouldNotLike": "Jaalala haaromsuu hin dandeenye",
+  "highlightsNoHighlightsYet": "Ammaaf calaqqeen hin jiru",
+
+  "videoOptionsTitle": "Filannoowwan",
+  "videoOptionsEdit": "Calaqqee gulaali",
+  "videoOptionsEditSubtitle": "Mata-duree, ibsa, dhuunfaa, gosa shaakalii",
+  "videoOptionsDelete": "Viidiyoo balleessi",
+  "videoOptionsDeleteSubtitle": "Goal Connect irraa haqi",
+  "videoOptionsSave": "Viidiyoo kuusi",
+  "videoOptionsSaveSubtitle": "Kuusaa kee kuufame irratti dabali",
+  "videoOptionsCopyLink": "Linkii fudhi",
+  "videoOptionsCopyLinkSubtitle": "Linkiin qoodi",
+  "videoOptionsDownload": "Buufadhu",
+  "videoOptionsDownloadSubtitle": "Meeshaa irratti kuusi",
+  "videoOptionsNotInterested": "Fedha Hin Qabu",
+  "videoOptionsNotInterestedSubtitle": "Maxxansoota akkasii xinnoo arguu",
+  "videoOptionsUnfollow": "@{username} hordofuu dhiisi",
+  "@videoOptionsUnfollow": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsUnfollowSubtitle": "Calaqqee isaanii arguu dhaabi",
+  "videoOptionsReport": "Gabaasi",
+  "videoOptionsReportSubtitle": "Calaqqee kana gabaasi",
+  "videoOptionsBlock": "@{username} ugguri",
+  "@videoOptionsBlock": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsBlockSubtitle": "Profaayilii kee arguu hin danda'an",
+  "videoOptionsUnfollowed": "@{username} hin hordofamne",
+  "@videoOptionsUnfollowed": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsBlocked": "@{username} uggurame",
+  "@videoOptionsBlocked": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "videoOptionsLinkCopied": "Linkiin fudhatame",
+  "videoOptionsVideoSaved": "Viidiyoon kuufame",
+  "videoOptionsShowFewer": "Akkasii xinnoo siif agarsiisna",
+  "videoOptionsReportSubmitted": "Gabaasni dhiyaate",
+
+  "videoEditTitle": "Calaqqee gulaali",
+  "videoEditFieldTitle": "Mata-duree",
+  "videoEditFieldDescription": "Ibsa",
+  "videoEditFieldPrivacy": "Dhuunfaa",
+  "videoEditPrivacyPublic": "ifaa",
+  "videoEditPrivacyPrivate": "dhuunfaa",
+  "videoEditFieldDrillType": "Gosa shaakalii",
+  "videoEditCouldNotUpdate": "Viidiyoo haaromsuu hin dandeenye",
+  "videoEditUpdated": "Viidiyoon haaromfame",
+
+  "videoDeleteTitle": "Viidiyoo balleessuu?",
+  "videoDeleteMessage": "Kun viidiyoo Goal Connect fi Cloudinary irraa haqa.",
+  "videoDeleteCouldNotDelete": "Viidiyoo balleessuu hin dandeenye",
+  "videoDeleted": "Viidiyoon ballaa'e",
+
+  "downloadNotSupportedOnWeb": "Buufamuu marsariitii irratti hin deeggaramne",
+  "downloadInProgress": "Viidiyoo buufachaa jira...",
+  "downloadSavedToFolder": "Viidiyoon faayilii GoalConnect keessatti kuufame",
+  "downloadFailed": "Buufachuun hin milkoofne. Maaloo ammas yaali.",
+  "downloadUnavailable": "Viidiyoon hin argamu",
+  "downloadSavedToGallery": "Galarii kee keessatti kuufame",
+  "downloadCouldNotDownload": "Viidiyoo buufachuu hin dandeenye",
+  "downloadLabel": "Buufadhu",
+
+  "reportSheetTitle": "Calaqqee Gabaasi",
+  "reportSheetQuestion": "Maaliif calaqqee kana gabaasaa jirta?",
+  "reportSheetSubmit": "Gabaasa Galchi",
+  "reportReasonSpam": "Sipaamii ykn dogoggorsuu",
+  "reportReasonInappropriate": "Qabiyyee hin malle",
+  "reportReasonHarassment": "Rakkisuu ykn doorsisa",
+  "reportReasonViolence": "Jeequmsa ykn gocha balaa qabu",
+  "reportReasonFake": "Calaqqee sobaa ykn gulaalame",
+  "reportReasonIp": "Sarbamuu mirga qabiyyee",
+  "reportReasonOther": "Kan biraa",
+
+  "commentsTitle": "Yaadota",
+  "commentsAddHint": "Yaada dabali…",
+  "commentsReplyHint": "Deebii barreessi…",
+  "commentsReplyingTo": "@{username}f deebisaa jira",
+  "@commentsReplyingTo": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "commentsEmptyTitle": "Ammaaf yaadni hin jiru",
+  "commentsEmptySubtitle": "Yaada kee qooduuf jalqabaa ta'i!",
+  "commentsJustNow": "amma",
+
+  "saveActionSave": "Kuusi",
+  "saveActionSaved": "Kuufame",
+  "saveActionPending": "…",
+
+  "chatListTitle": "Ergaawwan",
+  "chatListSubtitle": "Ispoortii barbaaddotaa fi leenjisitoonni asitti si qunnamu",
+  "chatListSearchHint": "Mariiwwan barbaadi...",
+  "chatListLoading": "Mariiwwan fe'amaa jiru...",
+  "chatListConnectionIssue": "Rakkoo walqunnamtii",
+  "chatListNoResults": "Bu'aa hin argamne",
+  "chatListTryDifferentSearch": "Jecha barbaachaa biraa yaali",
+  "chatListEmptyTitle": "Ammaaf mariin hin jiru",
+  "chatListEmptySubtitle": "Yeroo ispoortii barbaaddotaa fi leenjisitoonni ergaa sii ergan,\nasitti ni mul'atu",
+
+  "chatConversationActiveNow": "Amma sochii keessa jira",
+  "chatConversationInputHint": "Ergaa barreessi…",
+  "chatConversationStartTitle": "Mari'achuu jalqabi",
+  "chatConversationStartSubtitle": "{name}f nagaa jedhi!",
+  "@chatConversationStartSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "chatConversationUnableToLoad": "Ergaawwan fe'uu hin dandeenye",
+  "chatDateToday": "Har'a",
+  "chatDateYesterday": "Kaleessa",
+  "chatTimeNow": "amma",
+  "chatTimeMinutes": "daq {minutes}",
+  "@chatTimeMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "chatTimeHours": "sa {hours}",
+  "@chatTimeHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "chatTimeDays": "guy {days}",
+  "@chatTimeDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "chatTimeWeeks": "tor {weeks}",
+  "@chatTimeWeeks": {
+    "placeholders": {
+      "weeks": { "type": "int" }
+    }
+  },
+
+  "searchTitle": "Barbaadi",
+  "searchPlayersHint": "Taphattoota barbaadi…",
+  "searchNoPlayersToShow": "Ammaaf taphataan agarsiifamu hin jiru.",
+  "searchEmptyHint": "Taphattoota argachuuf maqaadhaan barbaadi ykn qulqulleessitoota fayyadami.",
+  "searchResults": "Bu'aawwan",
+  "searchNoMatchQuery": "Taphataan \"{query}\" waliin walsimu hin jiru.",
+  "@searchNoMatchQuery": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "searchNoMatchFilters": "Taphataan qulqulleessitoota filataman waliin walsimu hin jiru.",
+  "searchPlayersSection": "Taphattoota",
+
+  "filtersTitle": "Taphattoota qulqulleessi",
+  "filtersPosition": "Iddoo",
+  "filtersStrongFoot": "Miila cimaa",
+  "filtersAge": "Umrii",
+  "filtersHeightCm": "Dheerina (sm)",
+  "filtersMin": "Xiqqaa",
+  "filtersMax": "Olaanaa",
+  "filtersPositionGoalkeeper": "Eegduu Goolii",
+  "filtersPositionDefender": "Ittisaa",
+  "filtersPositionMidfielder": "Gidduu",
+  "filtersPositionForward": "Lolaa",
+  "filtersFootLeft": "Bitaa",
+  "filtersFootRight": "Mirga",
+  "filtersFootBoth": "Lamaanuu",
+  "filtersChipFoot": "miila {foot}",
+  "@filtersChipFoot": {
+    "placeholders": {
+      "foot": { "type": "String" }
+    }
+  },
+  "filtersChipAge": "Umrii {min}–{max}",
+  "@filtersChipAge": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "filtersChipHeight": "Dheerina {min}–{max} sm",
+  "@filtersChipHeight": {
+    "placeholders": {
+      "min": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+
+  "savedPlayersTitle": "Taphattoota kuufaman",
+  "savedPlayersEmptyTitle": "Ammaaf taphataan kuufame hin jiru",
+  "savedPlayersEmptySubtitle": "Daddaffiidhaan argachuuf barbaaduu irraa taphattoota mallatteessi.",
+  "savedPlayersRemoveTooltip": "Kuufamaa irraa haqi",
+
+  "playerProfileVideos": "Viidiyoowwan",
+  "playerProfileGoals": "Goolii",
+  "playerProfileAssists": "Gargaarsa",
+  "playerProfileMatches": "Walitti Qabamuu",
+  "playerProfileHighlights": "Calaqqeewwan",
+  "playerProfileFollowers": "Hordoftoota",
+  "playerProfileFollowing": "Hordofamaa",
+  "playerProfileLikes": "Jaalala",
+  "playerProfilePlayerInfo": "Odeeffannoo Taphataa",
+  "playerProfileAge": "Umrii",
+  "playerProfileHeight": "Dheerina",
+  "playerProfileWeight": "Ulfaatina",
+  "playerProfileFoot": "Miila",
+  "playerProfileJersey": "Jarsii",
+  "playerProfilePosition": "Iddoo",
+  "playerProfileSecondary": "Lammaffaa",
+  "playerProfileNationality": "Lammummaa",
+  "playerProfileDob": "Guyyaa Dhalootaa",
+  "playerProfileCurrentClub": "Kilaboo Ammaa",
+  "playerProfilePlayingStyle": "Tooftaa taphachuu",
+  "playerProfileClubHistory": "Seenaa kilaboo",
+  "playerProfileDisciplinary": "Galmee qajeelfama",
+  "playerProfileYellowCards": "Kaardiiwwan keelloo",
+  "playerProfileRedCards": "Kaardiiwwan diimaa",
+  "playerProfileAbilityStats": "Istaatistiksii Dandeettii",
+  "playerProfileOverall": "Walumaagala {value}",
+  "@playerProfileOverall": {
+    "placeholders": {
+      "value": { "type": "int" }
+    }
+  },
+  "playerProfilePace": "Saffisa",
+  "playerProfileShooting": "Rukutuu",
+  "playerProfilePassing": "Dabarsuu",
+  "playerProfileDribbling": "Diriibilii",
+  "playerProfileDefending": "Ittisuu",
+  "playerProfilePhysical": "Qaamaa",
+  "playerProfileMatchRecord": "Galmee Walitti Qabamuu",
+
+  "currentUserProfileUserInfo": "Odeeffannoo Fayyadamaa",
+  "currentUserProfileEmail": "Imeelii",
+  "currentUserProfileRole": "Gahee",
+  "currentUserProfileName": "Maqaa",
+  "currentUserProfileOrganization": "Dhaabbata",
+  "currentUserProfilePhone": "Bilbila",
+  "currentUserProfileCountry": "Biyya",
+  "currentUserProfileScoutingPreferences": "Filannoowwan ispoortii barbaaduu",
+  "currentUserProfileNoPreferences": "Ammaaf filannoon hin qabamne",
+  "currentUserProfileAgeRange": "Hangii umrii",
+  "currentUserProfileAgeRangeValue": "{lo} – {hi} waggoota",
+  "@currentUserProfileAgeRangeValue": {
+    "placeholders": {
+      "lo": { "type": "String" },
+      "hi": { "type": "String" }
+    }
+  },
+  "currentUserProfilePositions": "Iddoowwan",
+  "currentUserProfileRegions": "Naannoowwan",
+  "currentUserProfileSaved": "Kuufame",
+  "currentUserProfileRecentlyViewed": "Dhiyeenyatti ilaalaman",
+  "currentUserProfileDocuments": "Galmeewwan",
+  "currentUserProfileDetails": "Ibsoota Taphataa",
+  "currentUserProfileStrongFoot": "Miila cimaa",
+  "currentUserProfileDateOfBirth": "Guyyaa dhalootaa",
+  "currentUserProfileAvailability": "Argamuu",
+  "currentUserProfileVerification": "Mirkanaa'uu",
+  "currentUserProfileMinutes": "Daqiiqaawwan",
+  "currentUserProfileYourHighlights": "Calaqqeewwan Kee",
+  "currentUserProfileRadarGoals": "GOOLII",
+  "currentUserProfileRadarAssists": "GARGAARSA",
+  "currentUserProfileRadarMatches": "WALITTI QABAMUU",
+  "currentUserProfileRadarMinutes": "DAQIIQAA",
+  "currentUserProfileRadarHeight": "DHEERINA",
+  "currentUserProfileRadarDiscipline": "QAJEELFAMA",
+  "currentUserProfileCardYellow": "Keelloo",
+  "currentUserProfileCardRed": "Diimaa",
+
+  "settingsAppVersion": "v1.0.0",
+  "settingsTitle": "Sajoo",
+  "settingsSubtitle": "Muuxannoo GoalConnect kee qopheessi",
+  "settingsAppearance": "Mul'achuu",
+  "settingsThemeLight": "Ifaa",
+  "settingsThemeDark": "Dukkana",
+  "settingsThemeSystem": "Sirna",
+  "settingsSecurity": "Nageenya",
+  "settingsUpdatePassword": "Jecha iccitii haaromsi",
+  "settingsAccount": "Herrega",
+  "settingsLanguage": "Afaan",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageAmharic": "አማርኛ",
+  "settingsPrivacyPolicy": "Imaammata Dhuunfaa",
+  "settingsTermsOfService": "Haalota Tajaajilaa",
+  "settingsHelpSupport": "Gargaarsa fi Deeggarsa",
+  "settingsAbout": "Waa'ee GoalConnect",
+  "settingsSignOut": "Ba'i",
+  "settingsBrand": "GoalConnect",
+  "settingsProfileSampleUsername": "EthioStar_10",
+  "settingsProfileSamplePosition": "LOLAA",
+  "settingsProfileSampleCountry": "Itoophiyaa",
+
+  "updatePasswordTitle": "Jecha iccitii haaromsi",
+  "updatePasswordSubtitle": "Meeshaa kana irratti seentee turta.",
+  "updatePasswordCurrent": "Jecha iccitii ammaa",
+  "updatePasswordNew": "Jecha iccitii haaraa",
+  "updatePasswordConfirm": "Jecha iccitii haaraa mirkaneessi",
+  "updatePasswordEnterCurrent": "Jecha iccitii ammaa kee galchi",
+  "updatePasswordMinChars": "Yoo xinnaate qubeewwan 6",
+  "updatePasswordMismatch": "Jecha iccitii walhin simu",
+  "updatePasswordSuccess": "Jecha iccitii milkaa'inaan haaromfame",
+  "updatePasswordFailure": "Jecha iccitii haaromsuu hin dandeenye"
+}

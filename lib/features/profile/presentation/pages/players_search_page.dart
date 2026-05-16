@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../domain/entities/player_profile.dart';
 import '../bloc/player_search_bloc.dart';
 import '../bloc/player_search_event.dart';
@@ -105,7 +106,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                     child: Text(
-                      'Search',
+                      AppLocalizations.of(context).searchTitle,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: isDark ? Colors.white : AppColors.lightText,
@@ -136,7 +137,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        'No players to show yet.',
+                        AppLocalizations.of(context).searchNoPlayersToShow,
                         style:
                             TextStyle(color: AppColors.gray.withOpacity(0.8)),
                         textAlign: TextAlign.center,
@@ -150,7 +151,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                       child: Row(
                         children: [
                           Text(
-                            'Results',
+                            AppLocalizations.of(context).searchResults,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isDark ? Colors.white : AppColors.lightText,
@@ -185,8 +186,8 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                         padding: const EdgeInsets.all(24),
                         child: Text(
                           state.query.isNotEmpty
-                              ? 'No players match "${state.query}".'
-                              : 'No players match the selected filters.',
+                              ? AppLocalizations.of(context).searchNoMatchQuery(state.query)
+                              : AppLocalizations.of(context).searchNoMatchFilters,
                           style: TextStyle(
                               color: AppColors.gray.withOpacity(0.85)),
                           textAlign: TextAlign.center,
@@ -226,7 +227,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                       child: Text(
-                        'Search by name or use filters to find players.',
+                        AppLocalizations.of(context).searchEmptyHint,
                         style: TextStyle(
                           color: AppColors.gray.withOpacity(0.75),
                           fontSize: 14,
@@ -264,7 +265,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                   style: TextStyle(
                       color: isDark ? Colors.white : AppColors.lightText),
                   decoration: InputDecoration(
-                    hintText: 'Search players…',
+                    hintText: AppLocalizations.of(context).searchPlayersHint,
                     prefixIcon: const Icon(Icons.search_rounded,
                         color: AppColors.primaryGreen),
                     filled: true,
@@ -312,7 +313,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: Text(
-            'Players',
+            AppLocalizations.of(context).searchPlayersSection,
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 16,
@@ -426,6 +427,7 @@ class _ActiveFiltersBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final chips = <Widget>[];
 
     void add(String label) {
@@ -452,17 +454,17 @@ class _ActiveFiltersBar extends StatelessWidget {
       add(filters.position!);
     }
     if (filters.strongFoot != null && filters.strongFoot!.isNotEmpty) {
-      add('${filters.strongFoot!} foot');
+      add(l.filtersChipFoot(filters.strongFoot!));
     }
     if (filters.minAge != null || filters.maxAge != null) {
       final lo = filters.minAge?.toString() ?? '–';
       final hi = filters.maxAge?.toString() ?? '–';
-      add('Age $lo–$hi');
+      add(l.filtersChipAge(lo, hi));
     }
     if (filters.minHeight != null || filters.maxHeight != null) {
       final lo = filters.minHeight?.toString() ?? '–';
       final hi = filters.maxHeight?.toString() ?? '–';
-      add('Height $lo–$hi cm');
+      add(l.filtersChipHeight(lo, hi));
     }
 
     return Padding(
@@ -492,9 +494,9 @@ class _ActiveFiltersBar extends StatelessWidget {
               minimumSize: const Size(0, 32),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text(
-              'Clear',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            child: Text(
+              l.commonClear,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -582,6 +584,35 @@ class _FiltersSheetState extends State<_FiltersSheet> {
     final isDark = theme.brightness == Brightness.dark;
     final sheetBg = isDark ? const Color(0xFF14141C) : Colors.white;
     final textColor = isDark ? Colors.white : AppColors.lightText;
+    final l = AppLocalizations.of(context);
+
+    String positionLabel(String value) {
+      switch (value) {
+        case 'Goalkeeper':
+          return l.filtersPositionGoalkeeper;
+        case 'Defender':
+          return l.filtersPositionDefender;
+        case 'Midfielder':
+          return l.filtersPositionMidfielder;
+        case 'Forward':
+          return l.filtersPositionForward;
+        default:
+          return value;
+      }
+    }
+
+    String footLabel(String value) {
+      switch (value) {
+        case 'Left':
+          return l.filtersFootLeft;
+        case 'Right':
+          return l.filtersFootRight;
+        case 'Both':
+          return l.filtersFootBoth;
+        default:
+          return value;
+      }
+    }
 
     return Padding(
       padding: EdgeInsets.only(
@@ -615,7 +646,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                 Row(
                   children: [
                     Text(
-                      'Filter players',
+                      l.filtersTitle,
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: textColor,
                         fontWeight: FontWeight.w800,
@@ -627,15 +658,15 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primaryGreen,
                       ),
-                      child: const Text(
-                        'Reset',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      child: Text(
+                        l.commonReset,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _SectionLabel('Position', textColor: textColor),
+                _SectionLabel(l.filtersPosition, textColor: textColor),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -643,7 +674,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                   children: [
                     for (final p in _positions)
                       _ChoiceChip(
-                        label: p,
+                        label: positionLabel(p),
                         selected: _position == p,
                         onTap: () => setState(
                             () => _position = _position == p ? null : p),
@@ -651,7 +682,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                   ],
                 ),
                 const SizedBox(height: 18),
-                _SectionLabel('Strong foot', textColor: textColor),
+                _SectionLabel(l.filtersStrongFoot, textColor: textColor),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -659,7 +690,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                   children: [
                     for (final f in _feet)
                       _ChoiceChip(
-                        label: f,
+                        label: footLabel(f),
                         selected: _strongFoot == f,
                         onTap: () => setState(
                             () => _strongFoot = _strongFoot == f ? null : f),
@@ -667,23 +698,23 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                   ],
                 ),
                 const SizedBox(height: 18),
-                _SectionLabel('Age', textColor: textColor),
+                _SectionLabel(l.filtersAge, textColor: textColor),
                 const SizedBox(height: 8),
                 _NumberRangeField(
                   minController: _minAge,
                   maxController: _maxAge,
-                  minHint: 'Min',
-                  maxHint: 'Max',
+                  minHint: l.filtersMin,
+                  maxHint: l.filtersMax,
                   isDark: isDark,
                 ),
                 const SizedBox(height: 18),
-                _SectionLabel('Height (cm)', textColor: textColor),
+                _SectionLabel(l.filtersHeightCm, textColor: textColor),
                 const SizedBox(height: 8),
                 _NumberRangeField(
                   minController: _minHeight,
                   maxController: _maxHeight,
-                  minHint: 'Min',
-                  maxHint: 'Max',
+                  minHint: l.filtersMin,
+                  maxHint: l.filtersMax,
                   isDark: isDark,
                 ),
                 const SizedBox(height: 24),
@@ -698,9 +729,9 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text(
-                      'Apply filters',
-                      style: TextStyle(
+                    child: Text(
+                      l.commonApply,
+                      style: const TextStyle(
                           fontWeight: FontWeight.w800, fontSize: 15),
                     ),
                   ),

@@ -7,6 +7,7 @@ class Message {
   final String text;
   final DateTime createdAt;
   final bool isRead;
+  final bool isMine;
 
   Message({
     required this.id,
@@ -17,5 +18,6 @@ class Message {
     required this.text,
     required this.createdAt,
     this.isRead = false,
+    this.isMine = false,
   });
 }

@@ -45,6 +45,13 @@ abstract final class ApiConstants {
   static String playerVideosPath(String playerId) =>
       '/players/$playerId/videos';
 
+  /// `GET /scouts/saved-players` — current scout's saved players.
+  static const String scoutsSavedPlayers = '/scouts/saved-players';
+
+  /// `POST/DELETE /scouts/saved-players/{playerId}` — save/unsave a player.
+  static String scoutsSavedPlayerPath(String playerId) =>
+      '/scouts/saved-players/$playerId';
+
   /// `POST /messages` — direct message (HTTP fallback).
   static const String messages = '/messages';
 

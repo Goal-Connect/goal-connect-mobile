@@ -10,6 +10,7 @@ class MessageModel extends Message {
     required super.text,
     required super.createdAt,
     super.isRead,
+    super.isMine,
   });
 
   factory MessageModel.fromApiMap(
@@ -19,21 +20,29 @@ class MessageModel extends Message {
     required String selfDisplayName,
     required String peerDisplayName,
   }) {
-    final senderId = (json['senderId'] ?? '').toString();
-    final isMine = senderId == currentUserId;
+    final rawSender = json['senderId'];
+    final senderId = rawSender is Map
+        ? (rawSender['_id'] ?? rawSender['id'] ?? '').toString()
+        : (rawSender ?? '').toString();
+    final rawReceiver = json['receiverId'];
+    final receiverId = rawReceiver is Map
+        ? (rawReceiver['_id'] ?? rawReceiver['id'])?.toString()
+        : rawReceiver?.toString();
+    final isMine = senderId.isNotEmpty && senderId == currentUserId;
     final rawId = json['_id'] ?? json['id'];
     final createdRaw = json['createdAt'];
     return MessageModel(
       id: rawId?.toString() ?? '',
       conversationId: peerUserId,
       senderId: senderId,
-      receiverId: json['receiverId']?.toString(),
+      receiverId: receiverId,
       senderName: isMine ? selfDisplayName : peerDisplayName,
       text: (json['content'] ?? json['text'] ?? '').toString(),
       createdAt: createdRaw != null
           ? DateTime.tryParse(createdRaw.toString()) ?? DateTime.now()
           : DateTime.now(),
       isRead: json['isRead'] == true,
+      isMine: isMine,
     );
   }
 

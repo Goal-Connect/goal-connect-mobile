@@ -23,6 +23,15 @@ abstract class PlayerProfileRemoteDataSource {
     String? sortOrder,
     String? meta,
   });
+
+  /// `GET /scouts/saved-players` — scout's saved players list.
+  Future<List<PlayerProfileModel>> getSavedPlayers();
+
+  /// `POST /scouts/saved-players/{playerId}` — save a player.
+  Future<void> savePlayer(String playerId);
+
+  /// `DELETE /scouts/saved-players/{playerId}` — unsave a player.
+  Future<void> unsavePlayer(String playerId);
 }
 
 class PlayerProfileApiException implements Exception {
@@ -164,6 +173,53 @@ class PlayerProfileRemoteDataSourceImpl implements PlayerProfileRemoteDataSource
         total: totalNum,
         count: countNum,
       );
+    } on DioException catch (e) {
+      throw PlayerProfileApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<List<PlayerProfileModel>> getSavedPlayers() async {
+    try {
+      final response = await _dio.get<dynamic>(
+        ApiConstants.scoutsSavedPlayers,
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw PlayerProfileApiException('Invalid saved players response');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw PlayerProfileApiException(
+          map['message'] as String? ?? 'Failed to load saved players',
+        );
+      }
+      final raw = map['data'];
+      final list = raw is List ? raw : <dynamic>[];
+      return list
+          .whereType<Map>()
+          .map((e) => PlayerProfileModel.fromListDocument(
+                Map<String, dynamic>.from(e),
+              ))
+          .toList();
+    } on DioException catch (e) {
+      throw PlayerProfileApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<void> savePlayer(String playerId) async {
+    try {
+      await _dio.post<dynamic>(ApiConstants.scoutsSavedPlayerPath(playerId));
+    } on DioException catch (e) {
+      throw PlayerProfileApiException(_messageFromDio(e));
+    }
+  }
+
+  @override
+  Future<void> unsavePlayer(String playerId) async {
+    try {
+      await _dio.delete<dynamic>(ApiConstants.scoutsSavedPlayerPath(playerId));
     } on DioException catch (e) {
       throw PlayerProfileApiException(_messageFromDio(e));
     }
@@ -314,5 +370,28 @@ class MockPlayerProfileRemoteDataSource implements PlayerProfileRemoteDataSource
       total: list.length,
       count: slice.length,
     );
+  }
+
+  final Set<String> _savedIds = <String>{};
+
+  @override
+  Future<List<PlayerProfileModel>> getSavedPlayers() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return _savedIds
+        .map((id) => _mockProfiles[id])
+        .whereType<PlayerProfileModel>()
+        .toList();
+  }
+
+  @override
+  Future<void> savePlayer(String playerId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    _savedIds.add(playerId);
+  }
+
+  @override
+  Future<void> unsavePlayer(String playerId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    _savedIds.remove(playerId);
   }
 }

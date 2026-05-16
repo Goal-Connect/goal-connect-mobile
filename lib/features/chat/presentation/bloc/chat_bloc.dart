@@ -169,7 +169,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     if (cur is MessagesLoaded && cur.conversationId == peerUserId) {
       final merged = _mergeIncoming(cur.messages, msg, myId);
       emit(MessagesLoaded(conversationId: peerUserId, messages: merged));
+      return;
     }
+
+    // Receiver is anywhere outside the matching thread (chat list, initial,
+    // a different conversation): refresh the conversation list so the new /
+    // touched thread surfaces immediately.
+    final refreshed = await getConversations();
+    refreshed.fold(
+      (_) {},
+      (conversations) {
+        if (cur is! MessagesLoaded) {
+          emit(ConversationsLoaded(conversations));
+        }
+      },
+    );
   }
 
   List<Message> _mergeIncoming(

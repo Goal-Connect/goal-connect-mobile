@@ -40,10 +40,17 @@ class HighlightModel extends Highlight {
   }
 
   static List<String> _parseLikeIds(dynamic likesRaw) {
-    if (likesRaw is List) {
-      return likesRaw.map((e) => e.toString()).toList();
+    if (likesRaw is! List) return [];
+    final ids = <String>[];
+    for (final e in likesRaw) {
+      if (e is String) {
+        ids.add(e);
+      } else if (e is Map) {
+        final v = e['user'] ?? e['userId'] ?? e['_id'] ?? e['id'];
+        if (v != null) ids.add(v.toString());
+      }
     }
-    return [];
+    return ids;
   }
 
   static int _parseLikeCount(dynamic likesRaw, dynamic likesCountRaw) {

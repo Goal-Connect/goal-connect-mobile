@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
@@ -155,13 +154,14 @@ class _ConversationPageState extends State<ConversationPage> {
                   radius: 20,
                   backgroundColor: roleClr.withOpacity(0.08),
                   backgroundImage:
-                      widget.conversation.participantImage != null
+                      (widget.conversation.participantImage?.isNotEmpty ?? false)
                           ? NetworkImage(
                               widget.conversation.participantImage!)
                           : null,
-                  child: widget.conversation.participantImage == null
-                      ? Icon(Icons.person, color: roleClr, size: 20)
-                      : null,
+                  child: (widget.conversation.participantImage?.isNotEmpty ??
+                          false)
+                      ? null
+                      : Icon(Icons.person, color: roleClr, size: 20),
                 ),
               ),
               Positioned(
@@ -243,7 +243,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Active now',
+                      AppLocalizations.of(context).chatConversationActiveNow,
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.primaryGreen.withOpacity(0.8),
@@ -286,10 +286,7 @@ class _ConversationPageState extends State<ConversationPage> {
   }
 
   Widget _buildMessageList(BuildContext context, bool isDark) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        final myId = authState is AuthAuthenticated ? authState.user.id : '';
-        return BlocConsumer<ChatBloc, ChatState>(
+    return BlocConsumer<ChatBloc, ChatState>(
           listener: (context, state) {
             if (state is MessagesLoaded || state is MessageSending) {
               _scrollToBottom();
@@ -328,7 +325,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Unable to load messages',
+                      AppLocalizations.of(context).chatConversationUnableToLoad,
                       style: TextStyle(
                         color: isDark ? Colors.white : AppColors.lightText,
                         fontSize: 16,
@@ -349,9 +346,9 @@ class _ConversationPageState extends State<ConversationPage> {
                       onPressed: () {
                         context.read<ChatBloc>().add(GetMessagesEvent(widget.conversation.id));
                       },
-                      child: const Text(
-                        'Try again',
-                        style: TextStyle(color: AppColors.primaryGreen),
+                      child: Text(
+                        AppLocalizations.of(context).commonTryAgain,
+                        style: const TextStyle(color: AppColors.primaryGreen),
                       ),
                     ),
                   ],
@@ -397,7 +394,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Start a conversation',
+                      AppLocalizations.of(context).chatConversationStartTitle,
                       style: TextStyle(
                         color: isDark ? Colors.white : AppColors.lightText,
                         fontSize: 18,
@@ -407,7 +404,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Say hello to ${widget.conversation.participantName}!',
+                      AppLocalizations.of(context).chatConversationStartSubtitle(widget.conversation.participantName),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.gray.withOpacity(0.6),
@@ -428,10 +425,10 @@ class _ConversationPageState extends State<ConversationPage> {
                   return const _SendingIndicator();
                 }
                 final msg = messages[index];
-                final isMine = msg.senderId == myId;
+                final isMine = msg.isMine;
                 final showAvatar = !isMine &&
                     (index == 0 ||
-                        messages[index - 1].senderId == myId);
+                        messages[index - 1].isMine);
 
                 bool showDateHeader = false;
                 if (index == 0) {
@@ -458,8 +455,6 @@ class _ConversationPageState extends State<ConversationPage> {
             );
           },
         );
-      },
-    );
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
@@ -468,12 +463,13 @@ class _ConversationPageState extends State<ConversationPage> {
 
   Widget _buildDateHeader(DateTime date, bool isDark) {
     final now = DateTime.now();
+    final l = AppLocalizations.of(context);
     String label;
     if (_isSameDay(date, now)) {
-      label = 'Today';
+      label = l.chatDateToday;
     } else if (_isSameDay(
         date, now.subtract(const Duration(days: 1)))) {
-      label = 'Yesterday';
+      label = l.chatDateYesterday;
     } else {
       label = '${date.day}/${date.month}/${date.year}';
     }
@@ -575,7 +571,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                     textInputAction: TextInputAction.send,
                                     onSubmitted: (_) => _sendMessage(),
                                     decoration: InputDecoration(
-                                      hintText: 'Type a message…',
+                                      hintText: AppLocalizations.of(context).chatConversationInputHint,
                                       hintStyle: TextStyle(
                                         color:
                                             AppColors.gray.withOpacity(0.5),

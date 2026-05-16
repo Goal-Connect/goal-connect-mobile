@@ -164,9 +164,17 @@ class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
       }
       final d = Map<String, dynamic>.from(data);
       final likesRaw = d['likes'];
-      final ids = likesRaw is List
-          ? likesRaw.map((e) => e.toString()).toList()
-          : <String>[];
+      final ids = <String>[];
+      if (likesRaw is List) {
+        for (final e in likesRaw) {
+          if (e is String) {
+            ids.add(e);
+          } else if (e is Map) {
+            final v = e['user'] ?? e['userId'] ?? e['_id'] ?? e['id'];
+            if (v != null) ids.add(v.toString());
+          }
+        }
+      }
       final count = d['likesCount'];
       final likesCount = count is int
           ? count

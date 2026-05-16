@@ -8,6 +8,7 @@ import 'core/constants/api_constants.dart';
 import 'core/network/api_logging_interceptor.dart';
 import 'core/network/auth_interceptor.dart';
 import 'core/theme/theme_cubit.dart';
+import 'core/locale/locale_cubit.dart';
 import 'core/connection/internet_connection_cubit.dart';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -70,8 +71,12 @@ import 'features/profile/domain/repositories/player_profile_repository.dart';
 import 'features/profile/domain/usecases/get_player_profile_usecase.dart';
 import 'features/profile/domain/usecases/toggle_follow_usecase.dart';
 import 'features/profile/domain/usecases/list_players_usecase.dart';
+import 'features/profile/domain/usecases/get_saved_players_usecase.dart';
+import 'features/profile/domain/usecases/save_player_usecase.dart';
+import 'features/profile/domain/usecases/unsave_player_usecase.dart';
 import 'features/profile/presentation/bloc/player_profile_bloc.dart';
 import 'features/profile/presentation/bloc/player_search_bloc.dart';
+import 'features/profile/presentation/bloc/saved_players_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -83,6 +88,9 @@ Future<void> init() async {
 
   // ── Theme ───────────────────────────────────────────────────────────────────
   sl.registerLazySingleton(() => ThemeCubit(prefs: sl()));
+
+  // ── Locale ──────────────────────────────────────────────────────────────────
+  sl.registerLazySingleton(() => LocaleCubit(prefs: sl()));
 
   // ── Internet Connection ─────────────────────────────────────────────────────
   sl.registerLazySingleton(() => InternetConnection());
@@ -118,6 +126,7 @@ Future<void> init() async {
       remoteDataSource: sl(),
       tokenStorage: sl(),
       userCache: sl(),
+      conversationLocal: sl(),
     ),
   );
   sl.registerLazySingleton(() => LoginUsecase(sl()));
@@ -233,5 +242,17 @@ Future<void> init() async {
   );
   sl.registerFactory(
     () => PlayerSearchBloc(listPlayers: sl()),
+  );
+
+  // ── Saved Players (scout) ─────────────────────────────────────────────────
+  sl.registerLazySingleton(() => GetSavedPlayersUsecase(sl()));
+  sl.registerLazySingleton(() => SavePlayerUsecase(sl()));
+  sl.registerLazySingleton(() => UnsavePlayerUsecase(sl()));
+  sl.registerLazySingleton<SavedPlayersBloc>(
+    () => SavedPlayersBloc(
+      getSavedPlayers: sl(),
+      savePlayer: sl(),
+      unsavePlayer: sl(),
+    ),
   );
 }

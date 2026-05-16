@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
+import '../../../../core/locale/locale_cubit.dart';
+import '../../../../core/locale/locale_state.dart';
+import '../../../../generated/l10n/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -38,8 +41,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _buildProfileCard(isDark, textColor, cardColor, borderColor),
-                  const SizedBox(height: 28),
                   _buildAppearanceSection(
                       context, isDark, textColor, cardColor, borderColor, dividerColor),
                   const SizedBox(height: 24),
@@ -63,6 +64,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildAppBar(BuildContext context, bool isDark, Color textColor) {
+    final l = AppLocalizations.of(context);
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
@@ -121,9 +123,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: Colors.black.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Text(
-                          'v1.0.0',
-                          style: TextStyle(
+                        child: Text(
+                          l.settingsAppVersion,
+                          style: const TextStyle(
                             color: Colors.black54,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -133,9 +135,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  const Text(
-                    'Settings',
-                    style: TextStyle(
+                  Text(
+                    l.settingsTitle,
+                    style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w900,
                       fontSize: 28,
@@ -144,7 +146,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Customise your GoalConnect experience',
+                    l.settingsSubtitle,
                     style: TextStyle(
                       color: Colors.black.withOpacity(0.5),
                       fontSize: 14,
@@ -160,111 +162,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildProfileCard(
-      bool isDark, Color textColor, Color cardColor, Color borderColor) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.primaryGreen.withOpacity(0.3),
-                width: 2.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryGreen.withOpacity(0.1),
-                  blurRadius: 12,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 28,
-              backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
-              child: const Icon(Icons.person_rounded,
-                  size: 28, color: AppColors.primaryGreen),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'EthioStar_10',
-                      style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 17,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Icon(Icons.verified_rounded,
-                        color: AppColors.primaryGreen, size: 16),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryGreen.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'FORWARD',
-                        style: TextStyle(
-                          color: AppColors.primaryGreen,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Ethiopia',
-                      style: TextStyle(
-                        color: AppColors.gray.withOpacity(0.7),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color:
-                  (isDark ? Colors.white : Colors.black).withOpacity(0.04),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.gray.withOpacity(0.5),
-              size: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAppearanceSection(
     BuildContext context,
     bool isDark,
@@ -274,11 +171,12 @@ class _SettingsPageState extends State<SettingsPage> {
     Color dividerColor,
   ) {
     final currentMode = context.watch<ThemeCubit>().state.themeMode;
+    final l = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('Appearance'),
+        _sectionHeader(l.settingsAppearance),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
@@ -302,6 +200,7 @@ class _SettingsPageState extends State<SettingsPage> {
     bool isDark,
     Color textColor,
   ) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -309,7 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _themeChip(
             context: context,
             icon: Icons.light_mode_rounded,
-            label: 'Light',
+            label: l.settingsThemeLight,
             mode: ThemeMode.light,
             currentMode: currentMode,
             isDark: isDark,
@@ -319,7 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _themeChip(
             context: context,
             icon: Icons.dark_mode_rounded,
-            label: 'Dark',
+            label: l.settingsThemeDark,
             mode: ThemeMode.dark,
             currentMode: currentMode,
             isDark: isDark,
@@ -329,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _themeChip(
             context: context,
             icon: Icons.phone_android_rounded,
-            label: 'System',
+            label: l.settingsThemeSystem,
             mode: ThemeMode.system,
             currentMode: currentMode,
             isDark: isDark,
@@ -412,10 +311,11 @@ class _SettingsPageState extends State<SettingsPage> {
     Color borderColor,
     Color dividerColor,
   ) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('Security'),
+        _sectionHeader(l.settingsSecurity),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
@@ -426,7 +326,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: _buildActionTile(
             icon: Icons.lock_outline_rounded,
             iconColor: AppColors.primaryGreen,
-            label: 'Update password',
+            label: l.settingsUpdatePassword,
             textColor: textColor,
             onTap: () => _openUpdatePasswordSheet(context, isDark, textColor),
           ),
@@ -458,10 +358,11 @@ class _SettingsPageState extends State<SettingsPage> {
     Color borderColor,
     Color dividerColor,
   ) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('Account'),
+        _sectionHeader(l.settingsAccount),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
@@ -471,19 +372,23 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           child: Column(
             children: [
-              _buildActionTile(
-                icon: Icons.language_rounded,
-                iconColor: const Color(0xFF3B82F6),
-                label: 'Language',
-                trailing: 'English',
-                textColor: textColor,
-                onTap: () {},
+              BlocBuilder<LocaleCubit, LocaleState>(
+                builder: (context, localeState) {
+                  return _buildActionTile(
+                    icon: Icons.language_rounded,
+                    iconColor: const Color(0xFF3B82F6),
+                    label: l.settingsLanguage,
+                    trailing: _localeLabel(localeState.locale, l),
+                    textColor: textColor,
+                    onTap: () => _openLanguagePicker(context),
+                  );
+                },
               ),
               Divider(height: 1, indent: 60, color: dividerColor),
               _buildActionTile(
                 icon: Icons.shield_outlined,
                 iconColor: AppColors.primaryGreen,
-                label: 'Privacy Policy',
+                label: l.settingsPrivacyPolicy,
                 textColor: textColor,
                 onTap: () {},
               ),
@@ -491,7 +396,7 @@ class _SettingsPageState extends State<SettingsPage> {
               _buildActionTile(
                 icon: Icons.description_outlined,
                 iconColor: AppColors.accentGold,
-                label: 'Terms of Service',
+                label: l.settingsTermsOfService,
                 textColor: textColor,
                 onTap: () {},
               ),
@@ -499,7 +404,7 @@ class _SettingsPageState extends State<SettingsPage> {
               _buildActionTile(
                 icon: Icons.help_outline_rounded,
                 iconColor: const Color(0xFF6C63FF),
-                label: 'Help & Support',
+                label: l.settingsHelpSupport,
                 textColor: textColor,
                 onTap: () {},
               ),
@@ -507,8 +412,8 @@ class _SettingsPageState extends State<SettingsPage> {
               _buildActionTile(
                 icon: Icons.info_outline_rounded,
                 iconColor: AppColors.gray,
-                label: 'About GoalConnect',
-                trailing: 'v1.0.0',
+                label: l.settingsAbout,
+                trailing: l.settingsAppVersion,
                 textColor: textColor,
                 onTap: () {},
               ),
@@ -517,6 +422,36 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ],
     );
+  }
+
+  String _localeLabel(Locale? locale, AppLocalizations l) {
+    if (locale == null) return l.settingsThemeSystem;
+    switch (locale.languageCode) {
+      case 'am':
+        return l.settingsLanguageAmharic;
+      case 'om':
+        return 'Afaan Oromoo';
+      default:
+        return l.settingsLanguageEnglish;
+    }
+  }
+
+  Future<void> _openLanguagePicker(BuildContext context) async {
+    final cubit = context.read<LocaleCubit>();
+    final current = cubit.state.locale;
+    final selected = await showModalBottomSheet<Locale?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LanguagePickerSheet(current: current),
+    );
+    if (selected == null) return;
+    // Sentinel: a Locale with empty languageCode means "follow system".
+    if (selected.languageCode.isEmpty) {
+      cubit.setLocale(null);
+    } else {
+      cubit.setLocale(selected);
+    }
   }
 
   Widget _buildActionTile({
@@ -615,9 +550,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: AppColors.habeshaRed, size: 16),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Sign Out',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context).settingsSignOut,
+                  style: const TextStyle(
                     color: AppColors.habeshaRed,
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
@@ -642,9 +577,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 AppColors.primaryGreen.withOpacity(0.2),
               ],
             ).createShader(bounds),
-            child: const Text(
-              'GoalConnect',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context).settingsBrand,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w900,
                 fontSize: 16,
@@ -654,7 +589,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Made with passion for the beautiful game',
+            AppLocalizations.of(context).appTagline,
             style: TextStyle(
               color: AppColors.gray.withOpacity(0.4),
               fontSize: 11,
@@ -738,6 +673,7 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
   Widget build(BuildContext context) {
     final sheetBg =
         widget.isDark ? const Color(0xFF14141C) : Colors.white;
+    final l = AppLocalizations.of(context);
 
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (prev, curr) => _submitting && prev != curr,
@@ -747,7 +683,7 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
             _submitting = false;
             _errorMessage = state.message.isNotEmpty
                 ? state.message
-                : 'Could not update password';
+                : l.updatePasswordFailure;
           });
         } else if (state is AuthAuthenticated) {
           setState(() {
@@ -756,8 +692,8 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
           });
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Password updated successfully'),
+            SnackBar(
+              content: Text(l.updatePasswordSuccess),
               backgroundColor: AppColors.primaryGreen,
             ),
           );
@@ -795,7 +731,7 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
                       ),
                     ),
                     Text(
-                      'Update password',
+                      l.updatePasswordTitle,
                       style: TextStyle(
                         color: widget.textColor,
                         fontWeight: FontWeight.w800,
@@ -804,7 +740,7 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'You\'ll stay signed in on this device.',
+                      l.updatePasswordSubtitle,
                       style: TextStyle(
                         color: AppColors.gray.withOpacity(0.7),
                         fontSize: 13,
@@ -845,24 +781,24 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
                     const SizedBox(height: 18),
                     _passwordField(
                       controller: _currentController,
-                      label: 'Current password',
+                      label: l.updatePasswordCurrent,
                       obscure: _obscureCurrent,
                       onToggle: () => setState(
                           () => _obscureCurrent = !_obscureCurrent),
                       validator: (v) => (v == null || v.isEmpty)
-                          ? 'Enter your current password'
+                          ? l.updatePasswordEnterCurrent
                           : null,
                     ),
                     const SizedBox(height: 12),
                     _passwordField(
                       controller: _newController,
-                      label: 'New password',
+                      label: l.updatePasswordNew,
                       obscure: _obscureNew,
                       onToggle: () =>
                           setState(() => _obscureNew = !_obscureNew),
                       validator: (v) {
                         if (v == null || v.length < 6) {
-                          return 'At least 6 characters';
+                          return l.updatePasswordMinChars;
                         }
                         return null;
                       },
@@ -870,13 +806,13 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
                     const SizedBox(height: 12),
                     _passwordField(
                       controller: _confirmController,
-                      label: 'Confirm new password',
+                      label: l.updatePasswordConfirm,
                       obscure: _obscureConfirm,
                       onToggle: () => setState(
                           () => _obscureConfirm = !_obscureConfirm),
                       validator: (v) {
                         if (v != _newController.text) {
-                          return 'Passwords do not match';
+                          return l.updatePasswordMismatch;
                         }
                         return null;
                       },
@@ -905,9 +841,9 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
                                   color: Colors.black,
                                 ),
                               )
-                            : const Text(
-                                'Update password',
-                                style: TextStyle(
+                            : Text(
+                                l.updatePasswordTitle,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 15,
                                 ),
@@ -961,6 +897,136 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
           borderSide: const BorderSide(
             color: AppColors.primaryGreen,
             width: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguagePickerSheet extends StatelessWidget {
+  final Locale? current;
+  const _LanguagePickerSheet({required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context);
+    final sheetBg = isDark ? const Color(0xFF14141C) : Colors.white;
+    final textColor = isDark ? Colors.white : AppColors.lightText;
+
+    final options = <_LangOption>[
+      _LangOption(label: l.settingsThemeSystem, value: null),
+      const _LangOption(label: 'English', value: Locale('en')),
+      _LangOption(label: l.settingsLanguageAmharic, value: const Locale('am')),
+      const _LangOption(label: 'Afaan Oromoo', value: Locale('om')),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: sheetBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 14, bottom: 6),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.gray.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 14),
+              child: Row(
+                children: [
+                  Text(
+                    l.settingsLanguage,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            for (final opt in options)
+              _LangTile(
+                option: opt,
+                isSelected: _sameLocale(current, opt.value),
+                textColor: textColor,
+                onTap: () => Navigator.of(context).pop(
+                  opt.value ?? const Locale('system'),
+                ),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _sameLocale(Locale? a, Locale? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    return a.languageCode == b.languageCode;
+  }
+}
+
+class _LangOption {
+  final String label;
+  final Locale? value;
+  const _LangOption({required this.label, required this.value});
+}
+
+class _LangTile extends StatelessWidget {
+  final _LangOption option;
+  final bool isSelected;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  const _LangTile({
+    required this.option,
+    required this.isSelected,
+    required this.textColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  option.label,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 15,
+                    fontWeight: isSelected
+                        ? FontWeight.w800
+                        : FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                const Icon(Icons.check_rounded,
+                    color: AppColors.primaryGreen, size: 22),
+            ],
           ),
         ),
       ),

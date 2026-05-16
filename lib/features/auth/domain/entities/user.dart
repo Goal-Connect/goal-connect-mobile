@@ -9,6 +9,7 @@ class User {
   final int age;
   final String country;
   final String fullName;
+  final String status;
 
   /// Football profile document id from `GET /auth/me` → `profile.id` (for `GET /players/:id`).
   final String? playerProfileId;
@@ -24,6 +25,10 @@ class User {
     required this.country,
     this.playerProfileId,
     this.fullName = '',
+    this.status = 'approved',
   });
+
+  bool get isApproved => status.toLowerCase() == 'approved';
+  bool get isPendingApproval => status.toLowerCase() == 'pending';
 
 }

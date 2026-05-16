@@ -53,12 +53,13 @@ class MessageBubble extends StatelessWidget {
               child: CircleAvatar(
                 radius: 16,
                 backgroundColor: AppColors.primaryGreen.withOpacity(0.1),
-                backgroundImage:
-                    avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-                child: avatarUrl == null
-                    ? const Icon(Icons.person,
-                        size: 14, color: AppColors.primaryGreen)
+                backgroundImage: (avatarUrl?.isNotEmpty ?? false)
+                    ? NetworkImage(avatarUrl!)
                     : null,
+                child: (avatarUrl?.isNotEmpty ?? false)
+                    ? null
+                    : const Icon(Icons.person,
+                        size: 14, color: AppColors.primaryGreen),
               ),
             ),
             const SizedBox(width: 8),
@@ -72,7 +73,7 @@ class MessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: isMine
                     ? const LinearGradient(
-                        colors: [Color(0xFF00D084), Color(0xFF00E896)],
+                        colors: [Color(0xFF2ECC71), Color(0xFF58D68D)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )

@@ -4,6 +4,7 @@ import 'package:goal_connect/features/auth/data/datasources/auth_remote_data_sou
 import 'package:goal_connect/features/auth/data/datasources/auth_token_local_datasource.dart';
 import 'package:goal_connect/features/auth/data/datasources/auth_user_local_datasource.dart';
 import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
+import 'package:goal_connect/features/chat/data/datasources/conversation_local_datasource.dart';
 import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
 import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
@@ -14,11 +15,13 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthTokenLocalDataSource tokenStorage;
   final AuthUserLocalDataSource userCache;
+  final ConversationLocalDataSource conversationLocal;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.tokenStorage,
     required this.userCache,
+    required this.conversationLocal,
   });
 
   Future<void> _persistSession(
@@ -117,6 +120,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await tokenStorage.clearToken();
       await userCache.clear();
+      await conversationLocal.clearAll();
       return const Right(null);
     } catch (_) {
       return Left(CacheFailure());
