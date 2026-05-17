@@ -36,4 +36,8 @@ abstract class AuthRepository {
 
   /// Last successful user + profile from local cache (no network).
   Future<CurrentUserData?> getCachedUser();
+
+  /// `POST /auth/forgot-password` — server always returns 200 to avoid
+  /// user enumeration. Returns the server's user-facing message on success.
+  Future<Either<Failure, String>> forgotPassword(String email);
 }

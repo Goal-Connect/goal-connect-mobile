@@ -386,10 +386,8 @@ For issues, feature requests, or support:
 ## 🗺️ Roadmap
 
 ### Upcoming Features
-- [ ] Live streaming support
 - [ ] Advanced analytics dashboard
 - [ ] AI-powered player recommendations
-- [ ] Video comparison tool
 - [ ] Payment integration
 - [ ] Multi-language support
 - [ ] Offline mode enhancements

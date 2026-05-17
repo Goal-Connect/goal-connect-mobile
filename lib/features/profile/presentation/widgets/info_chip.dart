@@ -18,7 +18,7 @@ class InfoChip extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withOpacity(0.04),
         borderRadius: BorderRadius.circular(12),
@@ -27,21 +27,35 @@ class InfoChip extends StatelessWidget {
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: AppColors.primaryGreen.withOpacity(0.6), size: 18),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              color: isDark ? Colors.white : AppColors.lightText,
-              fontWeight: FontWeight.w800,
-              fontSize: 14,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.lightText,
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+              ),
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(color: AppColors.gray, fontSize: 10),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.gray, fontSize: 10),
+            ),
           ),
         ],
       ),

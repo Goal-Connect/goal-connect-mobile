@@ -21,6 +21,7 @@ import 'features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
+import 'features/auth/domain/usecases/forgot_password_usecase.dart';
 import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/domain/usecases/update_password_usecase.dart';
 
@@ -135,6 +136,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCachedUserUsecase(sl()));
   sl.registerLazySingleton(() => UpdatePasswordUsecase(sl()));
   sl.registerLazySingleton(() => LogoutUsecase(sl()));
+  sl.registerLazySingleton(() => ForgotPasswordUsecase(sl()));
 
   // ── Onboarding ──────────────────────────────────────────────────────────────
   sl.registerLazySingleton<OnboardingLocalDataSource>(
@@ -204,7 +206,6 @@ Future<void> init() async {
   sl.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(
       remoteDataSource: sl(),
-      conversationLocal: sl(),
       userLocal: sl(),
       socketService: sl(),
       playerProfileRepository: sl(),
@@ -255,4 +256,6 @@ Future<void> init() async {
       unsavePlayer: sl(),
     ),
   );
+
+  
 }

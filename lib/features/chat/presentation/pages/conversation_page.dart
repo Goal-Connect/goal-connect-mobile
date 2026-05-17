@@ -28,10 +28,22 @@ class _ConversationPageState extends State<ConversationPage> {
   void initState() {
     super.initState();
     context.read<ChatBloc>().add(GetMessagesEvent(widget.conversation.id));
-    _inputController.addListener(() {
-      final show = _inputController.text.trim().isNotEmpty;
-      if (show != _showSendButton) setState(() => _showSendButton = show);
-    });
+    context
+        .read<ChatBloc>()
+        .add(MarkConversationReadEvent(widget.conversation.id));
+    _inputController.addListener(_onInputChanged);
+  }
+
+  void _onInputChanged() {
+    final text = _inputController.text;
+    final show = text.trim().isNotEmpty;
+    if (show != _showSendButton) setState(() => _showSendButton = show);
+    context.read<ChatBloc>().add(
+          TypingNotifiedEvent(
+            peerUserId: widget.conversation.id,
+            isTyping: show,
+          ),
+        );
   }
 
   @override
@@ -231,26 +243,42 @@ class _ConversationPageState extends State<ConversationPage> {
                   ],
                 ),
                 const SizedBox(height: 3),
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryGreen,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      AppLocalizations.of(context).chatConversationActiveNow,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.primaryGreen.withOpacity(0.8),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                BlocBuilder<ChatBloc, ChatState>(
+                  buildWhen: (a, b) {
+                    final wasTyping =
+                        a is MessagesLoaded ? a.peerTyping : false;
+                    final isTyping =
+                        b is MessagesLoaded ? b.peerTyping : false;
+                    return wasTyping != isTyping;
+                  },
+                  builder: (context, state) {
+                    final isTyping =
+                        state is MessagesLoaded && state.peerTyping;
+                    return Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryGreen,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          isTyping
+                              ? 'typing…'
+                              : AppLocalizations.of(context)
+                                  .chatConversationActiveNow,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.primaryGreen.withOpacity(0.8),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

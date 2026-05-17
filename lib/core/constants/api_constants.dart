@@ -11,6 +11,10 @@ abstract final class ApiConstants {
   static const String authUpdatePassword = '/auth/updatepassword';
   static const String authLogout = '/auth/logout';
 
+  /// `POST /auth/forgot-password` — request a password reset email.
+  /// Always returns 200 to prevent user enumeration.
+  static const String authForgotPassword = '/auth/forgot-password';
+
   /// List / upload videos (see README).
   static const String videos = '/videos';
 
@@ -52,7 +56,8 @@ abstract final class ApiConstants {
   static String scoutsSavedPlayerPath(String playerId) =>
       '/scouts/saved-players/$playerId';
 
-  /// `POST /messages` — direct message (HTTP fallback).
+  /// `GET /messages` — list of conversations with the current user
+  /// (peer user + last message + unreadCount). Sending is socket-only.
   static const String messages = '/messages';
 
   /// `GET /messages/{userId}` — full thread with that user (oldest first).

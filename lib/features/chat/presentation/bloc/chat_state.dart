@@ -22,9 +22,30 @@ class ConversationsLoaded extends ChatState {
 class MessagesLoaded extends ChatState {
   final String conversationId;
   final List<Message> messages;
-  const MessagesLoaded({required this.conversationId, required this.messages});
+
+  /// True when the peer of [conversationId] is currently typing.
+  final bool peerTyping;
+
+  const MessagesLoaded({
+    required this.conversationId,
+    required this.messages,
+    this.peerTyping = false,
+  });
+
+  MessagesLoaded copyWith({
+    String? conversationId,
+    List<Message>? messages,
+    bool? peerTyping,
+  }) {
+    return MessagesLoaded(
+      conversationId: conversationId ?? this.conversationId,
+      messages: messages ?? this.messages,
+      peerTyping: peerTyping ?? this.peerTyping,
+    );
+  }
+
   @override
-  List<Object?> get props => [conversationId, messages];
+  List<Object?> get props => [conversationId, messages, peerTyping];
 }
 
 class MessageSending extends ChatState {

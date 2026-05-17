@@ -71,7 +71,7 @@ class _Hero extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
         24,
-        MediaQuery.of(context).padding.top + 36,
+        MediaQuery.of(context).padding.top + 96,
         24,
         48,
       ),
@@ -90,19 +90,6 @@ class _Hero extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(
-              Icons.sports_soccer_rounded,
-              color: Colors.black,
-              size: 28,
-            ),
-          ),
-          const SizedBox(height: 22),
           Text(
             l.loginHeadlineLine1,
             style: const TextStyle(

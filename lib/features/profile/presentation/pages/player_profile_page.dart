@@ -604,7 +604,7 @@ class _PlayerProfileView extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
-          childAspectRatio: 0.85,
+          childAspectRatio: 0.78,
           children: tiles,
         ),
         if (stats.currentClub != null) ...[

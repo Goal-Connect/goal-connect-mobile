@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +13,10 @@ import '../../domain/usecases/send_message_usecase.dart';
 import '../../data/services/chat_socket_service.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
+
+void _log(String msg, [Object? data]) {
+  developer.log(data == null ? msg : '$msg $data', name: 'chat.bloc');
+}
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
@@ -29,10 +34,45 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<GetMessagesEvent>(_onGetMessages);
     on<SendMessageEvent>(_onSendMessage);
     on<ChatSocketMessageReceivedEvent>(_onSocketMessage);
+    on<ChatSocketMessageEditedEvent>(_onSocketEdited);
+    on<ChatSocketMessageDeletedEvent>(_onSocketDeleted);
+    on<ChatSocketTypingStartEvent>(_onTypingStart);
+    on<ChatSocketTypingStopEvent>(_onTypingStop);
+    on<ChatSocketMessagesReadEvent>(_onMessagesRead);
+    on<TypingNotifiedEvent>(_onTypingNotified);
+    on<MarkConversationReadEvent>(_onMarkRead);
 
-    _socketSub = _socket.onMessageReceived.listen(
-      (raw) => add(ChatSocketMessageReceivedEvent(raw)),
-    );
+    _socketSub = _socket.onMessageReceived.listen((raw) {
+      _log('rx message:received', raw);
+      add(ChatSocketMessageReceivedEvent(raw));
+    });
+    _sentSub = _socket.onMessageSent.listen((raw) {
+      _log('rx message:sent', raw);
+      add(ChatSocketMessageReceivedEvent(raw));
+    });
+    _editedSub = _socket.onMessageEdited.listen((raw) {
+      _log('rx message:edited', raw);
+      add(ChatSocketMessageEditedEvent(raw));
+    });
+    _deletedSub = _socket.onMessageDeleted.listen((raw) {
+      final id = (raw['_id'] ?? raw['id'])?.toString();
+      _log('rx message:deleted', id);
+      if (id != null && id.isNotEmpty) {
+        add(ChatSocketMessageDeletedEvent(id));
+      }
+    });
+    _typingStartSub = _socket.onTypingStart.listen((id) {
+      _log('rx typing:start', id);
+      add(ChatSocketTypingStartEvent(id));
+    });
+    _typingStopSub = _socket.onTypingStop.listen((id) {
+      _log('rx typing:stop', id);
+      add(ChatSocketTypingStopEvent(id));
+    });
+    _readSub = _socket.onMessagesRead.listen((p) {
+      _log('rx message:read', {'by': p.by, 'count': p.messageIds.length});
+      add(ChatSocketMessagesReadEvent(messageIds: p.messageIds, by: p.by));
+    });
   }
 
   final GetConversationsUsecase getConversations;
@@ -43,6 +83,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatSocketService _socket;
 
   StreamSubscription<Map<String, dynamic>>? _socketSub;
+  StreamSubscription<Map<String, dynamic>>? _sentSub;
+  StreamSubscription<Map<String, dynamic>>? _editedSub;
+  StreamSubscription<Map<String, dynamic>>? _deletedSub;
+  StreamSubscription<String>? _typingStartSub;
+  StreamSubscription<String>? _typingStopSub;
+  StreamSubscription<MessagesReadPayload>? _readSub;
+
+  /// Debounce: send `typing:stop` after the user stops typing for ~3s.
+  Timer? _typingStopTimer;
+  bool _typingNotified = false;
+  String? _typingPeerId;
 
   Future<void> _onGetConversations(
     GetConversationsEvent event,
@@ -203,9 +254,131 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     return next;
   }
 
+  Future<void> _onSocketEdited(
+    ChatSocketMessageEditedEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final cur = state;
+    if (cur is! MessagesLoaded) return;
+    final raw = event.raw;
+    final id = (raw['_id'] ?? raw['id'])?.toString();
+    final newContent = (raw['content'] ?? raw['text'])?.toString();
+    if (id == null || id.isEmpty || newContent == null) return;
+    final next = cur.messages.map((m) {
+      if (m.id != id) return m;
+      return Message(
+        id: m.id,
+        conversationId: m.conversationId,
+        senderId: m.senderId,
+        receiverId: m.receiverId,
+        senderName: m.senderName,
+        text: newContent,
+        createdAt: m.createdAt,
+        isRead: m.isRead,
+        isMine: m.isMine,
+      );
+    }).toList();
+    emit(MessagesLoaded(conversationId: cur.conversationId, messages: next));
+  }
+
+  Future<void> _onSocketDeleted(
+    ChatSocketMessageDeletedEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final cur = state;
+    if (cur is! MessagesLoaded) return;
+    final next =
+        cur.messages.where((m) => m.id != event.messageId).toList();
+    emit(cur.copyWith(messages: next));
+  }
+
+  Future<void> _onTypingStart(
+    ChatSocketTypingStartEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final cur = state;
+    if (cur is MessagesLoaded && cur.conversationId == event.fromUserId) {
+      emit(cur.copyWith(peerTyping: true));
+    }
+  }
+
+  Future<void> _onTypingStop(
+    ChatSocketTypingStopEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final cur = state;
+    if (cur is MessagesLoaded && cur.conversationId == event.fromUserId) {
+      emit(cur.copyWith(peerTyping: false));
+    }
+  }
+
+  Future<void> _onMessagesRead(
+    ChatSocketMessagesReadEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final cur = state;
+    if (cur is! MessagesLoaded) return;
+    final ids = event.messageIds.toSet();
+    final next = cur.messages.map((m) {
+      if (!ids.contains(m.id) || m.isRead) return m;
+      return Message(
+        id: m.id,
+        conversationId: m.conversationId,
+        senderId: m.senderId,
+        receiverId: m.receiverId,
+        senderName: m.senderName,
+        text: m.text,
+        createdAt: m.createdAt,
+        isRead: true,
+        isMine: m.isMine,
+      );
+    }).toList();
+    emit(cur.copyWith(messages: next));
+  }
+
+  Future<void> _onTypingNotified(
+    TypingNotifiedEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    if (event.isTyping) {
+      if (!_typingNotified || _typingPeerId != event.peerUserId) {
+        _socket.emitTypingStart(toUserId: event.peerUserId);
+        _typingNotified = true;
+        _typingPeerId = event.peerUserId;
+      }
+      _typingStopTimer?.cancel();
+      _typingStopTimer = Timer(const Duration(seconds: 3), () {
+        if (_typingPeerId != null) {
+          _socket.emitTypingStop(toUserId: _typingPeerId!);
+        }
+        _typingNotified = false;
+      });
+    } else {
+      _typingStopTimer?.cancel();
+      if (_typingNotified) {
+        _socket.emitTypingStop(toUserId: event.peerUserId);
+        _typingNotified = false;
+      }
+    }
+  }
+
+  Future<void> _onMarkRead(
+    MarkConversationReadEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    await _socket.markRead(withUserId: event.peerUserId);
+  }
+
   @override
   Future<void> close() {
     _socketSub?.cancel();
+    _sentSub?.cancel();
+    _editedSub?.cancel();
+    _deletedSub?.cancel();
+    _typingStartSub?.cancel();
+    _typingStopSub?.cancel();
+    _readSub?.cancel();
+    _typingStopTimer?.cancel();
     return super.close();
   }
 }

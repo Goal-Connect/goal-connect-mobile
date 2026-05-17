@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -82,6 +83,12 @@ class App extends StatelessWidget {
                 supportedLocales: LocaleCubit.supportedLocales,
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
+                  // Material / Cupertino don't ship Oromo translations. The
+                  // fallback delegates below force their `en_US` data for any
+                  // locale the global delegates don't support, so AppBars,
+                  // dialogs, date pickers, etc. still resolve.
+                  _FallbackMaterialDelegate(),
+                  _FallbackCupertinoDelegate(),
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
@@ -398,4 +405,42 @@ class _FancyBottomNav extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Loads `en_US` Material localizations for any locale Material doesn't
+/// natively support (e.g. Oromo). Must be listed *before*
+/// `GlobalMaterialLocalizations.delegate` so it takes priority for these
+/// locales while leaving English/Amharic etc. to the global delegate.
+class _FallbackMaterialDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
+  const _FallbackMaterialDelegate();
+
+  static const _supported = {'om'};
+
+  @override
+  bool isSupported(Locale locale) => _supported.contains(locale.languageCode);
+
+  @override
+  Future<MaterialLocalizations> load(Locale _) =>
+      GlobalMaterialLocalizations.delegate.load(const Locale('en', 'US'));
+
+  @override
+  bool shouldReload(_FallbackMaterialDelegate old) => false;
+}
+
+class _FallbackCupertinoDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _FallbackCupertinoDelegate();
+
+  static const _supported = {'om'};
+
+  @override
+  bool isSupported(Locale locale) => _supported.contains(locale.languageCode);
+
+  @override
+  Future<CupertinoLocalizations> load(Locale _) =>
+      GlobalCupertinoLocalizations.delegate.load(const Locale('en', 'US'));
+
+  @override
+  bool shouldReload(_FallbackCupertinoDelegate old) => false;
 }

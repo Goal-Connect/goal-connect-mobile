@@ -1,9 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goal_connect/core/locale/locale_cubit.dart';
+import 'package:goal_connect/core/locale/locale_state.dart';
 import 'package:goal_connect/features/onboarding/data/models/onboarding_model.dart';
 import 'package:goal_connect/generated/l10n/app_localizations.dart';
-import 'package:lottie/lottie.dart';
 import 'package:goal_connect/app.dart';
 import 'package:goal_connect/core/theme/app_colors.dart';
 import '../bloc/onboarding_bloc.dart';
@@ -28,8 +29,8 @@ class _OnboardingPageState extends State<OnboardingPage>
 
   static const List<Color> _accents = [
     AppColors.primaryGreen,
-    AppColors.accentGold,
-    Color(0xFFFF5C5C),
+    Color(0xFF58D68D),
+    Color(0xFF1ABC9C),
   ];
 
   @override
@@ -148,38 +149,46 @@ class _OnboardingPageState extends State<OnboardingPage>
                     ),
                   ),
           ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.07),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: accent.withOpacity(0.35)),
-            ),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '${_currentPage + 1}'.padLeft(2, '0'),
-                    style: TextStyle(
-                      color: accent,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 0.5,
-                    ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LanguageChip(accent: accent),
+              const SizedBox(width: 8),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: accent.withOpacity(0.35)),
+                ),
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${_currentPage + 1}'.padLeft(2, '0'),
+                        style: TextStyle(
+                          color: accent,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' / ${pages.length.toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
-                  TextSpan(
-                    text: ' / ${pages.length.toString().padLeft(2, '0')}',
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -198,15 +207,6 @@ class _OnboardingPageState extends State<OnboardingPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          if (page.animationPath.isNotEmpty)
-            _ArtworkStage(
-              accent: accent,
-              animationPath: page.animationPath,
-              parallax: relative,
-            )
-          else
-            _BadgeArtwork(accent: accent, parallax: relative),
-          const SizedBox(height: 36),
           Opacity(
             opacity: fade,
             child: Transform.translate(
@@ -351,113 +351,193 @@ class _AccentHalo extends StatelessWidget {
   }
 }
 
-class _ArtworkStage extends StatelessWidget {
+class _LanguageChip extends StatelessWidget {
   final Color accent;
-  final String animationPath;
-  final double parallax;
-  const _ArtworkStage({
-    required this.accent,
-    required this.animationPath,
-    required this.parallax,
-  });
+  const _LanguageChip({required this.accent});
+
+  String _labelFor(Locale? locale) {
+    if (locale == null) return 'EN';
+    switch (locale.languageCode) {
+      case 'am':
+        return 'አማ';
+      case 'om':
+        return 'OM';
+      default:
+        return 'EN';
+    }
+  }
+
+  Future<void> _openPicker(BuildContext context) async {
+    final cubit = context.read<LocaleCubit>();
+    final current = cubit.state.locale;
+    final index = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LanguageSheet(current: current, accent: accent),
+    );
+    if (index == null) return;
+    cubit.setLocale(_LanguageSheet._options[index].$1);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size.width * 0.7;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            width: size,
-            height: size,
+    return BlocBuilder<LocaleCubit, LocaleState>(
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: () => _openPicker(context),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  accent.withOpacity(0.22),
-                  Colors.transparent,
-                ],
-              ),
+              color: Colors.white.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: accent.withOpacity(0.35)),
             ),
-          ),
-          Container(
-            width: size * 0.78,
-            height: size * 0.78,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: accent.withOpacity(0.35),
-                width: 1.4,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: accent.withOpacity(0.25),
-                  blurRadius: 30,
-                  spreadRadius: 4,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.language_rounded, color: accent, size: 14),
+                const SizedBox(width: 6),
+                Text(
+                  _labelFor(state.locale),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),
           ),
-          Transform.translate(
-            offset: Offset(parallax * -18, 0),
-            child: Lottie.asset(
-              animationPath,
-              width: size * 0.7,
-              height: size * 0.7,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, _) => Text(
-                '⚽',
-                style: TextStyle(fontSize: size * 0.4),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-class _BadgeArtwork extends StatelessWidget {
+class _LanguageSheet extends StatelessWidget {
+  final Locale? current;
   final Color accent;
-  final double parallax;
-  const _BadgeArtwork({required this.accent, required this.parallax});
+  const _LanguageSheet({required this.current, required this.accent});
+
+  static const _options = <(Locale?, String, String)>[
+    (null, 'System default', '⚙'),
+    (Locale('en'), 'English', 'EN'),
+    (Locale('am'), 'አማርኛ', 'አማ'),
+    (Locale('om'), 'Afaan Oromoo', 'OM'),
+  ];
+
+  bool _matches(Locale? option, Locale? current) {
+    if (option == null) return current == null;
+    return current?.languageCode == option.languageCode;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size.width * 0.55;
-    return Transform.translate(
-      offset: Offset(parallax * -14, 0),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              accent.withOpacity(0.35),
-              accent.withOpacity(0.08),
-              Colors.transparent,
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: accent.withOpacity(0.45),
-              blurRadius: 40,
-              spreadRadius: 4,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Icon(
-            Icons.sports_soccer_rounded,
-            size: size * 0.55,
-            color: Colors.white,
-            shadows: [
-              Shadow(color: accent.withOpacity(0.6), blurRadius: 16),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF14141C) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12, left: 4),
+                child: Text(
+                  'Language',
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ),
+              ..._options.asMap().entries.map((entry) {
+                final i = entry.key;
+                final opt = entry.value;
+                final selected = _matches(opt.$1, current);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(i),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? accent.withOpacity(0.12)
+                            : (isDark
+                                ? Colors.white.withOpacity(0.04)
+                                : Colors.black.withOpacity(0.03)),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: selected
+                              ? accent
+                              : Colors.transparent,
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: accent.withOpacity(0.18),
+                            ),
+                            child: Text(
+                              opt.$3,
+                              style: TextStyle(
+                                color: accent,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              opt.$2,
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          if (selected)
+                            Icon(Icons.check_rounded, color: accent, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ),

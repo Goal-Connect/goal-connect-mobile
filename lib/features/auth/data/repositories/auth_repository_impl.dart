@@ -134,4 +134,20 @@ class AuthRepositoryImpl implements AuthRepository {
     final profile = await userCache.readCachedProfile();
     return CurrentUserData(user: user, profile: profile);
   }
+
+  @override
+  Future<Either<Failure, String>> forgotPassword(String email) async {
+    final normalized = email.trim();
+    if (normalized.isEmpty || !normalized.contains('@')) {
+      return Left(ValidationFailure());
+    }
+    try {
+      final message = await remoteDataSource.forgotPassword(normalized);
+      return Right(message);
+    } on AuthApiException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (_) {
+      return Left(ServerFailure());
+    }
+  }
 }

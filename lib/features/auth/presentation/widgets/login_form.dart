@@ -5,6 +5,7 @@ import 'package:goal_connect/generated/l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../pages/forgot_password_page.dart';
 import '../pages/scout_register_page.dart';
 
 class LoginForm extends StatefulWidget {
@@ -111,7 +112,13 @@ class _LoginFormState extends State<LoginForm> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: loading
+                      ? null
+                      : () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const ForgotPasswordPage(),
+                            ),
+                          ),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 32),

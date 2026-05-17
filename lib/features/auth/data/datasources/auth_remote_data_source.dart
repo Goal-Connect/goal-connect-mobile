@@ -42,6 +42,10 @@ abstract class AuthRemoteDataSource {
 
   /// `POST /auth/logout` — server acknowledges; client must still clear JWT.
   Future<void> logoutAck();
+
+  /// `POST /auth/forgot-password` — request a password reset email.
+  /// Always returns HTTP 200 (anti-enumeration). Returns the server message.
+  Future<String> forgotPassword(String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -172,6 +176,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> logoutAck() async {
     try {
       await _dio.post<dynamic>(ApiConstants.authLogout);
+    } on DioException catch (e) {
+      throw AuthApiException(
+        _messageFromDio(e),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<String> forgotPassword(String email) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiConstants.authForgotPassword,
+        data: <String, dynamic>{'email': email},
+      );
+      final data = response.data;
+      if (data is Map && data['message'] is String) {
+        return data['message'] as String;
+      }
+      return 'If an account with that email exists, '
+          'a password reset link has been sent.';
     } on DioException catch (e) {
       throw AuthApiException(
         _messageFromDio(e),
