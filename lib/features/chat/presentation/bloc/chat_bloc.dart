@@ -111,6 +111,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     LeaveConversationEvent event,
     Emitter<ChatState> emit,
   ) async {
+    // Show the loading spinner immediately so the chat list page (which is
+    // still mounted under the conversation page) doesn't render its empty
+    // state for the brief window before the refresh completes.
+    emit(ChatLoading());
     final result = await getConversations();
     result.fold(
       (failure) => emit(const ChatError('Failed to load conversations')),
@@ -141,6 +145,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     SendMessageEvent event,
     Emitter<ChatState> emit,
   ) async {
+    _log('SEND tapped', {
+      'peerId': event.peerThread.id,
+      'peerName': event.peerThread.participantName,
+      'len': event.text.length,
+      'preview': event.text.length > 40
+          ? '${event.text.substring(0, 40)}…'
+          : event.text,
+      'socketConnected': _socket.isConnected,
+    });
     final current = state;
     // Allow sending even if message history failed to load
     List<Message> currentMessages = <Message>[];
@@ -161,10 +174,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
 
     result.fold(
-      (failure) => emit(ChatError(
-        failure is ChatFailure ? failure.message : 'Failed to send message',
-      )),
+      (failure) {
+        _log('SEND failed', {
+          'peerId': event.peerThread.id,
+          'reason': failure is ChatFailure ? failure.message : 'unknown',
+        });
+        emit(ChatError(
+          failure is ChatFailure ? failure.message : 'Failed to send message',
+        ));
+      },
       (message) {
+        _log('SEND ok', {
+          'peerId': event.peerThread.id,
+          'msgId': message.id,
+          'isPending': message.id.startsWith('pending_'),
+        });
         final updated = _mergeSent(currentMessages, message);
         emit(MessagesLoaded(
           conversationId: event.peerThread.id,
@@ -366,7 +390,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     MarkConversationReadEvent event,
     Emitter<ChatState> emit,
   ) async {
+    _log('mark read', {'peerId': event.peerUserId});
     await _socket.markRead(withUserId: event.peerUserId);
+  }
+
+  @override
+  void onEvent(ChatEvent event) {
+    super.onEvent(event);
+    _log('event → ${event.runtimeType}');
+  }
+
+  @override
+  void onTransition(Transition<ChatEvent, ChatState> transition) {
+    super.onTransition(transition);
+    _log('state ${transition.currentState.runtimeType} → '
+        '${transition.nextState.runtimeType}',
+        {'on': transition.event.runtimeType.toString()});
   }
 
   @override

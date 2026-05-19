@@ -103,7 +103,7 @@
   "scoutRegisterSubmit": "የስካውት መለያ ይፍጠሩ",
 
   "highlightsCreateTitle": "ድምቀት ይፍጠሩ",
-  "highlightsCreateSubtitle": "ለስካውቶች እና አሰልጣኞች ምርጥ እንቅስቃሴዎችዎን ያሳዩ",
+  "highlightsCreateSubtitle": "ለስካውቶች ምርጥ እንቅስቃሴዎችዎን ያሳዩ",
   "highlightsRecordVideo": "ቪዲዮ ይቅረጹ",
   "highlightsRecordVideoSubtitle": "ካሜራዎን ይጠቀሙ · እስከ {seconds} ሰከንዶች",
   "@highlightsRecordVideoSubtitle": {
@@ -133,7 +133,7 @@
   "highlightsCaptionHint": "መግለጫ ይጻፉ...",
   "highlightsRetake": "እንደገና ያንሱ",
   "highlightsPost": "ድምቀት ይለጥፉ",
-  "highlightsVisibleAfterPosting": "ከመለጠፉ በኋላ ለስካውቶች እና አሰልጣኞች ይታያል",
+  "highlightsVisibleAfterPosting": "ከመለጠፉ በኋላ ለስካውቶች ይታያል",
   "highlightsUploading": "ድምቀት በመጫን ላይ...",
   "highlightsUploadingSubtitle": "ይህ ጥቂት ጊዜ ሊወስድ ይችላል",
   "highlightsTopBarTitle": "አዲስ ድምቀት",
@@ -198,7 +198,7 @@
   "videoEditUpdated": "ቪዲዮ ተዘምኗል",
 
   "videoDeleteTitle": "ቪዲዮ ይጠፋ?",
-  "videoDeleteMessage": "ይህ ቪዲዮውን ከጎል ኮኔክት እና ከCloudinary ያስወግዳል።",
+  "videoDeleteMessage": "ይህን ቪዲዮ ከጎል ኮኔክት ማጥፋት እርግጠኛ ነዎት?",
   "videoDeleteCouldNotDelete": "ቪዲዮውን ማጥፋት አልተቻለም",
   "videoDeleted": "ቪዲዮ ጠፍቷል",
 
@@ -240,14 +240,14 @@
   "saveActionPending": "…",
 
   "chatListTitle": "መልዕክቶች",
-  "chatListSubtitle": "ስካውቶች እና አሰልጣኞች እዚህ ይደርሳሉ",
+  "chatListSubtitle": "ስካውቶች እዚህ ይደርሳሉ",
   "chatListSearchHint": "ውይይቶችን ይፈልጉ...",
   "chatListLoading": "ውይይቶችን በመጫን ላይ...",
   "chatListConnectionIssue": "የግንኙነት ችግር",
   "chatListNoResults": "ምንም ውጤት አልተገኘም",
   "chatListTryDifferentSearch": "የተለየ የፍለጋ ቃል ይሞክሩ",
   "chatListEmptyTitle": "እስካሁን ውይይቶች የሉም",
-  "chatListEmptySubtitle": "ስካውቶች እና አሰልጣኞች መልዕክት ሲልኩ\nእዚህ ይታያሉ",
+  "chatListEmptySubtitle": "ስካውቶች መልዕክት ሲልኩ\nእዚህ ይታያሉ",
 
   "chatConversationActiveNow": "አሁን ንቁ",
   "chatConversationInputHint": "መልዕክት ይጻፉ…",

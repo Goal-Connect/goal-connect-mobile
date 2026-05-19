@@ -20,6 +20,7 @@ import '../../../profile/presentation/bloc/saved_players_state.dart';
 import 'comment_sheet.dart';
 import '../../../profile/presentation/pages/player_profile_page.dart';
 import 'fancy_glass_button.dart';
+import 'glass_snack_bar.dart';
 import '../../../../core/services/video_downloader.dart';
 
 class VideoOverlayContent extends StatelessWidget {
@@ -349,13 +350,11 @@ class _DownloadButtonState extends State<_DownloadButton> {
   }
 
   void _showMessage(String message, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor:
-            isError ? AppColors.habeshaRed : AppColors.primaryGreen,
-        behavior: SnackBarBehavior.floating,
-      ),
+    GlassSnackBar.show(
+      context,
+      message,
+      isError: isError,
+      accent: isError ? AppColors.habeshaRed : AppColors.primaryGreen,
     );
   }
 

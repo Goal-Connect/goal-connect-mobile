@@ -130,6 +130,11 @@ class ChatRepositoryImpl implements ChatRepository {
         dtos.map(_peerInfoFromDto),
         eagerError: false,
       );
+      // `/messages` is the source of truth for the chat list. Rebuild
+      // `_threads` from the response so locally-touched peers (e.g. opened
+      // from a player profile but with no exchanged messages) never leak
+      // into the list.
+      _threads.clear();
       for (var i = 0; i < dtos.length; i++) {
         final dto = dtos[i];
         final info = infos[i];
@@ -150,13 +155,6 @@ class ChatRepositoryImpl implements ChatRepository {
           unreadCount: dto.unreadCount,
         );
       }
-      // Drop any in-memory threads the server no longer reports (e.g. deleted
-      // conversations). Threads only ever appear via `GET /messages` or via
-      // a thread visit / inbound socket, so this stays consistent.
-      final serverIds = dtos.map((d) => d.peerUserId).toSet();
-      _threads.removeWhere(
-        (id, t) => !serverIds.contains(id) && t.lastMessage.isEmpty,
-      );
       _log('GET /messages ok', {'count': _threads.length});
       return Right(_sortedThreads());
     } on ChatApiException catch (e) {
@@ -204,7 +202,7 @@ class ChatRepositoryImpl implements ChatRepository {
       if (resolved != null) return resolved;
     }
 
-    // Fallback path: no player profile (scout / coach / agent / 404).
+    // Fallback path: no player profile (scout / 404).
     final display = emailName.isNotEmpty
         ? emailName
         : (role.isEmpty ? 'User' : _capitalize(role));
@@ -291,12 +289,22 @@ class ChatRepositoryImpl implements ChatRepository {
     }
 
     try {
-      _log('socket emit message:send (ack)',
-          {'to': peerUserId, 'len': trimmed.length});
+      _log('send → emit message:send (ack)', {
+        'to': peerUserId,
+        'fromMe': user.id,
+        'len': trimmed.length,
+        'preview':
+            trimmed.length > 40 ? '${trimmed.substring(0, 40)}…' : trimmed,
+      });
       final ack = await _socket.emitSendWithAck(
         toUserId: peerUserId,
         content: trimmed,
       );
+      _log('send ack received', {
+        'hasAck': ack != null,
+        'keys': ack?.keys.toList(),
+        'raw': ack,
+      });
       final payload = _extractMessagePayload(ack);
       MessageModel sent;
       if (payload != null) {
@@ -307,6 +315,12 @@ class ChatRepositoryImpl implements ChatRepository {
           selfDisplayName: user.username,
           peerDisplayName: info.name,
         );
+        _log('send ack → canonical message', {
+          'id': sent.id,
+          'senderId': sent.senderId,
+          'receiverId': sent.receiverId,
+          'createdAt': sent.createdAt.toIso8601String(),
+        });
       } else {
         // No ack from the server — keep an optimistic placeholder. The
         // `message:sent` socket event will replace it when it arrives.
@@ -321,6 +335,10 @@ class ChatRepositoryImpl implements ChatRepository {
           isRead: false,
           isMine: true,
         );
+        _log('send no ack payload → optimistic placeholder', {
+          'id': sent.id,
+          'waitingFor': 'message:sent socket event',
+        });
       }
 
       _upsert(
@@ -329,6 +347,10 @@ class ChatRepositoryImpl implements ChatRepository {
         updatedAt: sent.createdAt,
         info: info,
       );
+      _log('send → thread upserted', {
+        'peerId': peerUserId,
+        'totalThreads': _threads.length,
+      });
       return Right(sent);
     } catch (e, st) {
       _log('send crashed', e);

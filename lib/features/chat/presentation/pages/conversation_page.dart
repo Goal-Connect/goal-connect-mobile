@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -56,7 +58,20 @@ class _ConversationPageState extends State<ConversationPage> {
 
   void _sendMessage() {
     final text = _inputController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      developer.log('send tapped but input empty', name: 'chat.ui');
+      return;
+    }
+    developer.log(
+      'send tapped → dispatch SendMessageEvent',
+      name: 'chat.ui',
+    );
+    developer.log(
+      '  peerId=${widget.conversation.id} '
+      'peerName=${widget.conversation.participantName} '
+      'len=${text.length}',
+      name: 'chat.ui',
+    );
     context.read<ChatBloc>().add(
           SendMessageEvent(
             peerThread: widget.conversation,
@@ -83,10 +98,6 @@ class _ConversationPageState extends State<ConversationPage> {
     switch (role) {
       case 'scout':
         return AppColors.primaryGreen;
-      case 'coach':
-        return const Color(0xFF6C63FF);
-      case 'agent':
-        return AppColors.accentGold;
       default:
         return AppColors.gray;
     }
@@ -281,31 +292,6 @@ class _ConversationPageState extends State<ConversationPage> {
                   },
                 ),
               ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(9),
-            decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.videocam_rounded,
-              color: theme.colorScheme.onSurface.withOpacity(0.5),
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.all(9),
-            decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.more_vert_rounded,
-              color: theme.colorScheme.onSurface.withOpacity(0.5),
-              size: 20,
             ),
           ),
         ],

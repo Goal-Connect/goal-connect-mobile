@@ -20,7 +20,7 @@ class UserModel extends User {
     if (player is Map) {
       final p = Map<String, dynamic>.from(player);
     return UserModel(
-      id: json['id']?.toString() ?? '',
+      id: (json['id'] ?? json['_id'])?.toString() ?? '',
       email: p['email'] as String? ?? '',
       role: p['role'] as String? ?? 'player',
       username: p['username'] as String? ?? '',
@@ -32,7 +32,7 @@ class UserModel extends User {
     );
     }
     return UserModel(
-      id: json['id']?.toString() ?? '',
+      id: (json['id'] ?? json['_id'])?.toString() ?? '',
       email: json['email'] as String? ?? '',
       role: json['role'] as String? ?? 'user',
       username: json['username'] as String? ?? '',
@@ -66,7 +66,8 @@ class UserModel extends User {
     Map<String, dynamic> user,
     Map<String, dynamic>? profile,
   ) {
-    final id = user['id']?.toString() ?? '';
+    // Server may return Mongo `_id` or normalised `id` depending on serializer.
+    final id = (user['id'] ?? user['_id'])?.toString() ?? '';
     final email = user['email'] as String? ?? '';
     final role = user['role'] as String? ?? 'user';
     final fullName = profile?['fullName'] as String?;
@@ -115,7 +116,7 @@ class UserModel extends User {
       throw FormatException('Invalid auth response: missing user');
     }
     final user = Map<String, dynamic>.from(raw);
-    final id = user['id']?.toString() ?? '';
+    final id = (user['id'] ?? user['_id'])?.toString() ?? '';
     final email = user['email'] as String? ?? '';
     final role = user['role'] as String? ?? 'user';
     final username = email.contains('@')

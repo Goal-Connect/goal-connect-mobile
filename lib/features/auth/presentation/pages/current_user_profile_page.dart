@@ -89,18 +89,24 @@ class _CurrentUserProfileView extends StatelessWidget {
         ],
       ),
       floatingActionButton: isPlayer
-          ? FloatingActionButton(
-              backgroundColor: AppColors.primaryGreen,
-              foregroundColor: Colors.black,
-              onPressed: () {
-                final playerId = user.playerProfileId ?? user.id;
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => UploadHighlightPage(playerId: playerId),
-                  ),
-                );
-              },
-              child: const Icon(Icons.video_call_rounded),
+          ? Builder(
+              builder: (context) => FloatingActionButton(
+                backgroundColor: AppColors.primaryGreen,
+                foregroundColor: Colors.black,
+                onPressed: () async {
+                  final playerId = user.playerProfileId ?? user.id;
+                  final bloc = context.read<HighlightBloc>();
+                  final uploaded = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute<bool>(
+                      builder: (_) => UploadHighlightPage(playerId: playerId),
+                    ),
+                  );
+                  if (uploaded == true) {
+                    bloc.add(GetPlayerHighlightsEvent(playerId));
+                  }
+                },
+                child: const Icon(Icons.video_call_rounded),
+              ),
             )
           : null,
     );
@@ -746,6 +752,37 @@ class _CurrentUserProfileView extends StatelessWidget {
     return s[0].toUpperCase() + s.substring(1);
   }
 
+  Future<void> _confirmDelete(
+      BuildContext context, String highlightId) async {
+    final l = AppLocalizations.of(context);
+    final bloc = context.read<HighlightBloc>();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E24),
+        title:
+            Text(l.videoDeleteTitle, style: const TextStyle(color: Colors.white)),
+        content: Text(
+          l.videoDeleteMessage,
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.commonDelete,
+                style: const TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    bloc.add(DeleteHighlightEvent(highlightId));
+  }
+
   String _formatDate(DateTime d) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -756,6 +793,7 @@ class _CurrentUserProfileView extends StatelessWidget {
 
   Widget _buildHighlightsSection(
       BuildContext context, bool isDark, Color textColor) {
+    final profileId = user.playerProfileId ?? user.id;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -768,7 +806,30 @@ class _CurrentUserProfileView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        BlocBuilder<HighlightBloc, HighlightState>(
+        BlocConsumer<HighlightBloc, HighlightState>(
+          listener: (context, state) {
+            if (state is HighlightDeleted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content:
+                      Text(AppLocalizations.of(context).videoDeleted),
+                ),
+              );
+              context
+                  .read<HighlightBloc>()
+                  .add(GetPlayerHighlightsEvent(profileId));
+            } else if (state is HighlightError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)
+                      .videoDeleteCouldNotDelete),
+                ),
+              );
+              context
+                  .read<HighlightBloc>()
+                  .add(GetPlayerHighlightsEvent(profileId));
+            }
+          },
           builder: (context, state) {
             if (state is HighlightLoading) {
               return const Center(
@@ -858,6 +919,29 @@ class _CurrentUserProfileView extends StatelessWidget {
                                       fontWeight: FontWeight.w600),
                                 ),
                               ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 6,
+                          left: 6,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () => _confirmDelete(context, h.id),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.55),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.redAccent,
+                                  size: 16,
+                                ),
+                              ),
                             ),
                           ),
                         ),

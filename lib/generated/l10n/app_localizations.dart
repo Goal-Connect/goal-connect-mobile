@@ -595,7 +595,7 @@ abstract class AppLocalizations {
   /// No description provided for @highlightsCreateSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Show scouts & coaches your best moves'**
+  /// **'Show scouts your best moves'**
   String get highlightsCreateSubtitle;
 
   /// No description provided for @highlightsRecordVideo.
@@ -679,7 +679,7 @@ abstract class AppLocalizations {
   /// No description provided for @highlightsVisibleAfterPosting.
   ///
   /// In en, this message translates to:
-  /// **'Visible to scouts & coaches after posting'**
+  /// **'Visible to scouts after posting'**
   String get highlightsVisibleAfterPosting;
 
   /// No description provided for @highlightsUploading.
@@ -931,7 +931,7 @@ abstract class AppLocalizations {
   /// No description provided for @videoDeleteMessage.
   ///
   /// In en, this message translates to:
-  /// **'This removes the video from Goal Connect and Cloudinary.'**
+  /// **'Are you sure you want to delete this video from Goal Connect?'**
   String get videoDeleteMessage;
 
   /// No description provided for @videoDeleteCouldNotDelete.
@@ -1123,7 +1123,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatListSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Scouts & coaches reach out here'**
+  /// **'Scouts reach out here'**
   String get chatListSubtitle;
 
   /// No description provided for @chatListSearchHint.
@@ -1165,7 +1165,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatListEmptySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'When scouts and coaches message you,\nthey\'ll appear here'**
+  /// **'When scouts message you,\nthey\'ll appear here'**
   String get chatListEmptySubtitle;
 
   /// No description provided for @chatConversationActiveNow.

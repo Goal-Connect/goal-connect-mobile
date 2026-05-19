@@ -269,7 +269,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get highlightsCreateSubtitle =>
-      'Ispoortii barbaaddotaa fi leenjisitootaaf sochii kee gaarii agarsiisi';
+      'Ispoortii barbaaddotaaf sochii kee gaarii agarsiisi';
 
   @override
   String get highlightsRecordVideo => 'Viidiyoo Galmeessi';
@@ -321,7 +321,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get highlightsVisibleAfterPosting =>
-      'Maxxansaa booda ispoortii barbaaddotaa fi leenjisitootaaf ni mul\'ata';
+      'Maxxansaa booda ispoortii barbaaddotaaf ni mul\'ata';
 
   @override
   String get highlightsUploading => 'Calaqqee ol kaa\'aa jira...';
@@ -459,7 +459,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get videoDeleteMessage =>
-      'Kun viidiyoo Goal Connect fi Cloudinary irraa haqa.';
+      'Viidiyoo kana Goal Connect irraa balleessuuf mirkanaa\'ee jirtaa?';
 
   @override
   String get videoDeleteCouldNotDelete => 'Viidiyoo balleessuu hin dandeenye';
@@ -559,8 +559,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get chatListTitle => 'Ergaawwan';
 
   @override
-  String get chatListSubtitle =>
-      'Ispoortii barbaaddotaa fi leenjisitoonni asitti si qunnamu';
+  String get chatListSubtitle => 'Ispoortii barbaaddonni asitti si qunnamu';
 
   @override
   String get chatListSearchHint => 'Mariiwwan barbaadi...';
@@ -582,7 +581,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get chatListEmptySubtitle =>
-      'Yeroo ispoortii barbaaddotaa fi leenjisitoonni ergaa sii ergan,\nasitti ni mul\'atu';
+      'Yeroo ispoortii barbaaddonni ergaa sii ergan,\nasitti ni mul\'atu';
 
   @override
   String get chatConversationActiveNow => 'Amma sochii keessa jira';

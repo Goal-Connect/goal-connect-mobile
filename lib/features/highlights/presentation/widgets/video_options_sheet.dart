@@ -10,6 +10,7 @@ import '../../../../injection_container.dart';
 import '../../domain/entities/highlight.dart';
 import '../../domain/usecases/delete_highlight_usecase.dart';
 import '../../domain/usecases/update_highlight_usecase.dart';
+import 'glass_snack_bar.dart';
 
 class VideoOptionsSheet extends StatefulWidget {
   final Highlight highlight;
@@ -146,17 +147,17 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
                 r.fold(
                   (_) {
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l.videoEditCouldNotUpdate)),
+                    GlassSnackBar.show(
+                      context,
+                      l.videoEditCouldNotUpdate,
+                      isError: true,
                     );
                   },
                   (_) {
                     Navigator.pop(ctx);
                     Navigator.pop(context);
                     widget.onVideoChanged?.call();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l.videoEditUpdated)),
-                    );
+                    GlassSnackBar.show(context, l.videoEditUpdated);
                   },
                 );
               },
@@ -205,16 +206,16 @@ class _VideoOptionsSheetState extends State<VideoOptionsSheet>
     if (!mounted) return;
     r.fold(
       (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.videoDeleteCouldNotDelete)),
+        GlassSnackBar.show(
+          context,
+          l.videoDeleteCouldNotDelete,
+          isError: true,
         );
       },
       (_) {
         Navigator.pop(context);
         widget.onVideoChanged?.call();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.videoDeleted)),
-        );
+        GlassSnackBar.show(context, l.videoDeleted);
       },
     );
   }

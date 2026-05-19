@@ -10,6 +10,7 @@ import 'package:video_player/video_player.dart';
 import '../bloc/highlight_bloc.dart';
 import '../bloc/highlight_event.dart';
 import '../bloc/highlight_state.dart';
+import '../widgets/glass_snack_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../generated/l10n/app_localizations.dart';
 
@@ -100,16 +101,11 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).highlightsCameraNotAvailable,
-            ),
-            backgroundColor: AppColors.habeshaRed,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            margin: const EdgeInsets.all(16),
-          ),
+        GlassSnackBar.show(
+          context,
+          AppLocalizations.of(context).highlightsCameraNotAvailable,
+          isError: true,
+          accent: AppColors.habeshaRed,
         );
       }
     }
@@ -232,7 +228,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
       backgroundColor: const Color(0xFF070710),
       body: BlocConsumer<HighlightBloc, HighlightState>(
         listener: (context, state) {
-          if (state is HighlightUploaded) Navigator.pop(context);
+          if (state is HighlightUploaded) Navigator.pop(context, true);
         },
         builder: (context, state) {
           if (state is HighlightUploading) return _buildUploading();
@@ -694,186 +690,206 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
   Widget _buildPreviewMode() {
     final bool videoReady =
         _videoController != null && _videoController!.value.isInitialized;
+    final media = MediaQuery.of(context);
+    final keyboardOpen = media.viewInsets.bottom > 0;
+    // Shrink the video preview when the keyboard is open so the caption /
+    // post buttons stay visible without overflowing the available height.
+    final videoHeight = keyboardOpen
+        ? (media.size.height * 0.22).clamp(140.0, 220.0)
+        : (media.size.height * 0.45).clamp(220.0, 480.0);
 
     return SafeArea(
-      child: Column(
-        children: [
-          _buildTopBar(),
-          Expanded(
-            flex: 5,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                color: Colors.black,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryGreen.withOpacity(0.08),
-                    blurRadius: 40,
-                    spreadRadius: -8,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (videoReady)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _videoController!.value.isPlaying
-                                ? _videoController!.pause()
-                                : _videoController!.play();
-                          });
-                        },
-                        child: FittedBox(
-                          fit: BoxFit.cover,
-                          child: SizedBox(
-                            width: _videoController!.value.size.width,
-                            height: _videoController!.value.size.height,
-                            child: VideoPlayer(_videoController!),
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Column(
+            children: [
+              _buildTopBar(),
+              Container(
+                height: videoHeight,
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  color: Colors.black,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryGreen.withOpacity(0.08),
+                      blurRadius: 40,
+                      spreadRadius: -8,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (videoReady)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _videoController!.value.isPlaying
+                                  ? _videoController!.pause()
+                                  : _videoController!.play();
+                            });
+                          },
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: _videoController!.value.size.width,
+                              height: _videoController!.value.size.height,
+                              child: VideoPlayer(_videoController!),
+                            ),
+                          ),
+                        )
+                      else
+                        const Center(
+                            child: CircularProgressIndicator(
+                                color: AppColors.primaryGreen)),
+                      if (videoReady)
+                        AnimatedOpacity(
+                          opacity: _videoController!.value.isPlaying ? 0.0 : 1.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                            color: Colors.black38,
+                            child: const Center(
+                              child: Icon(Icons.play_circle_filled_rounded,
+                                  color: Colors.white70, size: 64),
+                            ),
                           ),
                         ),
-                      )
-                    else
-                      const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen)),
-
-                    if (videoReady)
-                      AnimatedOpacity(
-                        opacity: _videoController!.value.isPlaying ? 0.0 : 1.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(
-                          color: Colors.black38,
-                          child: const Center(
-                            child: Icon(Icons.play_circle_filled_rounded,
-                                color: Colors.white70, size: 64),
-                          ),
-                        ),
-                      ),
-
-                    if (videoReady)
-                      Positioned(
-                        bottom: 12, right: 12,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.4),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _fmt(_videoController!.value.duration.inSeconds),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  fontFeatures: [FontFeature.tabularFigures()],
+                      if (videoReady)
+                        Positioned(
+                          bottom: 12,
+                          right: 12,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _fmt(_videoController!.value.duration.inSeconds),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    fontFeatures: [FontFeature.tabularFigures()],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.04),
+                        borderRadius: BorderRadius.circular(16),
+                        border:
+                            Border.all(color: Colors.white.withOpacity(0.07)),
                       ),
+                      child: TextField(
+                        controller: _captionController,
+                        maxLines: 3,
+                        maxLength: 150,
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                        textInputAction: TextInputAction.done,
+                        onTapOutside: (_) =>
+                            FocusScope.of(context).unfocus(),
+                        decoration: InputDecoration(
+                          hintText:
+                              AppLocalizations.of(context).highlightsCaptionHint,
+                          hintStyle:
+                              TextStyle(color: Colors.white.withOpacity(0.22)),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(16),
+                          counterStyle: TextStyle(
+                              color: Colors.white.withOpacity(0.2), fontSize: 11),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _pill(
+                            icon: Icons.refresh_rounded,
+                            label: AppLocalizations.of(context).highlightsRetake,
+                            fg: Colors.white60,
+                            bg: Colors.white.withOpacity(0.06),
+                            onTap: _retake,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: _pill(
+                            icon: Icons.upload_rounded,
+                            label: AppLocalizations.of(context).highlightsPost,
+                            fg: Colors.black,
+                            bg: AppColors.primaryGreen,
+                            onTap: () {
+                              if (_videoFile == null) return;
+                              final auth = context.read<AuthBloc>().state;
+                              final resolved = widget.playerId ??
+                                  (auth is AuthAuthenticated
+                                      ? (auth.user.playerProfileId ??
+                                          auth.user.id)
+                                      : '');
+                              if (resolved.isEmpty) {
+                                GlassSnackBar.show(
+                                  context,
+                                  AppLocalizations.of(context)
+                                      .highlightsSignInToUpload,
+                                  isError: true,
+                                );
+                                return;
+                              }
+                              context.read<HighlightBloc>().add(
+                                    UploadHighlightEvent(
+                                      playerId: resolved,
+                                      videoPath: _videoFile!.path,
+                                      caption: _captionController.text,
+                                    ),
+                                  );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Text(
+                        AppLocalizations.of(context).highlightsVisibleAfterPosting,
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.18), fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.04),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.07)),
-                    ),
-                    child: TextField(
-                      controller: _captionController,
-                      maxLines: 3,
-                      maxLength: 150,
-                      style: const TextStyle(color: Colors.white, fontSize: 15),
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context).highlightsCaptionHint,
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.22)),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
-                        counterStyle: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 11),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _pill(
-                          icon: Icons.refresh_rounded,
-                          label: AppLocalizations.of(context).highlightsRetake,
-                          fg: Colors.white60,
-                          bg: Colors.white.withOpacity(0.06),
-                          onTap: _retake,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: _pill(
-                          icon: Icons.upload_rounded,
-                          label: AppLocalizations.of(context).highlightsPost,
-                          fg: Colors.black,
-                          bg: AppColors.primaryGreen,
-                          onTap: () {
-                            if (_videoFile == null) return;
-                            final auth = context.read<AuthBloc>().state;
-                            final resolved = widget.playerId ??
-                                (auth is AuthAuthenticated
-                                    ? (auth.user.playerProfileId ??
-                                        auth.user.id)
-                                    : '');
-                            if (resolved.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(AppLocalizations.of(context).highlightsSignInToUpload),
-                                ),
-                              );
-                              return;
-                            }
-                            context.read<HighlightBloc>().add(
-                              UploadHighlightEvent(
-                                playerId: resolved,
-                                videoPath: _videoFile!.path,
-                                caption: _captionController.text,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context).highlightsVisibleAfterPosting,
-                      style: TextStyle(color: Colors.white.withOpacity(0.18), fontSize: 12),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

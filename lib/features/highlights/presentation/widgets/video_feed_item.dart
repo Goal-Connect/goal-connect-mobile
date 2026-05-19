@@ -9,8 +9,8 @@ import '../../domain/entities/highlight.dart';
 import '../../../../generated/l10n/app_localizations.dart';
 import '../../../../injection_container.dart';
 import '../../domain/usecases/toggle_like_highlight_usecase.dart';
+import 'glass_snack_bar.dart';
 import 'video_overlay_content.dart';
-import 'video_options_sheet.dart';
 
 class VideoFeedItem extends StatefulWidget {
   final Highlight highlight;
@@ -143,8 +143,10 @@ class _VideoFeedItemState extends State<VideoFeedItem>
           _isLiked = previousLiked;
           _likeCount = previousCount;
         });
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).highlightsCouldNotLike)),
+        GlassSnackBar.show(
+          context,
+          AppLocalizations.of(context).highlightsCouldNotLike,
+          isError: true,
         );
       },
       (r) {
@@ -164,20 +166,6 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) setState(() => _showHeart = false);
     });
-  }
-
-  void _openOptions() {
-    HapticFeedback.lightImpact();
-    _pauseVideo();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => VideoOptionsSheet(
-        highlight: widget.highlight,
-        onVideoChanged: widget.onVideoChanged,
-      ),
-    ).then((_) => _resumeVideo());
   }
 
   Future<void> _navigateAway(Widget page) async {
@@ -228,7 +216,6 @@ class _VideoFeedItemState extends State<VideoFeedItem>
         GestureDetector(
           onTap: _togglePlayPause,
           onDoubleTap: _onDoubleTap,
-          onLongPress: _openOptions,
           behavior: HitTestBehavior.translucent,
           child: const SizedBox.expand(),
         ),
@@ -240,7 +227,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
           likeCount: _likeCount,
           commentCount: _commentCount,
           onLikeTap: _toggleLike,
-          onOptionsTap: _openOptions,
+          onOptionsTap: () {},
           onCommentCountChanged: (n) {
             if (!mounted || n == _commentCount) return;
             setState(() => _commentCount = n);

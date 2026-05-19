@@ -109,7 +109,7 @@
   "scoutRegisterSubmit": "CREATE SCOUT ACCOUNT",
 
   "highlightsCreateTitle": "Create Highlight",
-  "highlightsCreateSubtitle": "Show scouts & coaches your best moves",
+  "highlightsCreateSubtitle": "Show scouts your best moves",
   "highlightsRecordVideo": "Record Video",
   "highlightsRecordVideoSubtitle": "Use your camera · up to {seconds}s",
   "@highlightsRecordVideoSubtitle": {
@@ -139,7 +139,7 @@
   "highlightsCaptionHint": "Write a caption...",
   "highlightsRetake": "Retake",
   "highlightsPost": "Post Highlight",
-  "highlightsVisibleAfterPosting": "Visible to scouts & coaches after posting",
+  "highlightsVisibleAfterPosting": "Visible to scouts after posting",
   "highlightsUploading": "Uploading highlight...",
   "highlightsUploadingSubtitle": "This may take a moment",
   "highlightsTopBarTitle": "NEW HIGHLIGHT",
@@ -204,7 +204,7 @@
   "videoEditUpdated": "Video updated",
 
   "videoDeleteTitle": "Delete video?",
-  "videoDeleteMessage": "This removes the video from Goal Connect and Cloudinary.",
+  "videoDeleteMessage": "Are you sure you want to delete this video from Goal Connect?",
   "videoDeleteCouldNotDelete": "Could not delete video",
   "videoDeleted": "Video deleted",
 
@@ -246,14 +246,14 @@
   "saveActionPending": "…",
 
   "chatListTitle": "Messages",
-  "chatListSubtitle": "Scouts & coaches reach out here",
+  "chatListSubtitle": "Scouts reach out here",
   "chatListSearchHint": "Search conversations...",
   "chatListLoading": "Loading conversations...",
   "chatListConnectionIssue": "Connection issue",
   "chatListNoResults": "No results found",
   "chatListTryDifferentSearch": "Try a different search term",
   "chatListEmptyTitle": "No conversations yet",
-  "chatListEmptySubtitle": "When scouts and coaches message you,\nthey'll appear here",
+  "chatListEmptySubtitle": "When scouts message you,\nthey'll appear here",
 
   "chatConversationActiveNow": "Active now",
   "chatConversationInputHint": "Type a message…",

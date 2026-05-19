@@ -264,8 +264,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highlightsCreateTitle => 'Create Highlight';
 
   @override
-  String get highlightsCreateSubtitle =>
-      'Show scouts & coaches your best moves';
+  String get highlightsCreateSubtitle => 'Show scouts your best moves';
 
   @override
   String get highlightsRecordVideo => 'Record Video';
@@ -316,8 +315,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highlightsPost => 'Post Highlight';
 
   @override
-  String get highlightsVisibleAfterPosting =>
-      'Visible to scouts & coaches after posting';
+  String get highlightsVisibleAfterPosting => 'Visible to scouts after posting';
 
   @override
   String get highlightsUploading => 'Uploading highlight...';
@@ -454,7 +452,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get videoDeleteMessage =>
-      'This removes the video from Goal Connect and Cloudinary.';
+      'Are you sure you want to delete this video from Goal Connect?';
 
   @override
   String get videoDeleteCouldNotDelete => 'Could not delete video';
@@ -552,7 +550,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatListTitle => 'Messages';
 
   @override
-  String get chatListSubtitle => 'Scouts & coaches reach out here';
+  String get chatListSubtitle => 'Scouts reach out here';
 
   @override
   String get chatListSearchHint => 'Search conversations...';
@@ -574,7 +572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatListEmptySubtitle =>
-      'When scouts and coaches message you,\nthey\'ll appear here';
+      'When scouts message you,\nthey\'ll appear here';
 
   @override
   String get chatConversationActiveNow => 'Active now';

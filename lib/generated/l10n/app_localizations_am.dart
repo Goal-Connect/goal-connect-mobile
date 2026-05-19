@@ -263,7 +263,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get highlightsCreateTitle => 'ድምቀት ይፍጠሩ';
 
   @override
-  String get highlightsCreateSubtitle => 'ለስካውቶች እና አሰልጣኞች ምርጥ እንቅስቃሴዎችዎን ያሳዩ';
+  String get highlightsCreateSubtitle => 'ለስካውቶች ምርጥ እንቅስቃሴዎችዎን ያሳዩ';
 
   @override
   String get highlightsRecordVideo => 'ቪዲዮ ይቅረጹ';
@@ -313,7 +313,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get highlightsPost => 'ድምቀት ይለጥፉ';
 
   @override
-  String get highlightsVisibleAfterPosting => 'ከመለጠፉ በኋላ ለስካውቶች እና አሰልጣኞች ይታያል';
+  String get highlightsVisibleAfterPosting => 'ከመለጠፉ በኋላ ለስካውቶች ይታያል';
 
   @override
   String get highlightsUploading => 'ድምቀት በመጫን ላይ...';
@@ -447,7 +447,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get videoDeleteTitle => 'ቪዲዮ ይጠፋ?';
 
   @override
-  String get videoDeleteMessage => 'ይህ ቪዲዮውን ከጎል ኮኔክት እና ከCloudinary ያስወግዳል።';
+  String get videoDeleteMessage => 'ይህን ቪዲዮ ከጎል ኮኔክት ማጥፋት እርግጠኛ ነዎት?';
 
   @override
   String get videoDeleteCouldNotDelete => 'ቪዲዮውን ማጥፋት አልተቻለም';
@@ -545,7 +545,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get chatListTitle => 'መልዕክቶች';
 
   @override
-  String get chatListSubtitle => 'ስካውቶች እና አሰልጣኞች እዚህ ይደርሳሉ';
+  String get chatListSubtitle => 'ስካውቶች እዚህ ይደርሳሉ';
 
   @override
   String get chatListSearchHint => 'ውይይቶችን ይፈልጉ...';
@@ -566,7 +566,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get chatListEmptyTitle => 'እስካሁን ውይይቶች የሉም';
 
   @override
-  String get chatListEmptySubtitle => 'ስካውቶች እና አሰልጣኞች መልዕክት ሲልኩ\nእዚህ ይታያሉ';
+  String get chatListEmptySubtitle => 'ስካውቶች መልዕክት ሲልኩ\nእዚህ ይታያሉ';
 
   @override
   String get chatConversationActiveNow => 'አሁን ንቁ';

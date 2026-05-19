@@ -26,10 +26,6 @@ class ConversationTile extends StatelessWidget {
     switch (role) {
       case 'scout':
         return Icons.radar_rounded;
-      case 'coach':
-        return Icons.sports_rounded;
-      case 'agent':
-        return Icons.handshake_rounded;
       default:
         return Icons.person_rounded;
     }
@@ -39,10 +35,6 @@ class ConversationTile extends StatelessWidget {
     switch (role) {
       case 'scout':
         return AppColors.primaryGreen;
-      case 'coach':
-        return const Color(0xFF6C63FF);
-      case 'agent':
-        return AppColors.accentGold;
       default:
         return AppColors.gray;
     }

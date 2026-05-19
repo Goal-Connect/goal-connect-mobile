@@ -103,7 +103,7 @@
   "scoutRegisterSubmit": "HERREGA ISPOORTII BARBAADUU UUMI",
 
   "highlightsCreateTitle": "Calaqqee Uumi",
-  "highlightsCreateSubtitle": "Ispoortii barbaaddotaa fi leenjisitootaaf sochii kee gaarii agarsiisi",
+  "highlightsCreateSubtitle": "Ispoortii barbaaddotaaf sochii kee gaarii agarsiisi",
   "highlightsRecordVideo": "Viidiyoo Galmeessi",
   "highlightsRecordVideoSubtitle": "Kaameraa kee fayyadami · hanga sekondii {seconds}",
   "@highlightsRecordVideoSubtitle": {
@@ -133,7 +133,7 @@
   "highlightsCaptionHint": "Ibsa barreessi...",
   "highlightsRetake": "Ammas Galmeessi",
   "highlightsPost": "Calaqqee Maxxansi",
-  "highlightsVisibleAfterPosting": "Maxxansaa booda ispoortii barbaaddotaa fi leenjisitootaaf ni mul'ata",
+  "highlightsVisibleAfterPosting": "Maxxansaa booda ispoortii barbaaddotaaf ni mul'ata",
   "highlightsUploading": "Calaqqee ol kaa'aa jira...",
   "highlightsUploadingSubtitle": "Kun yeroo xinnoo fudhachuu danda'a",
   "highlightsTopBarTitle": "CALAQQEE HAARAA",
@@ -198,7 +198,7 @@
   "videoEditUpdated": "Viidiyoon haaromfame",
 
   "videoDeleteTitle": "Viidiyoo balleessuu?",
-  "videoDeleteMessage": "Kun viidiyoo Goal Connect fi Cloudinary irraa haqa.",
+  "videoDeleteMessage": "Viidiyoo kana Goal Connect irraa balleessuuf mirkanaa'ee jirtaa?",
   "videoDeleteCouldNotDelete": "Viidiyoo balleessuu hin dandeenye",
   "videoDeleted": "Viidiyoon ballaa'e",
 
@@ -240,14 +240,14 @@
   "saveActionPending": "…",
 
   "chatListTitle": "Ergaawwan",
-  "chatListSubtitle": "Ispoortii barbaaddotaa fi leenjisitoonni asitti si qunnamu",
+  "chatListSubtitle": "Ispoortii barbaaddonni asitti si qunnamu",
   "chatListSearchHint": "Mariiwwan barbaadi...",
   "chatListLoading": "Mariiwwan fe'amaa jiru...",
   "chatListConnectionIssue": "Rakkoo walqunnamtii",
   "chatListNoResults": "Bu'aa hin argamne",
   "chatListTryDifferentSearch": "Jecha barbaachaa biraa yaali",
   "chatListEmptyTitle": "Ammaaf mariin hin jiru",
-  "chatListEmptySubtitle": "Yeroo ispoortii barbaaddotaa fi leenjisitoonni ergaa sii ergan,\nasitti ni mul'atu",
+  "chatListEmptySubtitle": "Yeroo ispoortii barbaaddonni ergaa sii ergan,\nasitti ni mul'atu",
 
   "chatConversationActiveNow": "Amma sochii keessa jira",
   "chatConversationInputHint": "Ergaa barreessi…",
