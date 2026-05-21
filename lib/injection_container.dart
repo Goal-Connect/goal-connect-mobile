@@ -94,7 +94,22 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LocaleCubit(prefs: sl()));
 
   // ── Internet Connection ─────────────────────────────────────────────────────
-  sl.registerLazySingleton(() => InternetConnection());
+  // Probe our own backend rather than the default public endpoints
+  // (Cloudflare/Google/etc.), which can be blocked or flaky on some networks
+  // and produce false "offline" reports while the backend itself is reachable.
+  // Any response from the server (even 4xx) means the network is up.
+  sl.registerLazySingleton(
+    () => InternetConnection.createInstance(
+      customCheckOptions: [
+        InternetCheckOption(
+          uri: Uri.parse(ApiConstants.baseUrl),
+          responseStatusFn: (response) =>
+              response.statusCode >= 200 && response.statusCode < 500,
+        ),
+      ],
+      useDefaultOptions: false,
+    ),
+  );
   sl.registerLazySingleton(() => InternetConnectionCubit(sl<InternetConnection>()));
 
   // ── Auth ────────────────────────────────────────────────────────────────────

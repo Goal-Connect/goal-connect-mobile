@@ -245,20 +245,28 @@ class _MainPageState extends State<MainPage> {
           final maxIndex = navItems.length - 1;
 
           return Scaffold(
-            body: Column(
+            body: Stack(
               children: [
-                BlocBuilder<InternetConnectionCubit, InternetConnectionState>(
-                  builder: (context, connectionState) {
-                    return connectionState.isConnected
-                        ? const SizedBox.shrink()
-                        : const NoInternetCard();
-                  },
-                ),
-                Expanded(
+                Positioned.fill(
                   child: authed
                       ? _pageForTab(isScout)
                       : const HighlightFeedPage(),
                 ),
+                // DIAG: overlay temporarily disabled to isolate the
+                // "blank screen when online" bug. Restore once confirmed.
+                // BlocBuilder<InternetConnectionCubit, InternetConnectionState>(
+                //   builder: (context, connectionState) {
+                //     if (connectionState.isConnected) {
+                //       return const SizedBox.shrink();
+                //     }
+                //     return Center(
+                //       child: ConstrainedBox(
+                //         constraints: const BoxConstraints(maxWidth: 320),
+                //         child: const NoInternetCard(),
+                //       ),
+                //     );
+                //   },
+                // ),
               ],
             ),
             bottomNavigationBar: authed

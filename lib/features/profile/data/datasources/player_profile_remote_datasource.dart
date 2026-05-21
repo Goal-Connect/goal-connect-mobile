@@ -115,11 +115,11 @@ class PlayerProfileRemoteDataSourceImpl implements PlayerProfileRemoteDataSource
       }
       final positionTrimmed = position?.trim();
       if (positionTrimmed != null && positionTrimmed.isNotEmpty) {
-        params['position'] = positionTrimmed;
+        params['position'] = positionTrimmed.toLowerCase();
       }
       final footTrimmed = strongFoot?.trim();
       if (footTrimmed != null && footTrimmed.isNotEmpty) {
-        params['strongFoot'] = footTrimmed;
+        params['strongFoot'] = footTrimmed.toLowerCase();
       }
       if (minAge != null) params['minAge'] = minAge;
       if (maxAge != null) params['maxAge'] = maxAge;

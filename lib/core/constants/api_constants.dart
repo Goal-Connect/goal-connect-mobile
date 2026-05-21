@@ -1,4 +1,3 @@
-/// Goal Connect backend (see README.md).
 abstract final class ApiConstants {
   ApiConstants._();
 
@@ -10,12 +9,8 @@ abstract final class ApiConstants {
   static const String authMe = '/auth/me';
   static const String authUpdatePassword = '/auth/updatepassword';
   static const String authLogout = '/auth/logout';
-
-  /// `POST /auth/forgot-password` — request a password reset email.
-  /// Always returns 200 to prevent user enumeration.
   static const String authForgotPassword = '/auth/forgot-password';
 
-  /// List / upload videos (see README).
   static const String videos = '/videos';
 
   /// `PATCH/DELETE /videos/{id}` — pass id when calling Dio.

@@ -175,15 +175,37 @@ class _PlayerProfileView extends StatelessWidget {
 
           if (profile == null) return const SizedBox.shrink();
 
-          return CustomScrollView(
-            slivers: [
-              _buildHeader(context, profile, isDark, isToggling),
-              SliverToBoxAdapter(child: _buildBody(context, profile, isDark)),
-            ],
+          return RefreshIndicator(
+            color: AppColors.primaryGreen,
+            onRefresh: () => _onRefresh(context),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                _buildHeader(context, profile, isDark, isToggling),
+                SliverToBoxAdapter(child: _buildBody(context, profile, isDark)),
+              ],
+            ),
           );
         },
       ),
     );
+  }
+
+  Future<void> _onRefresh(BuildContext context) async {
+    final profileBloc = context.read<PlayerProfileBloc>();
+    final highlightBloc = context.read<HighlightBloc>();
+
+    profileBloc.add(LoadPlayerProfileEvent(playerId));
+    highlightBloc.add(GetPlayerHighlightsEvent(playerId));
+
+    await Future.wait([
+      profileBloc.stream.firstWhere(
+        (s) => s is PlayerProfileLoaded || s is PlayerProfileError,
+      ),
+      highlightBloc.stream.firstWhere(
+        (s) => s is HighlightLoaded || s is HighlightError,
+      ),
+    ]);
   }
 
   Widget _buildHeader(

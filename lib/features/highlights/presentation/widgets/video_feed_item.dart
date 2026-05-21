@@ -27,7 +27,7 @@ class VideoFeedItem extends StatefulWidget {
 }
 
 class _VideoFeedItemState extends State<VideoFeedItem>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late VideoPlayerController _controller;
   late AnimationController _rotationController;
   bool _isInitialized = false;
@@ -55,6 +55,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _isLiked = false;
     _likeCount = widget.highlight.likes;
     _commentCount = widget.highlight.commentCount;
@@ -77,9 +78,24 @@ class _VideoFeedItemState extends State<VideoFeedItem>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     _rotationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Only auto-resume if the user hadn't manually paused.
+      if (!_isPaused) _resumeVideo();
+    } else {
+      // paused / inactive / hidden / detached — stop audio in the background.
+      if (_isInitialized && _controller.value.isPlaying) {
+        _controller.pause();
+        _rotationController.stop();
+      }
+    }
   }
 
   void _pauseVideo() {
