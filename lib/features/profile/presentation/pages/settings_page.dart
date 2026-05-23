@@ -8,6 +8,7 @@ import '../../../../generated/l10n/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import 'scout_preferences_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -28,6 +29,16 @@ class _SettingsPageState extends State<SettingsPage> {
         (isDark ? Colors.white : Colors.black).withOpacity(0.05);
     final dividerColor =
         (isDark ? Colors.white : Colors.black).withOpacity(0.04);
+    final cardGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        AppColors.primaryGreen.withValues(alpha: isDark ? 0.10 : 0.06),
+        cardColor,
+        cardColor,
+      ],
+      stops: const [0.0, 0.45, 1.0],
+    );
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -41,14 +52,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _buildAppearanceSection(
-                      context, isDark, textColor, cardColor, borderColor, dividerColor),
+                  _buildAppearanceSection(context, isDark, textColor,
+                      cardGradient, borderColor, dividerColor),
                   const SizedBox(height: 24),
-                  _buildSecuritySection(
-                      isDark, textColor, cardColor, borderColor, dividerColor),
+                  _buildSecuritySection(isDark, textColor, cardGradient,
+                      borderColor, dividerColor),
+                  if (_isScout(context)) ...[
+                    const SizedBox(height: 24),
+                    _buildDiscoverySection(
+                        isDark, textColor, cardGradient, borderColor),
+                  ],
                   const SizedBox(height: 24),
-                  _buildAccountSection(
-                      isDark, textColor, cardColor, borderColor, dividerColor),
+                  _buildAccountSection(isDark, textColor, cardGradient,
+                      borderColor, dividerColor),
                   const SizedBox(height: 28),
                   _buildSignOutButton(isDark),
                   const SizedBox(height: 20),
@@ -83,16 +99,16 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
                 AppColors.primaryGreen,
-                AppColors.primaryGreen.withOpacity(0.75),
-                isDark ? const Color(0xFF0A0A12) : Colors.white,
+                Color(0xFF27AE60),
+                Color(0xFF1F8F4E),
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.0, 0.6, 1.0],
+              stops: [0.0, 0.55, 1.0],
             ),
           ),
           child: SingleChildScrollView(
@@ -166,7 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
     BuildContext context,
     bool isDark,
     Color textColor,
-    Color cardColor,
+    LinearGradient cardGradient,
     Color borderColor,
     Color dividerColor,
   ) {
@@ -180,7 +196,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color: cardColor,
+            gradient: cardGradient,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: borderColor),
           ),
@@ -260,9 +276,13 @@ class _SettingsPageState extends State<SettingsPage> {
           decoration: BoxDecoration(
             gradient: isSelected
                 ? const LinearGradient(
-                    colors: [AppColors.primaryGreen, Color(0xFF00E896)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF3DDB85),
+                      AppColors.primaryGreen,
+                      Color(0xFF1F8F4E),
+                    ],
                   )
                 : null,
             color: isSelected
@@ -272,8 +292,8 @@ class _SettingsPageState extends State<SettingsPage> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.primaryGreen.withOpacity(0.25),
-                      blurRadius: 12,
+                      color: AppColors.primaryGreen.withOpacity(0.3),
+                      blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
                   ]
@@ -307,7 +327,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSecuritySection(
     bool isDark,
     Color textColor,
-    Color cardColor,
+    LinearGradient cardGradient,
     Color borderColor,
     Color dividerColor,
   ) {
@@ -319,7 +339,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color: cardColor,
+            gradient: cardGradient,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: borderColor),
           ),
@@ -351,10 +371,50 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  bool _isScout(BuildContext context) {
+    final state = context.watch<AuthBloc>().state;
+    if (state is AuthAuthenticated) {
+      return state.user.role.toLowerCase() == 'scout';
+    }
+    return false;
+  }
+
+  Widget _buildDiscoverySection(
+    bool isDark,
+    Color textColor,
+    LinearGradient cardGradient,
+    Color borderColor,
+  ) {
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader(l.settingsDiscovery),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            gradient: cardGradient,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
+          ),
+          child: _buildActionTile(
+            icon: Icons.tune_rounded,
+            iconColor: AppColors.primaryGreen,
+            label: l.settingsScoutPreferences,
+            textColor: textColor,
+            onTap: () {
+              Navigator.of(context).push(ScoutPreferencesPage.route());
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAccountSection(
     bool isDark,
     Color textColor,
-    Color cardColor,
+    LinearGradient cardGradient,
     Color borderColor,
     Color dividerColor,
   ) {
@@ -366,7 +426,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color: cardColor,
+            gradient: cardGradient,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: borderColor),
           ),
@@ -415,7 +475,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 label: l.settingsAbout,
                 trailing: l.settingsAppVersion,
                 textColor: textColor,
-                onTap: () {},
+                onTap: () => _openAboutSheet(context, isDark, textColor),
               ),
             ],
           ),
@@ -452,6 +512,19 @@ class _SettingsPageState extends State<SettingsPage> {
     } else {
       cubit.setLocale(selected);
     }
+  }
+
+  Future<void> _openAboutSheet(
+    BuildContext context,
+    bool isDark,
+    Color textColor,
+  ) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _AboutSheet(isDark: isDark, textColor: textColor),
+    );
   }
 
   Widget _buildActionTile({
@@ -517,14 +590,16 @@ class _SettingsPageState extends State<SettingsPage> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            AppColors.habeshaRed.withOpacity(0.08),
+            AppColors.habeshaRed.withOpacity(0.10),
             AppColors.habeshaRed.withOpacity(0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: AppColors.habeshaRed.withOpacity(0.12),
+          color: AppColors.habeshaRed.withOpacity(0.18),
         ),
       ),
       child: Material(
@@ -570,21 +645,13 @@ class _SettingsPageState extends State<SettingsPage> {
     return Center(
       child: Column(
         children: [
-          ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [
-                AppColors.primaryGreen.withOpacity(0.4),
-                AppColors.primaryGreen.withOpacity(0.2),
-              ],
-            ).createShader(bounds),
-            child: Text(
-              AppLocalizations.of(context).settingsBrand,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 16,
-                letterSpacing: 0.5,
-              ),
+          Text(
+            AppLocalizations.of(context).settingsBrand,
+            style: const TextStyle(
+              color: AppColors.primaryGreen,
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 4),
@@ -900,6 +967,148 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AboutSheet extends StatelessWidget {
+  final bool isDark;
+  final Color textColor;
+
+  const _AboutSheet({required this.isDark, required this.textColor});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final sheetBg = isDark ? const Color(0xFF14141C) : Colors.white;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.55,
+      minChildSize: 0.35,
+      maxChildSize: 0.9,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: sheetBg,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 14, bottom: 6),
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.gray.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF3DDB85),
+                              AppColors.primaryGreen,
+                              Color(0xFF1F8F4E),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryGreen.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.sports_soccer_rounded,
+                            color: Colors.black, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l.settingsAbout,
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              l.settingsAppVersion,
+                              style: TextStyle(
+                                color: AppColors.gray.withOpacity(0.7),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+                    child: Text(
+                      l.settingsAboutBody,
+                      style: TextStyle(
+                        color: textColor.withOpacity(0.82),
+                        fontSize: 14,
+                        height: 1.55,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        l.settingsAboutClose,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

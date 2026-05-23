@@ -32,7 +32,12 @@ abstract class HighlightRemoteDataSource {
     String? drillType,
   });
 
-  Future<List<HighlightModel>> getHighlightsFeed();
+  Future<List<HighlightModel>> getHighlightsFeed({
+    String? position,
+    String? region,
+    int? minAge,
+    int? maxAge,
+  });
 
   Future<List<HighlightModel>> getPlayerHighlights(String playerId);
 
@@ -158,14 +163,29 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
   }
 
   @override
-  Future<List<HighlightModel>> getHighlightsFeed() async {
+  Future<List<HighlightModel>> getHighlightsFeed({
+    String? position,
+    String? region,
+    int? minAge,
+    int? maxAge,
+  }) async {
     try {
+      final query = <String, dynamic>{
+        'page': 1,
+        'limit': 20,
+      };
+      if (position != null && position.isNotEmpty) {
+        query['position'] = position;
+      }
+      if (region != null && region.isNotEmpty) {
+        query['region'] = region;
+      }
+      if (minAge != null) query['minAge'] = minAge;
+      if (maxAge != null) query['maxAge'] = maxAge;
+
       final response = await _dio.get<dynamic>(
         ApiConstants.videosFeed,
-        queryParameters: <String, dynamic>{
-          'page': 1,
-          'limit': 20,
-        },
+        queryParameters: query,
       );
       return _parseFeedList(response.data);
     } on DioException catch (e) {
@@ -436,9 +456,26 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
   }
 
   @override
-  Future<List<HighlightModel>> getHighlightsFeed() async {
+  Future<List<HighlightModel>> getHighlightsFeed({
+    String? position,
+    String? region,
+    int? minAge,
+    int? maxAge,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    return _highlights;
+    Iterable<HighlightModel> result = _highlights;
+    if (position != null && position.isNotEmpty) {
+      result = result.where(
+        (h) => h.player.position.toLowerCase() == position.toLowerCase(),
+      );
+    }
+    if (minAge != null) {
+      result = result.where((h) => h.player.age >= minAge);
+    }
+    if (maxAge != null) {
+      result = result.where((h) => h.player.age <= maxAge);
+    }
+    return result.toList();
   }
 
   @override

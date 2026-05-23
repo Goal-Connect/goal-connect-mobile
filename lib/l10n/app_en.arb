@@ -227,6 +227,7 @@
   "reportReasonFake": "Fake or edited highlight",
   "reportReasonIp": "Intellectual property violation",
   "reportReasonOther": "Other",
+  "reportSubmitFailed": "Could not submit report. Please try again.",
 
   "commentsTitle": "Comments",
   "commentsAddHint": "Add a comment…",
@@ -427,6 +428,10 @@
   "settingsAppVersion": "v1.0.0",
   "settingsTitle": "Settings",
   "settingsSubtitle": "Customise your GoalConnect experience",
+  "settingsDiscovery": "Discovery",
+  "settingsScoutPreferences": "Scouting preferences",
+  "settingsScoutPreferencesActive": "Active",
+  "settingsScoutPreferencesInactive": "Not set",
   "settingsAppearance": "Appearance",
   "settingsThemeLight": "Light",
   "settingsThemeDark": "Dark",
@@ -441,6 +446,8 @@
   "settingsTermsOfService": "Terms of Service",
   "settingsHelpSupport": "Help & Support",
   "settingsAbout": "About GoalConnect",
+  "settingsAboutBody": "GoalConnect is a platform that connects Ethiopian footballers with scouts, academies, and clubs across the country. Players can share match highlights, showcase their stats and playing style, and grow a profile that scouts can discover. Scouts can filter talent by position, region, and age, save players they like, and reach out directly through in-app chat. Our goal is simple: open more doors for the next generation of football talent.",
+  "settingsAboutClose": "Close",
   "settingsSignOut": "Sign Out",
   "settingsBrand": "GoalConnect",
   "settingsProfileSampleUsername": "EthioStar_10",
@@ -456,5 +463,19 @@
   "updatePasswordMinChars": "At least 6 characters",
   "updatePasswordMismatch": "Passwords do not match",
   "updatePasswordSuccess": "Password updated successfully",
-  "updatePasswordFailure": "Could not update password"
+  "updatePasswordFailure": "Could not update password",
+
+  "scoutPreferencesTitle": "Scouting preferences",
+  "scoutPreferencesSubtitle": "Pick what you want to see in your highlights feed. All fields are optional — leave any blank to skip that filter.",
+  "scoutPreferencesPositions": "Positions",
+  "scoutPreferencesRegions": "Regions",
+  "scoutPreferencesRegionHint": "e.g. Addis Ababa",
+  "scoutPreferencesRegionAdd": "Add",
+  "scoutPreferencesAgeRange": "Age range",
+  "scoutPreferencesAgeMin": "Min age",
+  "scoutPreferencesAgeMax": "Max age",
+  "scoutPreferencesSave": "Save preferences",
+  "scoutPreferencesClear": "Clear preferences",
+  "scoutPreferencesSaved": "Preferences saved",
+  "scoutPreferencesCleared": "Preferences cleared"
 }

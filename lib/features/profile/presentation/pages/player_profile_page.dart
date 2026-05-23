@@ -23,59 +23,6 @@ import '../widgets/stats_hexagon.dart';
 import '../widgets/info_chip.dart';
 import 'settings_page.dart';
 
-Widget _networkProfileAvatar({
-  required double radius,
-  required String imageUrl,
-  String? heroTag,
-}) {
-  final placeholder = Container(
-    width: radius * 2,
-    height: radius * 2,
-    color: AppColors.primaryGreen.withOpacity(0.1),
-    child: Icon(Icons.person_rounded,
-        size: radius * 1.05, color: AppColors.primaryGreen),
-  );
-  final uri = Uri.tryParse(imageUrl);
-  final useNetwork =
-      imageUrl.isNotEmpty && uri != null && uri.hasScheme && uri.host.isNotEmpty;
-
-  Widget image;
-  if (!useNetwork) {
-    image = placeholder;
-  } else {
-    image = Image.network(
-      imageUrl,
-      width: radius * 2,
-      height: radius * 2,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => placeholder,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return SizedBox(
-          width: radius * 2,
-          height: radius * 2,
-          child: const Center(
-            child: SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primaryGreen,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  final clipped = ClipOval(child: image);
-  if (heroTag != null) {
-    return Hero(tag: heroTag, child: clipped);
-  }
-  return clipped;
-}
-
 class PlayerProfilePage extends StatelessWidget {
   final String playerId;
   final String? heroTag;
@@ -269,181 +216,11 @@ class _PlayerProfileView extends StatelessWidget {
           ),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primaryGreen.withOpacity(0.3),
-                    AppColors.primaryGreen.withOpacity(0.05),
-                    isDark ? const Color(0xFF0A0A12) : Colors.white,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.5, 1.0],
-                ),
-              ),
-            ),
-            SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 24),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primaryGreen.withOpacity(0.5),
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryGreen.withOpacity(0.2),
-                          blurRadius: 24,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: heroTag != null
-                        ? _networkProfileAvatar(
-                            radius: 46,
-                            imageUrl: profile.profileImage,
-                            heroTag: heroTag,
-                          )
-                        : _networkProfileAvatar(
-                            radius: 46,
-                            imageUrl: profile.profileImage,
-                          ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '@${profile.username}',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.lightText,
-                        ),
-                      ),
-                      if (profile.verificationStatus.toLowerCase() ==
-                          'verified') ...[
-                        const SizedBox(width: 6),
-                        const Icon(Icons.verified_rounded,
-                            color: AppColors.primaryGreen, size: 20),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryGreen.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          profile.position.toUpperCase(),
-                          style: const TextStyle(
-                            color: AppColors.primaryGreen,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 11,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Icon(Icons.location_on_rounded,
-                          color: AppColors.gray.withOpacity(0.6), size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        profile.country,
-                        style: const TextStyle(color: AppColors.gray, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                  if (_hasProfileStatus(profile)) ...[
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          if (profile.listingStatus.isNotEmpty)
-                            _profileStatusChip(
-                              profile.listingStatus,
-                              Icons.flag_rounded,
-                              isDark,
-                            ),
-                          if (profile.verificationStatus.isNotEmpty)
-                            _profileStatusChip(
-                              profile.verificationStatus,
-                              Icons.verified_outlined,
-                              isDark,
-                            ),
-                          if (profile.availabilityStatus.isNotEmpty)
-                            _profileStatusChip(
-                              profile.availabilityStatus,
-                              Icons.event_available_rounded,
-                              isDark,
-                            ),
-                          if (profile.academyName != null &&
-                              profile.academyName!.isNotEmpty)
-                            _profileStatusChip(
-                              profile.academyName!,
-                              Icons.school_rounded,
-                              isDark,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, authState) {
-                      final isScout = authState is AuthAuthenticated &&
-                          authState.user.role.toLowerCase() == 'scout';
-                      if (!isScout) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () => _initiateChat(context, profile),
-                              child: Container(
-                                width: 42, height: 42,
-                                decoration: BoxDecoration(
-                                  color: (isDark ? Colors.white : Colors.black).withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.chat_bubble_outline_rounded,
-                                  color: isDark ? Colors.white70 : AppColors.lightText,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                            _ScoutSaveProfileButton(
-                              playerId: profile.id,
-                              isDark: isDark,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+        background: _PlayerProfileHeaderArt(
+          profile: profile,
+          heroTag: heroTag,
+          isDark: isDark,
+          onChatTap: () => _initiateChat(context, profile),
         ),
       ),
     );
@@ -478,53 +255,6 @@ class _PlayerProfileView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          Row(
-            children: [
-              if (_useServerStatsRow(profile)) ...[
-                _statColumn(profile.highlightsCount.toString(), l.playerProfileVideos,
-                    textColor),
-                _statColumn(
-                    '${profile.stats?.goals ?? 0}', l.playerProfileGoals, textColor),
-                _statColumn(
-                    '${profile.stats?.assists ?? 0}', l.playerProfileAssists, textColor),
-                _statColumn(
-                    '${profile.stats?.matchesPlayed ?? 0}',
-                    l.playerProfileMatches,
-                    textColor),
-              ] else ...[
-                _statColumn(profile.highlightsCount.toString(), l.playerProfileHighlights,
-                    textColor),
-                _statColumn(profile.followersCount.toString(), l.playerProfileFollowers,
-                    textColor),
-                _statColumn(profile.followingCount.toString(), l.playerProfileFollowing,
-                    textColor),
-                _statColumn(profile.totalLikes.toString(), l.playerProfileLikes, textColor),
-              ],
-            ],
-          ),
-          const SizedBox(height: 20),
-          if (profile.bio != null && profile.bio!.isNotEmpty) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
-                ),
-              ),
-              child: Text(
-                profile.bio!,
-                style: TextStyle(
-                  color: textColor.withOpacity(0.7),
-                  fontSize: 14,
-                  height: 1.5,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
           if (profile.isPlayer &&
               profile.stats != null &&
               !_shouldHideSyntheticAbilityStats(profile)) ...[
@@ -551,19 +281,6 @@ class _PlayerProfileView extends StatelessWidget {
           ],
           _buildHighlightsSection(context, isDark, textColor),
           const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
-
-  Widget _statColumn(String value, String label, Color textColor) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(value, style: TextStyle(
-            fontSize: 18, fontWeight: FontWeight.w900, color: textColor)),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: AppColors.gray, fontSize: 11)),
         ],
       ),
     );
@@ -795,9 +512,7 @@ class _PlayerProfileView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primaryGreen, Color(0xFF00C278)],
-                ),
+                color: AppColors.primaryGreen,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -1052,13 +767,6 @@ class _PlayerProfileView extends StatelessWidget {
   }
 }
 
-bool _hasProfileStatus(PlayerProfile profile) {
-  return profile.listingStatus.isNotEmpty ||
-      profile.verificationStatus.isNotEmpty ||
-      profile.availabilityStatus.isNotEmpty ||
-      (profile.academyName != null && profile.academyName!.isNotEmpty);
-}
-
 bool _useServerStatsRow(PlayerProfile profile) {
   return profile.listingStatus.isNotEmpty ||
       profile.verificationStatus.isNotEmpty ||
@@ -1069,32 +777,337 @@ bool _shouldHideSyntheticAbilityStats(PlayerProfile profile) {
   return _useServerStatsRow(profile);
 }
 
-Widget _profileStatusChip(String label, IconData icon, bool isDark) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(
-        color: AppColors.primaryGreen.withOpacity(0.25),
-      ),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
+class _PlayerProfileHeaderArt extends StatelessWidget {
+  final PlayerProfile profile;
+  final String? heroTag;
+  final bool isDark;
+  final VoidCallback onChatTap;
+
+  const _PlayerProfileHeaderArt({
+    required this.profile,
+    required this.heroTag,
+    required this.isDark,
+    required this.onChatTap,
+  });
+
+  bool get _isVerified =>
+      profile.verificationStatus.toLowerCase() == 'verified';
+
+  String? get _subline {
+    final parts = <String>[
+      if (profile.position.isNotEmpty)
+        profile.position[0].toUpperCase() + profile.position.substring(1),
+      if (profile.country.isNotEmpty) profile.country,
+      if (profile.jerseyNumber > 0) '#${profile.jerseyNumber}',
+    ];
+    if (parts.isEmpty) return null;
+    return parts.join('  ·  ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final name = profile.username;
+    final sub = _subline;
+
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        Icon(icon, size: 14, color: AppColors.primaryGreen),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            color: isDark ? Colors.white70 : AppColors.lightText,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF3DDB85),
+                AppColors.primaryGreen,
+                Color(0xFF1F8F4E),
+              ],
+              stops: [0.0, 0.55, 1.0],
+            ),
+          ),
+        ),
+        Positioned(
+          top: -60,
+          right: -40,
+          child: _glowBlob(
+            size: 220,
+            color: Colors.white.withValues(alpha: 0.22),
+          ),
+        ),
+        Positioned(
+          bottom: -80,
+          left: -50,
+          child: _glowBlob(
+            size: 240,
+            color: Colors.black.withValues(alpha: 0.18),
+          ),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: _PlayerDotPatternPainter(
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+        ),
+        SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 8),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _avatarBlock(),
+                  const SizedBox(height: 12),
+                  Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '@${profile.username}',
+                    style: TextStyle(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _rolePill(),
+                  if (sub != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      sub,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, authState) {
+                      final isScout = authState is AuthAuthenticated &&
+                          authState.user.role.toLowerCase() == 'scout';
+                      if (!isScout) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: onChatTap,
+                              child: Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.28),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color:
+                                        Colors.white.withValues(alpha: 0.55),
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.chat_bubble_outline_rounded,
+                                  color: Colors.black,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                            _ScoutSaveProfileButton(
+                              playerId: profile.id,
+                              isDark: isDark,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
-    ),
-  );
+    );
+  }
+
+  Widget _glowBlob({required double size, required Color color}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withValues(alpha: 0.0)],
+          stops: const [0.0, 1.0],
+        ),
+      ),
+    );
+  }
+
+  Widget _avatarBlock() {
+    final clipped = ClipOval(child: _avatarImage());
+    final avatar = heroTag != null
+        ? Hero(tag: heroTag!, child: clipped)
+        : clipped;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 116,
+          height: 116,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.18),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: SizedBox(width: 92, height: 92, child: avatar),
+        ),
+        if (_isVerified)
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.accentGold,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.verified_rounded,
+                  color: Colors.black, size: 16),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _avatarImage() {
+    final url = profile.profileImage;
+    final uri = Uri.tryParse(url);
+    final useNetwork = url.isNotEmpty &&
+        uri != null &&
+        uri.hasScheme &&
+        uri.host.isNotEmpty;
+    final placeholder = Container(
+      color: const Color(0xFF0A0A12),
+      child: const Center(
+        child: Icon(Icons.person_rounded,
+            size: 48, color: AppColors.primaryGreen),
+      ),
+    );
+    if (!useNetwork) return placeholder;
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => placeholder,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return Container(
+          color: const Color(0xFF0A0A12),
+          child: const Center(
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primaryGreen,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _rolePill() {
+    final role = profile.role.toUpperCase();
+    final icon = role == 'SCOUT'
+        ? Icons.search_rounded
+        : Icons.sports_soccer_rounded;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.28),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.black, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            role,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+              letterSpacing: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlayerDotPatternPainter extends CustomPainter {
+  final Color color;
+  _PlayerDotPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    const spacing = 22.0;
+    const radius = 1.2;
+    for (double y = 0; y < size.height; y += spacing) {
+      for (double x = 0; x < size.width; x += spacing) {
+        canvas.drawCircle(Offset(x, y), radius, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _PlayerDotPatternPainter old) =>
+      old.color != color;
 }
 
 class _ScoutSaveProfileButton extends StatelessWidget {

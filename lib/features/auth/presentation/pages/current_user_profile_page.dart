@@ -15,6 +15,10 @@ import 'package:goal_connect/features/highlights/presentation/bloc/highlight_eve
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_state.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/single_highlight_page.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
+import 'package:goal_connect/features/profile/domain/entities/scout_preference.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_bloc.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_event.dart';
+import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_state.dart';
 import 'package:goal_connect/features/profile/presentation/pages/settings_page.dart';
 import 'package:goal_connect/injection_container.dart';
 
@@ -41,15 +45,27 @@ class CurrentUserProfilePage extends StatelessWidget {
         final user = state.user;
         final profile = state.profile;
         final profileId = user.playerProfileId ?? user.id;
+        final isScout = user.role.toLowerCase() == 'scout';
 
-        return BlocProvider(
-          create: (_) => sl<HighlightBloc>()
-            ..add(GetPlayerHighlightsEvent(profileId)),
-          child: _CurrentUserProfileView(
-            user: user,
-            profile: profile,
-            embeddedInShell: embeddedInShell,
-          ),
+        final view = _CurrentUserProfileView(
+          user: user,
+          profile: profile,
+          embeddedInShell: embeddedInShell,
+        );
+
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => sl<HighlightBloc>()
+                ..add(GetPlayerHighlightsEvent(profileId)),
+            ),
+            if (isScout)
+              BlocProvider(
+                create: (_) => sl<ScoutPreferenceBloc>()
+                  ..add(const ScoutPreferenceLoadRequested()),
+              ),
+          ],
+          child: view,
         );
       },
     );
@@ -114,7 +130,7 @@ class _CurrentUserProfileView extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, bool isDark) {
     return SliverAppBar(
-      expandedHeight: 280,
+      expandedHeight: 320,
       pinned: true,
       backgroundColor: isDark ? const Color(0xFF0A0A12) : Colors.white,
       automaticallyImplyLeading: false,
@@ -144,8 +160,8 @@ class _CurrentUserProfileView extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(Icons.settings_rounded,
                     color: Colors.white, size: 22),
-                onPressed: () {
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  await Navigator.of(context).push(
                     PageRouteBuilder<void>(
                       pageBuilder: (_, _, _) => const SettingsPage(),
                       transitionsBuilder:
@@ -162,100 +178,26 @@ class _CurrentUserProfileView extends StatelessWidget {
                       transitionDuration: const Duration(milliseconds: 400),
                     ),
                   );
+                  // Refresh prefs in case the scout edited them in settings.
+                  // The bloc is only provided for scouts, so guard the read.
+                  if (!context.mounted) return;
+                  try {
+                    context
+                        .read<ScoutPreferenceBloc>()
+                        .add(const ScoutPreferenceLoadRequested());
+                  } catch (_) {
+                    // Not a scout — no bloc in scope.
+                  }
                 },
               ),
             ),
           ),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primaryGreen.withValues(alpha: 0.3),
-                    AppColors.primaryGreen.withValues(alpha: 0.05),
-                    isDark ? const Color(0xFF0A0A12) : Colors.white,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.5, 1.0],
-                ),
-              ),
-            ),
-            SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 24),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primaryGreen.withValues(alpha: 0.5),
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryGreen.withValues(alpha: 0.2),
-                          blurRadius: 24,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Builder(
-                      builder: (_) {
-                        final url = (profile?.profileImageUrl.isNotEmpty ?? false)
-                            ? profile!.profileImageUrl
-                            : user.profileImage;
-                        return CircleAvatar(
-                          radius: 46,
-                          backgroundColor: Colors.black,
-                          backgroundImage:
-                              url.isNotEmpty ? NetworkImage(url) : null,
-                          child: url.isEmpty
-                              ? Icon(Icons.person_rounded,
-                                  size: 46, color: AppColors.primaryGreen)
-                              : null,
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '@${user.username}',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.lightText,
-                        ),
-                      ),
-                      if (_playerProfile?.verificationStatus == 'verified') ...[
-                        const SizedBox(width: 6),
-                        const Icon(Icons.verified_rounded,
-                            color: AppColors.primaryGreen, size: 20),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    user.role.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.primaryGreen,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        background: _ProfileHeaderArt(
+          user: user,
+          profile: profile,
+          playerProfile: _playerProfile,
         ),
       ),
     );
@@ -355,53 +297,91 @@ class _CurrentUserProfileView extends StatelessWidget {
   Widget _scoutPreferencesCard(
       BuildContext context, bool isDark, Color textColor, ScoutProfile s) {
     final l = AppLocalizations.of(context);
-    final range = s.preferredAgeRange;
+
+    return BlocBuilder<ScoutPreferenceBloc, ScoutPreferenceState>(
+      builder: (context, prefState) {
+        final pref = prefState.preference;
+        final loading = prefState.status == ScoutPreferenceStatus.loading;
+        return _sectionCard(
+          isDark: isDark,
+          title: l.currentUserProfileScoutingPreferences,
+          children: _scoutPreferenceChildren(
+            context: context,
+            textColor: textColor,
+            preference: pref,
+            loading: loading,
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> _scoutPreferenceChildren({
+    required BuildContext context,
+    required Color textColor,
+    required ScoutPreference? preference,
+    required bool loading,
+  }) {
+    final l = AppLocalizations.of(context);
+
+    final hasAny = preference != null &&
+        (preference.positions.isNotEmpty ||
+            preference.regions.isNotEmpty ||
+            preference.minAge != null ||
+            preference.maxAge != null);
+
+    if (!hasAny) {
+      if (loading) {
+        return [
+          const SizedBox(
+            height: 24,
+            child: Center(
+              child: SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+            ),
+          ),
+        ];
+      }
+      return [
+        Text(
+          l.currentUserProfileNoPreferences,
+          style: TextStyle(
+            color: textColor.withValues(alpha: 0.6),
+            fontSize: 13,
+          ),
+        ),
+      ];
+    }
+
     String? ageRangeText;
-    if (range.hasAny) {
-      final lo = range.min?.toString() ?? '—';
-      final hi = range.max?.toString() ?? '—';
+    if (preference.minAge != null || preference.maxAge != null) {
+      final lo = preference.minAge?.toString() ?? '—';
+      final hi = preference.maxAge?.toString() ?? '—';
       ageRangeText = l.currentUserProfileAgeRangeValue(lo, hi);
     }
 
-    final hasAnything = ageRangeText != null ||
-        s.interestedPositions.isNotEmpty ||
-        s.preferredRegions.isNotEmpty;
-    if (!hasAnything) {
-      return _sectionCard(
-        isDark: isDark,
-        title: l.currentUserProfileScoutingPreferences,
-        children: [
-          Text(
-            l.currentUserProfileNoPreferences,
-            style: TextStyle(
-              color: textColor.withValues(alpha: 0.6),
-              fontSize: 13,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return _sectionCard(
-      isDark: isDark,
-      title: l.currentUserProfileScoutingPreferences,
-      children: [
-        if (ageRangeText != null)
-          _infoRow(l.currentUserProfileAgeRange, ageRangeText, textColor),
-        if (s.interestedPositions.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          _miniLabel(l.currentUserProfilePositions, textColor),
-          const SizedBox(height: 8),
-          _chipWrap(s.interestedPositions, textColor),
-        ],
-        if (s.preferredRegions.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _miniLabel(l.currentUserProfileRegions, textColor),
-          const SizedBox(height: 8),
-          _chipWrap(s.preferredRegions, textColor),
-        ],
+    return [
+      if (ageRangeText != null)
+        _infoRow(l.currentUserProfileAgeRange, ageRangeText, textColor),
+      if (preference.positions.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        _miniLabel(l.currentUserProfilePositions, textColor),
+        const SizedBox(height: 8),
+        _chipWrap(preference.positions, textColor),
       ],
-    );
+      if (preference.regions.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        _miniLabel(l.currentUserProfileRegions, textColor),
+        const SizedBox(height: 8),
+        _chipWrap(preference.regions, textColor),
+      ],
+    ];
   }
 
   Widget _scoutActivityRow(BuildContext context, bool isDark, ScoutProfile s) {
@@ -485,14 +465,22 @@ class _CurrentUserProfileView extends StatelessWidget {
 
   Widget _statTile(bool isDark,
       {required String label, required String value}) {
+    final base = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primaryGreen.withValues(alpha: isDark ? 0.14 : 0.08),
+              base,
+            ],
+          ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+            color: AppColors.primaryGreen.withValues(alpha: isDark ? 0.18 : 0.12),
           ),
         ),
         child: Column(
@@ -687,11 +675,21 @@ class _CurrentUserProfileView extends StatelessWidget {
     required String title,
     required List<Widget> children,
   }) {
+    final base = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryGreen.withValues(alpha: isDark ? 0.10 : 0.06),
+            base,
+            base,
+          ],
+          stops: const [0.0, 0.45, 1.0],
+        ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
@@ -971,6 +969,309 @@ class _CurrentUserProfileView extends StatelessWidget {
       ],
     );
   }
+}
+
+class _ProfileHeaderArt extends StatelessWidget {
+  final User user;
+  final CurrentUserProfile? profile;
+  final PlayerProfile? playerProfile;
+
+  const _ProfileHeaderArt({
+    required this.user,
+    required this.profile,
+    required this.playerProfile,
+  });
+
+  String get _avatarUrl {
+    final p = profile;
+    if (p?.profileImageUrl.isNotEmpty ?? false) return p!.profileImageUrl;
+    return user.profileImage;
+  }
+
+  String? get _displayName {
+    final p = profile;
+    String? name;
+    if (p is CurrentUserProfilePlayer) {
+      name = p.player.fullName;
+    } else if (p is CurrentUserProfileScout) {
+      name = p.scout.fullName;
+    }
+    if (name != null && name.trim().isNotEmpty) return name;
+    if (user.fullName.trim().isNotEmpty) return user.fullName;
+    return null;
+  }
+
+  String? get _subline {
+    final pp = playerProfile;
+    if (pp != null) {
+      final parts = <String>[
+        if (pp.primaryPosition.isNotEmpty)
+          pp.primaryPosition[0].toUpperCase() + pp.primaryPosition.substring(1),
+        if (pp.nationality.isNotEmpty) pp.nationality,
+        if (pp.jerseyNumber != null) '#${pp.jerseyNumber}',
+      ];
+      if (parts.isNotEmpty) return parts.join('  ·  ');
+    }
+    final p = profile;
+    if (p is CurrentUserProfileScout) {
+      final s = p.scout;
+      final parts = <String>[
+        if (s.organization.isNotEmpty) s.organization,
+        if (s.country.isNotEmpty) s.country,
+      ];
+      if (parts.isNotEmpty) return parts.join('  ·  ');
+    }
+    return null;
+  }
+
+  bool get _isVerified {
+    if (playerProfile?.verificationStatus == 'verified') return true;
+    return profile is CurrentUserProfileScout;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final url = _avatarUrl;
+    final name = _displayName;
+    final sub = _subline;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Base diagonal green gradient.
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF3DDB85),
+                AppColors.primaryGreen,
+                Color(0xFF1F8F4E),
+              ],
+              stops: [0.0, 0.55, 1.0],
+            ),
+          ),
+        ),
+        // Decorative radial highlights for depth.
+        Positioned(
+          top: -60,
+          right: -40,
+          child: _glowBlob(
+            size: 220,
+            color: Colors.white.withValues(alpha: 0.22),
+          ),
+        ),
+        Positioned(
+          bottom: -80,
+          left: -50,
+          child: _glowBlob(
+            size: 240,
+            color: Colors.black.withValues(alpha: 0.18),
+          ),
+        ),
+        // Subtle dotted pattern overlay.
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: _DotPatternPainter(
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+        ),
+        // Foreground content.
+        SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 8),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _avatarBlock(url),
+                  const SizedBox(height: 12),
+                  _nameRow(name),
+                  if (name != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '@${user.username}',
+                      style: TextStyle(
+                        color: Colors.black.withValues(alpha: 0.55),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  _rolePill(),
+                  if (sub != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      sub,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _glowBlob({required double size, required Color color}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [color, color.withValues(alpha: 0.0)],
+          stops: const [0.0, 1.0],
+        ),
+      ),
+    );
+  }
+
+  Widget _avatarBlock(String url) {
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        // Outer soft halo.
+        Container(
+          width: 116,
+          height: 116,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.18),
+          ),
+        ),
+        // White ring + drop shadow.
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: CircleAvatar(
+            radius: 46,
+            backgroundColor: const Color(0xFF0A0A12),
+            backgroundImage: url.isNotEmpty ? NetworkImage(url) : null,
+            child: url.isEmpty
+                ? const Icon(Icons.person_rounded,
+                    size: 48, color: AppColors.primaryGreen)
+                : null,
+          ),
+        ),
+        if (_isVerified)
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.accentGold,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.verified_rounded,
+                  color: Colors.black, size: 16),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _nameRow(String? name) {
+    final headline = name ?? '@${user.username}';
+    return Text(
+      headline,
+      textAlign: TextAlign.center,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w900,
+        color: Colors.black,
+        letterSpacing: -0.3,
+      ),
+    );
+  }
+
+  Widget _rolePill() {
+    final role = user.role.toUpperCase();
+    final icon = role == 'SCOUT'
+        ? Icons.search_rounded
+        : Icons.sports_soccer_rounded;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.28),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.black, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            role,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+              letterSpacing: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DotPatternPainter extends CustomPainter {
+  final Color color;
+  _DotPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    const spacing = 22.0;
+    const radius = 1.2;
+    for (double y = 0; y < size.height; y += spacing) {
+      for (double x = 0; x < size.width; x += spacing) {
+        canvas.drawCircle(Offset(x, y), radius, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DotPatternPainter old) => old.color != color;
 }
 
 class _RadarSpoke {

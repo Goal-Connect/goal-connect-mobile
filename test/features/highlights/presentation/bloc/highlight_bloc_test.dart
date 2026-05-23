@@ -70,7 +70,12 @@ void main() {
 
   group('GetHighlightsFeedEvent', () {
     test('emits [HighlightLoading, HighlightLoaded] on success', () async {
-      when(() => mockGetFeed()).thenAnswer((_) async => Right(tHighlights));
+      when(() => mockGetFeed(
+            position: any(named: 'position'),
+            region: any(named: 'region'),
+            minAge: any(named: 'minAge'),
+            maxAge: any(named: 'maxAge'),
+          )).thenAnswer((_) async => Right(tHighlights));
 
       final bloc = buildBloc();
       final states = <HighlightState>[];
@@ -86,7 +91,12 @@ void main() {
     });
 
     test('emits [HighlightLoading, HighlightError] on failure', () async {
-      when(() => mockGetFeed()).thenAnswer((_) async => Left(ServerFailure()));
+      when(() => mockGetFeed(
+            position: any(named: 'position'),
+            region: any(named: 'region'),
+            minAge: any(named: 'minAge'),
+            maxAge: any(named: 'maxAge'),
+          )).thenAnswer((_) async => Left(ServerFailure()));
 
       final bloc = buildBloc();
       final states = <HighlightState>[];

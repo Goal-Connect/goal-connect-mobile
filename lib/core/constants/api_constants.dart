@@ -51,6 +51,12 @@ abstract final class ApiConstants {
   static String scoutsSavedPlayerPath(String playerId) =>
       '/scouts/saved-players/$playerId';
 
+  /// `POST/PUT/DELETE /scouts/preferences` — scout discovery preference.
+  static const String scoutsPreferences = '/scouts/preferences';
+
+  /// `POST /reports` — create a report (authenticated users).
+  static const String reports = '/reports';
+
   /// `GET /messages` — list of conversations with the current user
   /// (peer user + last message + unreadCount). Sending is socket-only.
   static const String messages = '/messages';

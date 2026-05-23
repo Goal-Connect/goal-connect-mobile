@@ -10,8 +10,6 @@ import 'package:goal_connect/core/locale/locale_cubit.dart';
 import 'package:goal_connect/core/locale/locale_state.dart';
 import 'package:goal_connect/generated/l10n/app_localizations.dart';
 import 'package:goal_connect/core/connection/internet_connection_cubit.dart';
-import 'package:goal_connect/core/connection/internet_connection_state.dart';
-import 'package:goal_connect/core/widgets/no_internet_card.dart';
 import 'package:goal_connect/features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'package:goal_connect/features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -227,9 +225,7 @@ class _MainPageState extends State<MainPage> {
         if (state is AuthAuthenticated) {
           sl<ChatSocketService>().connect();
           if (state.user.role.toLowerCase() == 'scout') {
-            context
-                .read<SavedPlayersBloc>()
-                .add(const SavedPlayersLoaded());
+            context.read<SavedPlayersBloc>().add(const SavedPlayersLoaded());
           }
         } else {
           sl<ChatSocketService>().disconnect();
@@ -238,8 +234,8 @@ class _MainPageState extends State<MainPage> {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, authState) {
           final authed = authState is AuthAuthenticated;
-          final isScout = authed &&
-              (authState).user.role.toLowerCase() == 'scout';
+          final isScout =
+              authed && (authState).user.role.toLowerCase() == 'scout';
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final navItems = _navItems(AppLocalizations.of(context), isScout);
           final maxIndex = navItems.length - 1;
@@ -385,7 +381,8 @@ class _FancyBottomNav extends StatelessWidget {
                     duration: const Duration(milliseconds: 280),
                     curve: Curves.easeOutCubic,
                     bottom: 0,
-                    left: slotWidth * currentIndex +
+                    left:
+                        slotWidth * currentIndex +
                         (slotWidth - underlineWidth) / 2,
                     child: Container(
                       width: underlineWidth,

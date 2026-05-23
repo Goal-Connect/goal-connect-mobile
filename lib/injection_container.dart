@@ -54,6 +54,12 @@ import 'features/highlights/domain/usecases/delete_comment_usecase.dart';
 import 'features/highlights/domain/usecases/toggle_comment_like_usecase.dart';
 import 'features/highlights/presentation/bloc/comment_bloc.dart';
 
+// ── Reports (inside highlights) ───────────────────────────────────────────────
+import 'features/highlights/data/datasources/report_remote_datasource.dart';
+import 'features/highlights/data/repositories/report_repository_impl.dart';
+import 'features/highlights/domain/repositories/report_repository.dart';
+import 'features/highlights/domain/usecases/report_video_usecase.dart';
+
 // ── Chat ──────────────────────────────────────────────────────────────────────
 import 'features/chat/data/datasources/chat_remote_datasource.dart';
 import 'features/chat/data/datasources/conversation_local_datasource.dart';
@@ -67,9 +73,16 @@ import 'features/chat/presentation/bloc/chat_bloc.dart';
 
 // ── Profile (Player Profile) ─────────────────────────────────────────────────
 import 'features/profile/data/datasources/player_profile_remote_datasource.dart';
+import 'features/profile/data/datasources/scout_preference_local_datasource.dart';
+import 'features/profile/data/datasources/scout_preference_remote_datasource.dart';
 import 'features/profile/data/repositories/player_profile_repository_impl.dart';
+import 'features/profile/data/repositories/scout_preference_repository_impl.dart';
 import 'features/profile/domain/repositories/player_profile_repository.dart';
+import 'features/profile/domain/repositories/scout_preference_repository.dart';
+import 'features/profile/domain/usecases/delete_scout_preference_usecase.dart';
 import 'features/profile/domain/usecases/get_player_profile_usecase.dart';
+import 'features/profile/domain/usecases/get_scout_preference_usecase.dart';
+import 'features/profile/domain/usecases/save_scout_preference_usecase.dart';
 import 'features/profile/domain/usecases/toggle_follow_usecase.dart';
 import 'features/profile/domain/usecases/list_players_usecase.dart';
 import 'features/profile/domain/usecases/get_saved_players_usecase.dart';
@@ -78,6 +91,7 @@ import 'features/profile/domain/usecases/unsave_player_usecase.dart';
 import 'features/profile/presentation/bloc/player_profile_bloc.dart';
 import 'features/profile/presentation/bloc/player_search_bloc.dart';
 import 'features/profile/presentation/bloc/saved_players_bloc.dart';
+import 'features/profile/presentation/bloc/scout_preference_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -208,6 +222,15 @@ Future<void> init() async {
     ),
   );
 
+  // ── Reports (inside highlights feature) ────────────────────────────────────
+  sl.registerLazySingleton<ReportRemoteDataSource>(
+    () => ReportRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<ReportRepository>(
+    () => ReportRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => ReportVideoUsecase(sl()));
+
   // ── Chat ─────────────────────────────────────────────────────────────────────
   sl.registerLazySingleton<ConversationLocalDataSource>(
     () => ConversationLocalDataSourceImpl(prefs: sl()),
@@ -272,5 +295,27 @@ Future<void> init() async {
     ),
   );
 
-  
+  // ── Scout Preferences ─────────────────────────────────────────────────────
+  sl.registerLazySingleton<ScoutPreferenceLocalDataSource>(
+    () => ScoutPreferenceLocalDataSourceImpl(prefs: sl()),
+  );
+  sl.registerLazySingleton<ScoutPreferenceRemoteDataSource>(
+    () => ScoutPreferenceRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<ScoutPreferenceRepository>(
+    () => ScoutPreferenceRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetScoutPreferenceUsecase(sl()));
+  sl.registerLazySingleton(() => SaveScoutPreferenceUsecase(sl()));
+  sl.registerLazySingleton(() => DeleteScoutPreferenceUsecase(sl()));
+  sl.registerFactory<ScoutPreferenceBloc>(
+    () => ScoutPreferenceBloc(
+      getPreference: sl(),
+      savePreference: sl(),
+      deletePreference: sl(),
+    ),
+  );
 }

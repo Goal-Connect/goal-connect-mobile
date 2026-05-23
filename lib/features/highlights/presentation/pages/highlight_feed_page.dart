@@ -9,9 +9,12 @@ import '../../domain/entities/highlight.dart';
 import '../widgets/video_feed_item.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../generated/l10n/app_localizations.dart';
+import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../profile/domain/entities/scout_preference.dart';
+import '../../../profile/domain/usecases/get_scout_preference_usecase.dart';
 
 class HighlightFeedPage extends StatefulWidget {
   const HighlightFeedPage({super.key});
@@ -25,14 +28,191 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
   /// out the screen while a re-fetch is in flight.
   List<Highlight>? _cachedHighlights;
 
+  /// Last scout preference we observed. Used to detect when the user has
+  /// changed their preferences in settings so the feed refetches automatically
+  /// when they pop back to this page.
+  ScoutPreference? _lastAppliedPreference;
+
   @override
   void initState() {
     super.initState();
-    context.read<HighlightBloc>().add(GetHighlightsFeedEvent());
+    _dispatchFetch();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // After returning from the Scout Preferences page, refetch if the
+    // saved preference has changed.
+    _maybeRefetchIfPreferenceChanged();
+  }
+
+  Future<ScoutPreference?> _loadPreference() async {
+    final auth = context.read<AuthBloc>().state;
+    if (auth is! AuthAuthenticated ||
+        auth.user.role.toLowerCase() != 'scout') {
+      return null;
+    }
+    final result = await sl<GetScoutPreferenceUsecase>().call();
+    return result.fold((_) => null, (pref) => pref);
+  }
+
+  Future<void> _dispatchFetch() async {
+    final pref = await _loadPreference();
+    if (!mounted) return;
+    _lastAppliedPreference = pref;
+    context.read<HighlightBloc>().add(
+          GetHighlightsFeedEvent(
+            position: pref?.firstPosition,
+            region: pref?.firstRegion,
+            minAge: pref?.minAge,
+            maxAge: pref?.maxAge,
+          ),
+        );
+  }
+
+  Future<void> _maybeRefetchIfPreferenceChanged() async {
+    final pref = await _loadPreference();
+    if (!mounted) return;
+    if (_prefEquals(pref, _lastAppliedPreference)) return;
+    _lastAppliedPreference = pref;
+    context.read<HighlightBloc>().add(
+          GetHighlightsFeedEvent(
+            position: pref?.firstPosition,
+            region: pref?.firstRegion,
+            minAge: pref?.minAge,
+            maxAge: pref?.maxAge,
+          ),
+        );
+  }
+
+  bool _prefEquals(ScoutPreference? a, ScoutPreference? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    return _listEquals(a.positions, b.positions) &&
+        _listEquals(a.regions, b.regions) &&
+        a.minAge == b.minAge &&
+        a.maxAge == b.maxAge;
+  }
+
+  bool _listEquals(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   void _refetch() {
-    context.read<HighlightBloc>().add(GetHighlightsFeedEvent());
+    final pref = _lastAppliedPreference;
+    context.read<HighlightBloc>().add(
+          GetHighlightsFeedEvent(
+            position: pref?.firstPosition,
+            region: pref?.firstRegion,
+            minAge: pref?.minAge,
+            maxAge: pref?.maxAge,
+          ),
+        );
+  }
+
+  bool _refreshing = false;
+  double _pullDistance = 0;
+  static const double _pullThreshold = 80;
+
+  void _handlePullStart() {
+    if (_refreshing) return;
+    setState(() => _pullDistance = 0);
+  }
+
+  void _handlePullUpdate(double delta) {
+    if (_refreshing) return;
+    final next = (_pullDistance + delta).clamp(0.0, _pullThreshold * 1.5);
+    if (next == _pullDistance) return;
+    setState(() => _pullDistance = next);
+  }
+
+  Widget _buildPullToRefresh({required Widget child}) {
+    final progress = (_pullDistance / _pullThreshold).clamp(0.0, 1.0);
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification is ScrollStartNotification) {
+          _handlePullStart();
+        } else if (notification is OverscrollNotification &&
+            notification.metrics.axis == Axis.vertical &&
+            notification.overscroll < 0) {
+          // Only pull-down (negative overscroll at top) counts.
+          _handlePullUpdate(-notification.overscroll);
+        } else if (notification is ScrollEndNotification) {
+          _handlePullEnd();
+        }
+        return false;
+      },
+      child: Stack(
+        children: [
+          child,
+          if (_pullDistance > 0 || _refreshing)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 120),
+                  opacity: _refreshing ? 1.0 : progress,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: _refreshing
+                          ? const CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              color: AppColors.primaryGreen,
+                            )
+                          : CircularProgressIndicator(
+                              strokeWidth: 2.4,
+                              color: AppColors.primaryGreen,
+                              value: progress,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handlePullEnd() async {
+    if (_refreshing) {
+      return;
+    }
+    if (_pullDistance >= _pullThreshold) {
+      setState(() {
+        _refreshing = true;
+        _pullDistance = _pullThreshold;
+      });
+      _refetch();
+      // The bloc emits HighlightLoaded/HighlightError; reset when state arrives.
+      await context
+          .read<HighlightBloc>()
+          .stream
+          .firstWhere((s) => s is HighlightLoaded || s is HighlightError);
+      if (!mounted) return;
+      setState(() {
+        _refreshing = false;
+        _pullDistance = 0;
+      });
+    } else {
+      setState(() => _pullDistance = 0);
+    }
   }
 
   @override
@@ -60,12 +240,14 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
               : _cachedHighlights;
 
           if (highlights != null && highlights.isNotEmpty) {
-            return PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: highlights.length,
-              itemBuilder: (context, index) => VideoFeedItem(
-                highlight: highlights[index],
-                onVideoChanged: _refetch,
+            return _buildPullToRefresh(
+              child: PageView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: highlights.length,
+                itemBuilder: (context, index) => VideoFeedItem(
+                  highlight: highlights[index],
+                  onVideoChanged: _refetch,
+                ),
               ),
             );
           }

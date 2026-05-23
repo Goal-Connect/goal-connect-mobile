@@ -44,6 +44,19 @@ void main() {
     mockSocket = MockChatSocketService();
     when(() => mockSocket.onMessageReceived)
         .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.onMessageSent)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.onMessageEdited)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.onMessageDeleted)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.onTypingStart)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.onTypingStop)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.onMessagesRead)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSocket.isConnected).thenReturn(false);
   });
 
   ChatBloc buildBloc() => ChatBloc(

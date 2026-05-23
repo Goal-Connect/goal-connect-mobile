@@ -515,6 +515,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportReasonOther => 'Other';
 
   @override
+  String get reportSubmitFailed => 'Could not submit report. Please try again.';
+
+  @override
   String get commentsTitle => 'Comments';
 
   @override
@@ -923,6 +926,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSubtitle => 'Customise your GoalConnect experience';
 
   @override
+  String get settingsDiscovery => 'Discovery';
+
+  @override
+  String get settingsScoutPreferences => 'Scouting preferences';
+
+  @override
+  String get settingsScoutPreferencesActive => 'Active';
+
+  @override
+  String get settingsScoutPreferencesInactive => 'Not set';
+
+  @override
   String get settingsAppearance => 'Appearance';
 
   @override
@@ -963,6 +978,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAbout => 'About GoalConnect';
+
+  @override
+  String get settingsAboutBody =>
+      'GoalConnect is a platform that connects Ethiopian footballers with scouts, academies, and clubs across the country. Players can share match highlights, showcase their stats and playing style, and grow a profile that scouts can discover. Scouts can filter talent by position, region, and age, save players they like, and reach out directly through in-app chat. Our goal is simple: open more doors for the next generation of football talent.';
+
+  @override
+  String get settingsAboutClose => 'Close';
 
   @override
   String get settingsSignOut => 'Sign Out';
@@ -1008,4 +1030,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updatePasswordFailure => 'Could not update password';
+
+  @override
+  String get scoutPreferencesTitle => 'Scouting preferences';
+
+  @override
+  String get scoutPreferencesSubtitle =>
+      'Pick what you want to see in your highlights feed. All fields are optional — leave any blank to skip that filter.';
+
+  @override
+  String get scoutPreferencesPositions => 'Positions';
+
+  @override
+  String get scoutPreferencesRegions => 'Regions';
+
+  @override
+  String get scoutPreferencesRegionHint => 'e.g. Addis Ababa';
+
+  @override
+  String get scoutPreferencesRegionAdd => 'Add';
+
+  @override
+  String get scoutPreferencesAgeRange => 'Age range';
+
+  @override
+  String get scoutPreferencesAgeMin => 'Min age';
+
+  @override
+  String get scoutPreferencesAgeMax => 'Max age';
+
+  @override
+  String get scoutPreferencesSave => 'Save preferences';
+
+  @override
+  String get scoutPreferencesClear => 'Clear preferences';
+
+  @override
+  String get scoutPreferencesSaved => 'Preferences saved';
+
+  @override
+  String get scoutPreferencesCleared => 'Preferences cleared';
 }

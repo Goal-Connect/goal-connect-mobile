@@ -1054,6 +1054,12 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get reportReasonOther;
 
+  /// No description provided for @reportSubmitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit report. Please try again.'**
+  String get reportSubmitFailed;
+
   /// No description provided for @commentsTitle.
   ///
   /// In en, this message translates to:
@@ -1816,6 +1822,30 @@ abstract class AppLocalizations {
   /// **'Customise your GoalConnect experience'**
   String get settingsSubtitle;
 
+  /// No description provided for @settingsDiscovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovery'**
+  String get settingsDiscovery;
+
+  /// No description provided for @settingsScoutPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Scouting preferences'**
+  String get settingsScoutPreferences;
+
+  /// No description provided for @settingsScoutPreferencesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get settingsScoutPreferencesActive;
+
+  /// No description provided for @settingsScoutPreferencesInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get settingsScoutPreferencesInactive;
+
   /// No description provided for @settingsAppearance.
   ///
   /// In en, this message translates to:
@@ -1899,6 +1929,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About GoalConnect'**
   String get settingsAbout;
+
+  /// No description provided for @settingsAboutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'GoalConnect is a platform that connects Ethiopian footballers with scouts, academies, and clubs across the country. Players can share match highlights, showcase their stats and playing style, and grow a profile that scouts can discover. Scouts can filter talent by position, region, and age, save players they like, and reach out directly through in-app chat. Our goal is simple: open more doors for the next generation of football talent.'**
+  String get settingsAboutBody;
+
+  /// No description provided for @settingsAboutClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get settingsAboutClose;
 
   /// No description provided for @settingsSignOut.
   ///
@@ -1989,6 +2031,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not update password'**
   String get updatePasswordFailure;
+
+  /// No description provided for @scoutPreferencesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scouting preferences'**
+  String get scoutPreferencesTitle;
+
+  /// No description provided for @scoutPreferencesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick what you want to see in your highlights feed. All fields are optional — leave any blank to skip that filter.'**
+  String get scoutPreferencesSubtitle;
+
+  /// No description provided for @scoutPreferencesPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get scoutPreferencesPositions;
+
+  /// No description provided for @scoutPreferencesRegions.
+  ///
+  /// In en, this message translates to:
+  /// **'Regions'**
+  String get scoutPreferencesRegions;
+
+  /// No description provided for @scoutPreferencesRegionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Addis Ababa'**
+  String get scoutPreferencesRegionHint;
+
+  /// No description provided for @scoutPreferencesRegionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get scoutPreferencesRegionAdd;
+
+  /// No description provided for @scoutPreferencesAgeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Age range'**
+  String get scoutPreferencesAgeRange;
+
+  /// No description provided for @scoutPreferencesAgeMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Min age'**
+  String get scoutPreferencesAgeMin;
+
+  /// No description provided for @scoutPreferencesAgeMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max age'**
+  String get scoutPreferencesAgeMax;
+
+  /// No description provided for @scoutPreferencesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save preferences'**
+  String get scoutPreferencesSave;
+
+  /// No description provided for @scoutPreferencesClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear preferences'**
+  String get scoutPreferencesClear;
+
+  /// No description provided for @scoutPreferencesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences saved'**
+  String get scoutPreferencesSaved;
+
+  /// No description provided for @scoutPreferencesCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences cleared'**
+  String get scoutPreferencesCleared;
 }
 
 class _AppLocalizationsDelegate

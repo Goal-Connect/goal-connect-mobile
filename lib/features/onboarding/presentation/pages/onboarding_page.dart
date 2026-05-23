@@ -29,8 +29,8 @@ class _OnboardingPageState extends State<OnboardingPage>
 
   static const List<Color> _accents = [
     AppColors.primaryGreen,
-    Color(0xFF58D68D),
-    Color(0xFF1ABC9C),
+    AppColors.primaryGreen,
+    AppColors.primaryGreen,
   ];
 
   @override
@@ -627,22 +627,8 @@ class _CtaButtonState extends State<_CtaButton> {
           width: double.infinity,
           height: 58,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                widget.accent,
-                Color.lerp(widget.accent, Colors.white, 0.25) ?? widget.accent,
-              ],
-            ),
+            color: widget.accent,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: widget.accent.withOpacity(0.45),
-                blurRadius: 22,
-                offset: const Offset(0, 8),
-              ),
-            ],
           ),
           child: Stack(
             alignment: Alignment.center,

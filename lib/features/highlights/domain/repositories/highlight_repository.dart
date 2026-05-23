@@ -20,7 +20,12 @@ abstract class HighlightRepository {
     String? drillType,
   });
 
-  Future<Either<Failure, List<Highlight>>> getHighlightsFeed();
+  Future<Either<Failure, List<Highlight>>> getHighlightsFeed({
+    String? position,
+    String? region,
+    int? minAge,
+    int? maxAge,
+  });
 
   Future<Either<Failure, List<Highlight>>> getPlayerHighlights({
     required String playerId,

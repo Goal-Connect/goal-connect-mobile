@@ -524,6 +524,10 @@ class AppLocalizationsOm extends AppLocalizations {
   String get reportReasonOther => 'Kan biraa';
 
   @override
+  String get reportSubmitFailed =>
+      'Gabaasa ergu hin dandeenye. Maaloo irra deebi\'ii yaali.';
+
+  @override
   String get commentsTitle => 'Yaadota';
 
   @override
@@ -934,6 +938,18 @@ class AppLocalizationsOm extends AppLocalizations {
   String get settingsSubtitle => 'Muuxannoo GoalConnect kee qopheessi';
 
   @override
+  String get settingsDiscovery => 'Argachuu';
+
+  @override
+  String get settingsScoutPreferences => 'Filannoo skouutii';
+
+  @override
+  String get settingsScoutPreferencesActive => 'Hojjeta';
+
+  @override
+  String get settingsScoutPreferencesInactive => 'Hin qopheeffamne';
+
+  @override
   String get settingsAppearance => 'Mul\'achuu';
 
   @override
@@ -974,6 +990,13 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get settingsAbout => 'Waa\'ee GoalConnect';
+
+  @override
+  String get settingsAboutBody =>
+      'GoalConnect platformii kubbaa miilaa Itoophiyaa skaawutoota, akkaadaamii fi kilaboota biyya keessaa waliin walqunnamsiisuuf hojjetamedha. Taphattoonni qabxiilee tapha isaanii qooduu, istaatistiksii fi haala tapha isaanii agarsiisuu, akkasumas pirofaayilii skaawutoonni argachuu danda\'an ijaaruu danda\'u. Skaawutoonni dabareedhaan, naannoodhaan fi umuriidhaan dandeettii filachuu, taphattoota jaalatan kuusuu, akkasumas chaatii appii keessaatiin kallattiidhaan dubbisuu danda\'u. Galmi keenya salphaadha: dhaloota itti aanaaf carraa kubbaa miilaa caalaa banuu.';
+
+  @override
+  String get settingsAboutClose => 'Cufi';
 
   @override
   String get settingsSignOut => 'Ba\'i';
@@ -1019,4 +1042,44 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get updatePasswordFailure => 'Jecha iccitii haaromsuu hin dandeenye';
+
+  @override
+  String get scoutPreferencesTitle => 'Filannoo skouutii';
+
+  @override
+  String get scoutPreferencesSubtitle =>
+      'Maal akka feedii kee keessatti agartu fili. Dirreewwan hundi filannoo dha — duwwaa dhiisuun walitti hidhamiinsa sana dabarsa.';
+
+  @override
+  String get scoutPreferencesPositions => 'Iddoowwan';
+
+  @override
+  String get scoutPreferencesRegions => 'Naannoowwan';
+
+  @override
+  String get scoutPreferencesRegionHint => 'fkn. Finfinnee';
+
+  @override
+  String get scoutPreferencesRegionAdd => 'Dabali';
+
+  @override
+  String get scoutPreferencesAgeRange => 'Daangaa umurii';
+
+  @override
+  String get scoutPreferencesAgeMin => 'Xiqqaa';
+
+  @override
+  String get scoutPreferencesAgeMax => 'Guddaa';
+
+  @override
+  String get scoutPreferencesSave => 'Filannoo olkaa\'i';
+
+  @override
+  String get scoutPreferencesClear => 'Filannoo haqi';
+
+  @override
+  String get scoutPreferencesSaved => 'Filannoon olkaa\'ame';
+
+  @override
+  String get scoutPreferencesCleared => 'Filannoon haqame';
 }

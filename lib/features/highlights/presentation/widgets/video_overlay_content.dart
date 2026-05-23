@@ -18,6 +18,7 @@ import '../../../profile/presentation/bloc/saved_players_bloc.dart';
 import '../../../profile/presentation/bloc/saved_players_event.dart';
 import '../../../profile/presentation/bloc/saved_players_state.dart';
 import 'comment_sheet.dart';
+import 'report_sheet.dart';
 import '../../../profile/presentation/pages/player_profile_page.dart';
 import 'fancy_glass_button.dart';
 import 'glass_snack_bar.dart';
@@ -178,8 +179,11 @@ class VideoOverlayContent extends StatelessWidget {
                     onTap: () => _openComments(context, highlight.id),
                   ),
                   const SizedBox(height: 14),
-                  _DownloadButton(videoUrl: highlight.videoUrl),
-                  _ScoutSaveButton(playerId: highlight.player.id),
+                  const SizedBox(height: 14),
+                  _MoreOptionsButton(
+                    highlight: highlight,
+                    onBottomSheetOpened: onBottomSheetOpened,
+                  ),
                 ],
               ),
             ),
@@ -252,104 +256,115 @@ class VideoOverlayContent extends StatelessWidget {
   }
 }
 
-class _ScoutSaveButton extends StatelessWidget {
-  final String playerId;
-  const _ScoutSaveButton({required this.playerId});
+class _MoreOptionsButton extends StatelessWidget {
+  final Highlight highlight;
+  final void Function(Future<void> sheetFuture) onBottomSheetOpened;
+
+  const _MoreOptionsButton({
+    required this.highlight,
+    required this.onBottomSheetOpened,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthBloc>().state;
-    if (auth is! AuthAuthenticated ||
-        auth.user.role.toLowerCase() != 'scout') {
-      return const SizedBox.shrink();
-    }
-
-    return BlocBuilder<SavedPlayersBloc, SavedPlayersState>(
-      builder: (context, state) {
-        final saved = state.players.any((p) => p.id == playerId);
-        final pending = state.pendingIds.contains(playerId);
-        return Padding(
-          padding: const EdgeInsets.only(top: 14),
-          child: FancyGlassButton(
-            icon: saved
-                ? Icons.bookmark_rounded
-                : Icons.bookmark_outline_rounded,
-            label: pending
-                ? AppLocalizations.of(context).saveActionPending
-                : (saved
-                    ? AppLocalizations.of(context).saveActionSaved
-                    : AppLocalizations.of(context).saveActionSave),
-            color: AppColors.primaryGreen,
-            isActive: saved,
-            onTap: pending
-                ? () {}
-                : () {
-                    final bloc = context.read<SavedPlayersBloc>();
-                    if (saved) {
-                      bloc.add(SavedPlayerRemoved(playerId));
-                    } else {
-                      bloc.add(SavedPlayerAdded(playerId));
-                    }
-                  },
-          ),
-        );
-      },
+    final l = AppLocalizations.of(context);
+    return FancyGlassButton(
+      icon: Icons.more_horiz_rounded,
+      label: l.videoOptionsTitle,
+      color: Colors.white,
+      onTap: () => _openSheet(context),
     );
+  }
+
+  void _openSheet(BuildContext context) {
+    final future = showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        // Reuse the caller's SavedPlayersBloc so the toggle reflects /
+        // updates the real saved-players state.
+        value: context.read<SavedPlayersBloc>(),
+        child: _HighlightActionSheet(highlight: highlight),
+      ),
+    );
+    onBottomSheetOpened(future);
   }
 }
 
-class _DownloadButton extends StatefulWidget {
-  final String videoUrl;
-  const _DownloadButton({required this.videoUrl});
+/// Bottom sheet that consolidates Download (everyone), Save (scouts), and
+/// Report (scouts) into a single more-options menu.
+class _HighlightActionSheet extends StatefulWidget {
+  final Highlight highlight;
+
+  const _HighlightActionSheet({required this.highlight});
 
   @override
-  State<_DownloadButton> createState() => _DownloadButtonState();
+  State<_HighlightActionSheet> createState() => _HighlightActionSheetState();
 }
 
-class _DownloadButtonState extends State<_DownloadButton> {
+class _HighlightActionSheetState extends State<_HighlightActionSheet> {
   final VideoDownloader _downloader = VideoDownloader();
   bool _downloading = false;
-  double _progress = 0;
 
-  Future<void> _onTap() async {
+  bool get _isScout {
+    final auth = context.read<AuthBloc>().state;
+    return auth is AuthAuthenticated &&
+        auth.user.role.toLowerCase() == 'scout';
+  }
+
+  Future<void> _onDownload() async {
     if (_downloading) return;
     final l = AppLocalizations.of(context);
-    if (widget.videoUrl.isEmpty) {
-      _showMessage(l.downloadUnavailable, isError: true);
+    final videoUrl = widget.highlight.videoUrl;
+    if (videoUrl.isEmpty) {
+      _toast(l.downloadUnavailable, isError: true);
       return;
     }
 
-    setState(() {
-      _downloading = true;
-      _progress = 0;
-    });
+    setState(() => _downloading = true);
+    final messengerContext = context;
+    Navigator.of(context).pop();
+    GlassSnackBar.show(
+      messengerContext,
+      l.downloadInProgress,
+      accent: AppColors.primaryGreen,
+    );
 
     try {
       await _downloader.downloadToGallery(
-        widget.videoUrl,
+        videoUrl,
         album: 'Goal Connect',
-        onProgress: (p) {
-          if (mounted) setState(() => _progress = p);
-        },
       );
-      if (mounted) _showMessage(l.downloadSavedToGallery);
-    } on VideoDownloadException catch (e) {
-      if (mounted) _showMessage(e.message, isError: true);
-    } catch (_) {
-      if (mounted) {
-        _showMessage(l.downloadCouldNotDownload, isError: true);
+      if (messengerContext.mounted) {
+        GlassSnackBar.show(
+          messengerContext,
+          l.downloadSavedToGallery,
+          accent: AppColors.primaryGreen,
+        );
       }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _downloading = false;
-          _progress = 0;
-        });
+    } on VideoDownloadException catch (e) {
+      if (messengerContext.mounted) {
+        GlassSnackBar.show(
+          messengerContext,
+          e.message,
+          isError: true,
+          accent: AppColors.habeshaRed,
+        );
+      }
+    } catch (_) {
+      if (messengerContext.mounted) {
+        GlassSnackBar.show(
+          messengerContext,
+          l.downloadCouldNotDownload,
+          isError: true,
+          accent: AppColors.habeshaRed,
+        );
       }
     }
   }
 
-  void _showMessage(String message, {bool isError = false}) {
+  void _toast(String message, {bool isError = false}) {
     GlassSnackBar.show(
       context,
       message,
@@ -358,21 +373,184 @@ class _DownloadButtonState extends State<_DownloadButton> {
     );
   }
 
+  Future<void> _onReport() async {
+    final l = AppLocalizations.of(context);
+    final messengerContext = context;
+    Navigator.of(context).pop();
+    final submitted = await showModalBottomSheet<bool>(
+      context: messengerContext,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ReportSheet(highlightId: widget.highlight.id),
+    );
+    if (submitted == true && messengerContext.mounted) {
+      GlassSnackBar.show(
+        messengerContext,
+        l.videoOptionsReportSubmitted,
+        accent: AppColors.primaryGreen,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final label = _downloading
-        ? '${(_progress * 100).clamp(0, 100).toStringAsFixed(0)}%'
-        : AppLocalizations.of(context).downloadLabel;
-    return Padding(
-      padding: const EdgeInsets.only(top: 0),
-      child: FancyGlassButton(
-        icon: _downloading
-            ? Icons.downloading_rounded
-            : Icons.download_rounded,
-        label: label,
-        color: Colors.white,
-        isPulsing: _downloading,
-        onTap: _onTap,
+    final l = AppLocalizations.of(context);
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF141418),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 14, bottom: 6),
+              child: Container(
+                height: 4,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 14),
+              child: Row(
+                children: [
+                  const Icon(Icons.more_horiz_rounded,
+                      color: Colors.white54, size: 22),
+                  const SizedBox(width: 10),
+                  Text(
+                    l.videoOptionsTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: Colors.white.withValues(alpha: 0.06)),
+            _HighlightActionTile(
+              icon: _downloading
+                  ? Icons.downloading_rounded
+                  : Icons.download_rounded,
+              color: Colors.tealAccent,
+              label: l.videoOptionsDownload,
+              subtitle: l.videoOptionsDownloadSubtitle,
+              onTap: _onDownload,
+            ),
+            if (_isScout) ...[
+              BlocBuilder<SavedPlayersBloc, SavedPlayersState>(
+                builder: (context, state) {
+                  final playerId = widget.highlight.player.id;
+                  final saved = state.players.any((p) => p.id == playerId);
+                  final pending = state.pendingIds.contains(playerId);
+                  return _HighlightActionTile(
+                    icon: saved
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_outline_rounded,
+                    color: AppColors.primaryGreen,
+                    label: l.videoOptionsSave,
+                    subtitle: pending
+                        ? l.saveActionPending
+                        : (saved
+                            ? l.saveActionSaved
+                            : l.videoOptionsSaveSubtitle),
+                    onTap: pending
+                        ? null
+                        : () {
+                            final bloc = context.read<SavedPlayersBloc>();
+                            if (saved) {
+                              bloc.add(SavedPlayerRemoved(playerId));
+                            } else {
+                              bloc.add(SavedPlayerAdded(playerId));
+                            }
+                            Navigator.of(context).pop();
+                          },
+                  );
+                },
+              ),
+              _HighlightActionTile(
+                icon: Icons.flag_outlined,
+                color: Colors.redAccent,
+                label: l.videoOptionsReport,
+                subtitle: l.videoOptionsReportSubtitle,
+                onTap: _onReport,
+              ),
+            ],
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HighlightActionTile extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String subtitle;
+  final VoidCallback? onTap;
+
+  const _HighlightActionTile({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final disabled = onTap == null;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: disabled ? 0.06 : 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon,
+                  color: disabled ? Colors.white24 : color, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: disabled ? Colors.white38 : Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

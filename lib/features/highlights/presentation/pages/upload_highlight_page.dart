@@ -292,37 +292,21 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                     child: Container(
                       width: 80,
                       height: 80,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primaryGreen, Color(0xFF00E5A0)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryGreen.withOpacity(0.3),
-                            blurRadius: 32,
-                            spreadRadius: 0,
-                          ),
-                        ],
+                        color: AppColors.primaryGreen,
                       ),
                       child: const Icon(Icons.videocam_rounded, color: Colors.black, size: 36),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [AppColors.primaryGreen, Color(0xFF00E5A0)],
-                    ).createShader(bounds),
-                    child: Text(
-                      AppLocalizations.of(context).highlightsCreateTitle,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
+                  Text(
+                    AppLocalizations.of(context).highlightsCreateTitle,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primaryGreen,
+                      letterSpacing: -0.5,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -347,7 +331,6 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                     onTap: _pickVideo,
                   ),
                   const SizedBox(height: 40),
-                  _buildProTip(),
                 ],
               ),
             ),
@@ -369,11 +352,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradient.map((c) => c.withOpacity(0.1)).toList(),
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: gradient[0].withOpacity(0.08),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: gradient[0].withOpacity(0.2)),
         ),
@@ -407,44 +386,6 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
     );
   }
 
-  Widget _buildProTip() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.accentGold.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.lightbulb_rounded, color: AppColors.accentGold, size: 20),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(AppLocalizations.of(context).highlightsProTipTitle, style: const TextStyle(
-                  color: AppColors.accentGold, fontWeight: FontWeight.w700, fontSize: 13)),
-                const SizedBox(height: 2),
-                Text(
-                  AppLocalizations.of(context).highlightsProTipBody,
-                  style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 12, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ─── Camera Mode ───
   Widget _buildCameraMode() {
     final bool ready =
@@ -467,32 +408,16 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
         else
           const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen)),
 
-        // Top gradient
+        // Top scrim
         Positioned(
-          top: 0, left: 0, right: 0, height: 150,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.black.withOpacity(0.7), Colors.transparent],
-              ),
-            ),
-          ),
+          top: 0, left: 0, right: 0, height: 120,
+          child: Container(color: Colors.black.withOpacity(0.45)),
         ),
 
-        // Bottom gradient
+        // Bottom scrim
         Positioned(
-          bottom: 0, left: 0, right: 0, height: 220,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Colors.black.withOpacity(0.85), Colors.transparent],
-              ),
-            ),
-          ),
+          bottom: 0, left: 0, right: 0, height: 200,
+          child: Container(color: Colors.black.withOpacity(0.6)),
         ),
 
         // Recording progress bar
@@ -531,9 +456,9 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.12 + _pulseController.value * 0.12),
+                            color: AppColors.primaryGreen.withOpacity(0.12 + _pulseController.value * 0.12),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.red.withOpacity(0.35)),
+                            border: Border.all(color: AppColors.primaryGreen.withOpacity(0.35)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -542,7 +467,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                                 width: 8, height: 8,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.red.withOpacity(0.6 + _pulseController.value * 0.4),
+                                  color: AppColors.primaryGreen.withOpacity(0.6 + _pulseController.value * 0.4),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -633,7 +558,7 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
                             duration: const Duration(milliseconds: 250),
                             curve: Curves.easeInOut,
                             decoration: BoxDecoration(
-                              color: Colors.redAccent,
+                              color: AppColors.primaryGreen,
                               borderRadius: BorderRadius.circular(_isRecording ? 8 : 40),
                             ),
                           ),
@@ -947,15 +872,13 @@ class _UploadHighlightPageState extends State<UploadHighlightPage>
             ),
           ),
           const Spacer(),
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [AppColors.primaryGreen, Color(0xFF00E5A0)],
-            ).createShader(bounds),
-            child: Text(
-              AppLocalizations.of(context).highlightsTopBarTitle,
-              style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: Colors.white,
-              ),
+          Text(
+            AppLocalizations.of(context).highlightsTopBarTitle,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.5,
+              color: AppColors.primaryGreen,
             ),
           ),
           const Spacer(),

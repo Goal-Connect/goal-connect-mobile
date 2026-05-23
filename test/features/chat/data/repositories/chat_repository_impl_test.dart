@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:goal_connect/features/auth/data/datasources/auth_user_local_datasource.dart';
+import 'package:goal_connect/features/auth/data/models/user_model.dart';
 import 'package:goal_connect/features/chat/data/datasources/chat_remote_datasource.dart';
 import 'package:goal_connect/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:goal_connect/features/chat/data/services/chat_socket_service.dart';
@@ -23,12 +24,24 @@ void main() {
   late MockChatSocket mockSocket;
   late MockPlayerProfileRepository mockPlayerProfileRepository;
 
+  final tUser = UserModel(
+    id: 'me',
+    email: 'me@example.com',
+    role: 'player',
+    username: 'me_user',
+    profileImage: '',
+    position: '',
+    age: 25,
+    country: 'Ethiopia',
+  );
+
   setUp(() {
     mockRemote = MockChatRemote();
     mockUserLocal = MockAuthUserLocal();
     mockSocket = MockChatSocket();
     mockPlayerProfileRepository = MockPlayerProfileRepository();
     when(() => mockSocket.isConnected).thenReturn(false);
+    when(() => mockUserLocal.readCachedUser()).thenAnswer((_) async => tUser);
     repository = ChatRepositoryImpl(
       remoteDataSource: mockRemote,
       userLocal: mockUserLocal,
@@ -49,6 +62,9 @@ void main() {
 
   group('getConversations', () {
     test('returns empty list when no threads have been touched yet', () async {
+      when(() => mockRemote.fetchConversationList())
+          .thenAnswer((_) async => []);
+
       final result = await repository.getConversations();
 
       expect(result.isRight(), isTrue);
@@ -60,7 +76,7 @@ void main() {
   });
 
   group('getMessages', () {
-    test('maps API messages when user is cached', () async {
+    test('returns Left(AuthFailure) when no cached user', () async {
       when(() => mockUserLocal.readCachedUser()).thenAnswer(
         (_) async => null,
       );
@@ -72,11 +88,7 @@ void main() {
   });
 
   group('sendMessage', () {
-    test('uses HTTP when socket is disconnected', () async {
-      when(() => mockUserLocal.readCachedUser()).thenAnswer(
-        (_) async => null,
-      );
-
+    test('returns Left when socket is disconnected', () async {
       final result = await repository.sendMessage(
         peerThread: tThread,
         text: 'Hello',

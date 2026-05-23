@@ -71,15 +71,8 @@ class MessageBubble extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                gradient: isMine
-                    ? const LinearGradient(
-                        colors: [Color(0xFF2ECC71), Color(0xFF58D68D)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
                 color: isMine
-                    ? null
+                    ? AppColors.primaryGreen
                     : isDark
                         ? const Color(0xFF1A1A24)
                         : Colors.white,

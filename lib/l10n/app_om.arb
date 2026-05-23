@@ -221,6 +221,7 @@
   "reportReasonFake": "Calaqqee sobaa ykn gulaalame",
   "reportReasonIp": "Sarbamuu mirga qabiyyee",
   "reportReasonOther": "Kan biraa",
+  "reportSubmitFailed": "Gabaasa ergu hin dandeenye. Maaloo irra deebi'ii yaali.",
 
   "commentsTitle": "Yaadota",
   "commentsAddHint": "Yaada dabali…",
@@ -421,6 +422,10 @@
   "settingsAppVersion": "v1.0.0",
   "settingsTitle": "Sajoo",
   "settingsSubtitle": "Muuxannoo GoalConnect kee qopheessi",
+  "settingsDiscovery": "Argachuu",
+  "settingsScoutPreferences": "Filannoo skouutii",
+  "settingsScoutPreferencesActive": "Hojjeta",
+  "settingsScoutPreferencesInactive": "Hin qopheeffamne",
   "settingsAppearance": "Mul'achuu",
   "settingsThemeLight": "Ifaa",
   "settingsThemeDark": "Dukkana",
@@ -435,6 +440,8 @@
   "settingsTermsOfService": "Haalota Tajaajilaa",
   "settingsHelpSupport": "Gargaarsa fi Deeggarsa",
   "settingsAbout": "Waa'ee GoalConnect",
+  "settingsAboutBody": "GoalConnect platformii kubbaa miilaa Itoophiyaa skaawutoota, akkaadaamii fi kilaboota biyya keessaa waliin walqunnamsiisuuf hojjetamedha. Taphattoonni qabxiilee tapha isaanii qooduu, istaatistiksii fi haala tapha isaanii agarsiisuu, akkasumas pirofaayilii skaawutoonni argachuu danda'an ijaaruu danda'u. Skaawutoonni dabareedhaan, naannoodhaan fi umuriidhaan dandeettii filachuu, taphattoota jaalatan kuusuu, akkasumas chaatii appii keessaatiin kallattiidhaan dubbisuu danda'u. Galmi keenya salphaadha: dhaloota itti aanaaf carraa kubbaa miilaa caalaa banuu.",
+  "settingsAboutClose": "Cufi",
   "settingsSignOut": "Ba'i",
   "settingsBrand": "GoalConnect",
   "settingsProfileSampleUsername": "EthioStar_10",
@@ -450,5 +457,19 @@
   "updatePasswordMinChars": "Yoo xinnaate qubeewwan 6",
   "updatePasswordMismatch": "Jecha iccitii walhin simu",
   "updatePasswordSuccess": "Jecha iccitii milkaa'inaan haaromfame",
-  "updatePasswordFailure": "Jecha iccitii haaromsuu hin dandeenye"
+  "updatePasswordFailure": "Jecha iccitii haaromsuu hin dandeenye",
+
+  "scoutPreferencesTitle": "Filannoo skouutii",
+  "scoutPreferencesSubtitle": "Maal akka feedii kee keessatti agartu fili. Dirreewwan hundi filannoo dha — duwwaa dhiisuun walitti hidhamiinsa sana dabarsa.",
+  "scoutPreferencesPositions": "Iddoowwan",
+  "scoutPreferencesRegions": "Naannoowwan",
+  "scoutPreferencesRegionHint": "fkn. Finfinnee",
+  "scoutPreferencesRegionAdd": "Dabali",
+  "scoutPreferencesAgeRange": "Daangaa umurii",
+  "scoutPreferencesAgeMin": "Xiqqaa",
+  "scoutPreferencesAgeMax": "Guddaa",
+  "scoutPreferencesSave": "Filannoo olkaa'i",
+  "scoutPreferencesClear": "Filannoo haqi",
+  "scoutPreferencesSaved": "Filannoon olkaa'ame",
+  "scoutPreferencesCleared": "Filannoon haqame"
 }

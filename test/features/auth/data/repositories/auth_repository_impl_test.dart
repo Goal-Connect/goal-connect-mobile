@@ -9,6 +9,7 @@ import 'package:goal_connect/features/auth/data/models/scout_account_registratio
 import 'package:goal_connect/features/auth/data/models/user_model.dart';
 import 'package:goal_connect/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
+import 'package:goal_connect/features/chat/data/datasources/conversation_local_datasource.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
@@ -19,11 +20,15 @@ class MockAuthTokenLocalDataSource extends Mock
 class MockAuthUserLocalDataSource extends Mock
     implements AuthUserLocalDataSource {}
 
+class MockConversationLocalDataSource extends Mock
+    implements ConversationLocalDataSource {}
+
 void main() {
   late AuthRepositoryImpl repository;
   late MockAuthRemoteDataSource mockRemote;
   late MockAuthTokenLocalDataSource mockToken;
   late MockAuthUserLocalDataSource mockUserCache;
+  late MockConversationLocalDataSource mockConversationLocal;
 
   final tRegistration = ScoutAccountRegistration(
     fullName: 'Jane Scout',
@@ -53,13 +58,16 @@ void main() {
     mockRemote = MockAuthRemoteDataSource();
     mockToken = MockAuthTokenLocalDataSource();
     mockUserCache = MockAuthUserLocalDataSource();
+    mockConversationLocal = MockConversationLocalDataSource();
     repository = AuthRepositoryImpl(
       remoteDataSource: mockRemote,
       tokenStorage: mockToken,
       userCache: mockUserCache,
+      conversationLocal: mockConversationLocal,
     );
     when(() => mockToken.saveToken(any())).thenAnswer((_) async {});
     when(() => mockRemote.logoutAck()).thenAnswer((_) async {});
+    when(() => mockConversationLocal.clearAll()).thenAnswer((_) async {});
     when(
       () => mockUserCache.saveUserAndProfile(
         user: any(named: 'user'),

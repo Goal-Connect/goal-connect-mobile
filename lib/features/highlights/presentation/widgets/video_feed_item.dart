@@ -214,21 +214,6 @@ class _VideoFeedItemState extends State<VideoFeedItem>
                 child: const Center(child: CircularProgressIndicator()),
               ),
 
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.4),
-                Colors.transparent,
-                Colors.transparent,
-                Colors.black.withOpacity(0.8),
-              ],
-            ),
-          ),
-        ),
-
         GestureDetector(
           onTap: _togglePlayPause,
           onDoubleTap: _onDoubleTap,

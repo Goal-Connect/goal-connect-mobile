@@ -59,18 +59,13 @@ class _ChatListPageState extends State<ChatListPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [AppColors.primaryGreen, Color(0xFF00E896)],
-                  ).createShader(bounds),
-                  child: Text(
-                    AppLocalizations.of(context).chatListTitle,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 30,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
+                Text(
+                  AppLocalizations.of(context).chatListTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 30,
+                    color: AppColors.primaryGreen,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -89,12 +84,7 @@ class _ChatListPageState extends State<ChatListPage> {
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primaryGreen.withOpacity(0.2),
-                  AppColors.primaryGreen.withOpacity(0.05),
-                ],
-              ),
+              color: AppColors.primaryGreen.withOpacity(0.12),
             ),
             child: CircleAvatar(
               radius: 22,

@@ -21,7 +21,12 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
     on<GetHighlightsFeedEvent>((event, emit) async {
       emit(HighlightLoading());
 
-      final result = await getHighlightsFeed();
+      final result = await getHighlightsFeed(
+        position: event.position,
+        region: event.region,
+        minAge: event.minAge,
+        maxAge: event.maxAge,
+      );
 
       result.fold(
         (failure) => emit(const HighlightError("Failed to load highlights")),

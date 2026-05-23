@@ -86,21 +86,29 @@ class _SavedPlayersPageState extends State<SavedPlayersPage> {
                       child: _EmptyState(isDark: isDark),
                     )
                   else
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final p = state.players[index];
-                          final removing = state.pendingIds.contains(p.id);
-                          return _SavedPlayerTile(
-                            profile: p,
-                            removing: removing,
-                            onTap: () => _openProfile(context, p.id),
-                            onRemove: () => context
-                                .read<SavedPlayersBloc>()
-                                .add(SavedPlayerRemoved(p.id)),
-                          );
-                        },
-                        childCount: state.players.length,
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final p = state.players[index];
+                            final removing = state.pendingIds.contains(p.id);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: _SavedPlayerTile(
+                                profile: p,
+                                removing: removing,
+                                isDark: isDark,
+                                onTap: () => _openProfile(context, p.id),
+                                onRemove: () => context
+                                    .read<SavedPlayersBloc>()
+                                    .add(SavedPlayerRemoved(p.id)),
+                              ),
+                            );
+                          },
+                          childCount: state.players.length,
+                        ),
                       ),
                     ),
                 ],
@@ -175,20 +183,20 @@ class _EmptyState extends StatelessWidget {
 class _SavedPlayerTile extends StatelessWidget {
   final PlayerProfile profile;
   final bool removing;
+  final bool isDark;
   final VoidCallback onTap;
   final VoidCallback onRemove;
 
   const _SavedPlayerTile({
     required this.profile,
     required this.removing,
+    required this.isDark,
     required this.onTap,
     required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final uri = Uri.tryParse(profile.profileImage);
     final ok = profile.profileImage.isNotEmpty &&
         uri != null &&
@@ -201,49 +209,72 @@ class _SavedPlayerTile extends StatelessWidget {
       if (profile.country.isNotEmpty) profile.country,
     ];
 
-    return ListTile(
-      onTap: onTap,
-      leading: CircleAvatar(
-        radius: 26,
-        backgroundColor: AppColors.primaryGreen.withOpacity(0.2),
-        backgroundImage: ok ? NetworkImage(profile.profileImage) : null,
-        child: !ok
-            ? const Icon(Icons.person_rounded, color: AppColors.primaryGreen)
-            : null,
-      ),
-      title: Text(
-        profile.username,
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: isDark ? Colors.white : AppColors.lightText,
+    final base = (isDark ? Colors.white : Colors.black).withOpacity(0.03);
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryGreen.withOpacity(isDark ? 0.10 : 0.06),
+            base,
+            base,
+          ],
+          stops: const [0.0, 0.45, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
         ),
       ),
-      subtitle: subtitleParts.isEmpty
-          ? null
-          : Text(
-              subtitleParts.join(' · '),
-              style: TextStyle(
-                color: AppColors.gray.withOpacity(0.9),
-                fontSize: 13,
+      child: ListTile(
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        leading: CircleAvatar(
+          radius: 26,
+          backgroundColor: AppColors.primaryGreen.withOpacity(0.2),
+          backgroundImage: ok ? NetworkImage(profile.profileImage) : null,
+          child: !ok
+              ? const Icon(Icons.person_rounded, color: AppColors.primaryGreen)
+              : null,
+        ),
+        title: Text(
+          profile.username,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : AppColors.lightText,
+          ),
+        ),
+        subtitle: subtitleParts.isEmpty
+            ? null
+            : Text(
+                subtitleParts.join(' · '),
+                style: TextStyle(
+                  color: AppColors.gray.withOpacity(0.9),
+                  fontSize: 13,
+                ),
               ),
-            ),
-      trailing: removing
-          ? const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primaryGreen,
+        trailing: removing
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primaryGreen,
+                ),
+              )
+            : IconButton(
+                tooltip:
+                    AppLocalizations.of(context).savedPlayersRemoveTooltip,
+                icon: const Icon(
+                  Icons.bookmark_rounded,
+                  color: AppColors.primaryGreen,
+                ),
+                onPressed: onRemove,
               ),
-            )
-          : IconButton(
-              tooltip: AppLocalizations.of(context).savedPlayersRemoveTooltip,
-              icon: const Icon(
-                Icons.bookmark_rounded,
-                color: AppColors.primaryGreen,
-              ),
-              onPressed: onRemove,
-            ),
+      ),
     );
   }
 }

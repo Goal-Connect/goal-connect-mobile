@@ -65,9 +65,19 @@ class HighlightRepositoryImpl implements HighlightRepository {
   }
 
   @override
-  Future<Either<Failure, List<Highlight>>> getHighlightsFeed() async {
+  Future<Either<Failure, List<Highlight>>> getHighlightsFeed({
+    String? position,
+    String? region,
+    int? minAge,
+    int? maxAge,
+  }) async {
     try {
-      final result = await remoteDataSource.getHighlightsFeed();
+      final result = await remoteDataSource.getHighlightsFeed(
+        position: position,
+        region: region,
+        minAge: minAge,
+        maxAge: maxAge,
+      );
 
       return Right(result);
     } catch (e) {

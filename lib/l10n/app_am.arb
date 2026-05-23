@@ -221,6 +221,7 @@
   "reportReasonFake": "ሐሰተኛ ወይም የተስተካከለ ድምቀት",
   "reportReasonIp": "የአዕምሮ ንብረት ጥሰት",
   "reportReasonOther": "ሌላ",
+  "reportSubmitFailed": "ሪፖርቱን ማስገባት አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
 
   "commentsTitle": "አስተያየቶች",
   "commentsAddHint": "አስተያየት ይጨምሩ…",
@@ -421,6 +422,10 @@
   "settingsAppVersion": "v1.0.0",
   "settingsTitle": "ቅንብሮች",
   "settingsSubtitle": "የGoalConnect ተሞክሮዎን ያበጁ",
+  "settingsDiscovery": "ግኝት",
+  "settingsScoutPreferences": "የስካውት ምርጫዎች",
+  "settingsScoutPreferencesActive": "የነቃ",
+  "settingsScoutPreferencesInactive": "አልተዋቀረም",
   "settingsAppearance": "ገጽታ",
   "settingsThemeLight": "ብርሃን",
   "settingsThemeDark": "ጨለማ",
@@ -435,6 +440,8 @@
   "settingsTermsOfService": "የአገልግሎት ውሎች",
   "settingsHelpSupport": "እርዳታ እና ድጋፍ",
   "settingsAbout": "ስለ GoalConnect",
+  "settingsAboutBody": "GoalConnect የኢትዮጵያ እግር ኳስ ተጫዋቾችን በመላ ሀገሪቱ ካሉ ስካውቶች፣ አካዳሚዎች እና ክለቦች ጋር የሚያገናኝ መድረክ ነው። ተጫዋቾች የጨዋታ ድምቀቶችን ማካፈል፣ ስታቲስቲክሳቸውን እና የጨዋታ ስልታቸውን ማሳየት እና ስካውቶች ሊያገኙት የሚችሉትን ፕሮፋይል ማሳደግ ይችላሉ። ስካውቶች ተሰጥኦን በቦታ፣ በክልል እና በዕድሜ ማጣራት፣ የሚወዷቸውን ተጫዋቾች ማስቀመጥ እና በመተግበሪያው ውስጥ ባለው ቻት በቀጥታ ማግኘት ይችላሉ። ግባችን ቀላል ነው፡ ለቀጣዩ ትውልድ የእግር ኳስ ተሰጥኦ የበለጠ በሮችን መክፈት።",
+  "settingsAboutClose": "ዝጋ",
   "settingsSignOut": "ውጣ",
   "settingsBrand": "GoalConnect",
   "settingsProfileSampleUsername": "EthioStar_10",
@@ -450,5 +457,19 @@
   "updatePasswordMinChars": "ቢያንስ 6 ቁምፊዎች",
   "updatePasswordMismatch": "የይለፍ ቃላት አይዛመዱም",
   "updatePasswordSuccess": "የይለፍ ቃል በተሳካ ሁኔታ ተዘምኗል",
-  "updatePasswordFailure": "የይለፍ ቃልን ማዘመን አልተቻለም"
+  "updatePasswordFailure": "የይለፍ ቃልን ማዘመን አልተቻለም",
+
+  "scoutPreferencesTitle": "የስካውት ምርጫዎች",
+  "scoutPreferencesSubtitle": "በሃይላይት ዥረትዎ ውስጥ ማየት የሚፈልጉትን ይምረጡ። ሁሉም መስኮች አማራጭ ናቸው።",
+  "scoutPreferencesPositions": "ቦታዎች",
+  "scoutPreferencesRegions": "ክልሎች",
+  "scoutPreferencesRegionHint": "ለምሳሌ አዲስ አበባ",
+  "scoutPreferencesRegionAdd": "አክል",
+  "scoutPreferencesAgeRange": "የእድሜ ክልል",
+  "scoutPreferencesAgeMin": "አነስተኛ",
+  "scoutPreferencesAgeMax": "ከፍተኛ",
+  "scoutPreferencesSave": "ምርጫዎችን አስቀምጥ",
+  "scoutPreferencesClear": "ምርጫዎችን አጽዳ",
+  "scoutPreferencesSaved": "ምርጫዎች ተቀምጠዋል",
+  "scoutPreferencesCleared": "ምርጫዎች ጸድተዋል"
 }

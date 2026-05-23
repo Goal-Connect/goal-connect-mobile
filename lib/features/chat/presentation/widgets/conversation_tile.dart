@@ -55,15 +55,8 @@ class ConversationTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: hasUnread
               ? BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primaryGreen
-                          .withOpacity(isDark ? 0.06 : 0.04),
-                      Colors.transparent,
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+                  color: AppColors.primaryGreen
+                      .withOpacity(isDark ? 0.06 : 0.04),
                 )
               : null,
           child: Row(
@@ -166,24 +159,9 @@ class ConversationTile extends StatelessWidget {
                           Container(
                             width: 22,
                             height: 22,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  AppColors.primaryGreen,
-                                  Color(0xFF00E896)
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                            decoration: const BoxDecoration(
+                              color: AppColors.primaryGreen,
                               shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      AppColors.primaryGreen.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
                             ),
                             child: Center(
                               child: Text(
@@ -214,14 +192,7 @@ class ConversationTile extends StatelessWidget {
       decoration: hasUnread
           ? BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primaryGreen.withOpacity(0.3),
-                  AppColors.primaryGreen.withOpacity(0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: AppColors.primaryGreen.withOpacity(0.18),
             )
           : null,
       padding: hasUnread ? const EdgeInsets.all(2.5) : null,

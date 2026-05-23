@@ -510,6 +510,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get reportReasonOther => 'ሌላ';
 
   @override
+  String get reportSubmitFailed => 'ሪፖርቱን ማስገባት አልተቻለም። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
   String get commentsTitle => 'አስተያየቶች';
 
   @override
@@ -915,6 +918,18 @@ class AppLocalizationsAm extends AppLocalizations {
   String get settingsSubtitle => 'የGoalConnect ተሞክሮዎን ያበጁ';
 
   @override
+  String get settingsDiscovery => 'ግኝት';
+
+  @override
+  String get settingsScoutPreferences => 'የስካውት ምርጫዎች';
+
+  @override
+  String get settingsScoutPreferencesActive => 'የነቃ';
+
+  @override
+  String get settingsScoutPreferencesInactive => 'አልተዋቀረም';
+
+  @override
   String get settingsAppearance => 'ገጽታ';
 
   @override
@@ -955,6 +970,13 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get settingsAbout => 'ስለ GoalConnect';
+
+  @override
+  String get settingsAboutBody =>
+      'GoalConnect የኢትዮጵያ እግር ኳስ ተጫዋቾችን በመላ ሀገሪቱ ካሉ ስካውቶች፣ አካዳሚዎች እና ክለቦች ጋር የሚያገናኝ መድረክ ነው። ተጫዋቾች የጨዋታ ድምቀቶችን ማካፈል፣ ስታቲስቲክሳቸውን እና የጨዋታ ስልታቸውን ማሳየት እና ስካውቶች ሊያገኙት የሚችሉትን ፕሮፋይል ማሳደግ ይችላሉ። ስካውቶች ተሰጥኦን በቦታ፣ በክልል እና በዕድሜ ማጣራት፣ የሚወዷቸውን ተጫዋቾች ማስቀመጥ እና በመተግበሪያው ውስጥ ባለው ቻት በቀጥታ ማግኘት ይችላሉ። ግባችን ቀላል ነው፡ ለቀጣዩ ትውልድ የእግር ኳስ ተሰጥኦ የበለጠ በሮችን መክፈት።';
+
+  @override
+  String get settingsAboutClose => 'ዝጋ';
 
   @override
   String get settingsSignOut => 'ውጣ';
@@ -1000,4 +1022,44 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get updatePasswordFailure => 'የይለፍ ቃልን ማዘመን አልተቻለም';
+
+  @override
+  String get scoutPreferencesTitle => 'የስካውት ምርጫዎች';
+
+  @override
+  String get scoutPreferencesSubtitle =>
+      'በሃይላይት ዥረትዎ ውስጥ ማየት የሚፈልጉትን ይምረጡ። ሁሉም መስኮች አማራጭ ናቸው።';
+
+  @override
+  String get scoutPreferencesPositions => 'ቦታዎች';
+
+  @override
+  String get scoutPreferencesRegions => 'ክልሎች';
+
+  @override
+  String get scoutPreferencesRegionHint => 'ለምሳሌ አዲስ አበባ';
+
+  @override
+  String get scoutPreferencesRegionAdd => 'አክል';
+
+  @override
+  String get scoutPreferencesAgeRange => 'የእድሜ ክልል';
+
+  @override
+  String get scoutPreferencesAgeMin => 'አነስተኛ';
+
+  @override
+  String get scoutPreferencesAgeMax => 'ከፍተኛ';
+
+  @override
+  String get scoutPreferencesSave => 'ምርጫዎችን አስቀምጥ';
+
+  @override
+  String get scoutPreferencesClear => 'ምርጫዎችን አጽዳ';
+
+  @override
+  String get scoutPreferencesSaved => 'ምርጫዎች ተቀምጠዋል';
+
+  @override
+  String get scoutPreferencesCleared => 'ምርጫዎች ጸድተዋል';
 }

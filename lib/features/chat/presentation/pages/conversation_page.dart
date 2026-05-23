@@ -194,9 +194,7 @@ class _ConversationPageState extends State<ConversationPage> {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryGreen, Color(0xFF00E896)],
-                    ),
+                    color: AppColors.primaryGreen,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isDark
@@ -233,12 +231,7 @@ class _ConversationPageState extends State<ConversationPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            roleClr.withOpacity(0.15),
-                            roleClr.withOpacity(0.05)
-                          ],
-                        ),
+                        color: roleClr.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
@@ -541,21 +534,6 @@ class _ConversationPageState extends State<ConversationPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: (isDark ? Colors.white : Colors.black)
-                                .withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.add_rounded,
-                            color: AppColors.gray.withOpacity(0.6),
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
@@ -600,17 +578,6 @@ class _ConversationPageState extends State<ConversationPage> {
                                     ),
                                   ),
                                 ),
-                                if (!_showSendButton)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        right: 12, bottom: 10),
-                                    child: Icon(
-                                      Icons.mic_rounded,
-                                      color:
-                                          AppColors.gray.withOpacity(0.5),
-                                      size: 22,
-                                    ),
-                                  ),
                               ],
                             ),
                           ),
@@ -623,24 +590,9 @@ class _ConversationPageState extends State<ConversationPage> {
                           child: Container(
                             width: 44,
                             height: 44,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [
-                                  AppColors.primaryGreen,
-                                  Color(0xFF00E896)
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primaryGreen
-                                      .withOpacity(0.4),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                              color: AppColors.primaryGreen,
                             ),
                             child: Material(
                               color: Colors.transparent,
@@ -680,12 +632,7 @@ class _SendingIndicator extends StatelessWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.primaryGreen.withOpacity(0.2),
-                AppColors.primaryGreen.withOpacity(0.1),
-              ],
-            ),
+            color: AppColors.primaryGreen.withOpacity(0.15),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(22),
               topRight: Radius.circular(22),

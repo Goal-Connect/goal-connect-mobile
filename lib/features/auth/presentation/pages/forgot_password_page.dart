@@ -182,17 +182,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         24,
         48,
       ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primaryGreen,
-            AppColors.primaryGreen.withOpacity(0.85),
-            isDark ? const Color(0xFF0A0A12) : const Color(0xFFF7F8FA),
-          ],
-          stops: const [0.0, 0.55, 1.0],
-        ),
+      decoration: const BoxDecoration(
+        color: AppColors.primaryGreen,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
