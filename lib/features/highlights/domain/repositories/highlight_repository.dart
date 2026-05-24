@@ -21,8 +21,8 @@ abstract class HighlightRepository {
   });
 
   Future<Either<Failure, List<Highlight>>> getHighlightsFeed({
-    String? position,
-    String? region,
+    List<String>? positions,
+    List<String>? regions,
     int? minAge,
     int? maxAge,
   });

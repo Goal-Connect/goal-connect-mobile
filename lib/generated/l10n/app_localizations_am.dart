@@ -91,8 +91,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get onboardingPage2Highlight => 'የብቃት ትንታኔ';
 
   @override
-  String get onboardingPage2Description =>
-      'የእርስዎን አፈጻጸም ለሙያዊ ስካውቶች በዓለም አቀፍ ደረጃ የሚያቀርብ የላቀ የቪዲዮ ትንታኔ።';
+  String get onboardingPage2Description => 'ለስካውቶች ስለ ተጫዋቹ የአፈጻጸም ግንዛቤዎች።';
 
   @override
   String get onboardingPage3Title => 'ወደ ህልምዎ ';
@@ -102,7 +101,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get onboardingPage3Description =>
-      'የአካባቢውን ተሰጥኦ ከአካዳሚዎች እና ከዓለም አቀፍ ስካውቶች ጋር በቀጥታ ማገናኘት። ጉዞዎ የሚጀምረው ከዚህ ነው።';
+      'የአካባቢውን ተሰጥኦ ከአካዳሚዎች እና ከስካውቶች ጋር በቀጥታ ማገናኘት። ጉዞዎ የሚጀምረው ከዚህ ነው።';
 
   @override
   String get loginHeadlineLine1 => 'ወጣት ኮከቦችን ያገናኙ';
@@ -704,6 +703,20 @@ class AppLocalizationsAm extends AppLocalizations {
   String get savedPlayersTitle => 'የተቀመጡ ተጫዋቾች';
 
   @override
+  String get savedPlayersSubtitle => 'የምትከታተላቸው ተጫዋቾች';
+
+  @override
+  String savedPlayersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ተቀምጠዋል',
+      one: '1 ተቀምጧል',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get savedPlayersEmptyTitle => 'እስካሁን የተቀመጡ ተጫዋቾች የሉም';
 
   @override
@@ -711,6 +724,15 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get savedPlayersRemoveTooltip => 'ከተቀመጡት አስወግድ';
+
+  @override
+  String get savedPlayersStatHighlights => 'ድምቀቶች';
+
+  @override
+  String get savedPlayersStatFollowers => 'ተከታዮች';
+
+  @override
+  String get savedPlayersStatLikes => 'ውዴታዎች';
 
   @override
   String get playerProfileVideos => 'ቪዲዮዎች';
@@ -963,7 +985,15 @@ class AppLocalizationsAm extends AppLocalizations {
   String get settingsPrivacyPolicy => 'የግላዊነት መመሪያ';
 
   @override
+  String get settingsPrivacyPolicyDescription =>
+      'ውሂብዎን እንዴት እንደምንሰበስብ፣ እንደምንጠቀምና እንደምንጠብቅ።';
+
+  @override
   String get settingsTermsOfService => 'የአገልግሎት ውሎች';
+
+  @override
+  String get settingsTermsOfServiceDescription =>
+      'መተግበሪያውን ለመጠቀም የሚያስፈልጉ ደንቦችና ሁኔታዎች።';
 
   @override
   String get settingsHelpSupport => 'እርዳታ እና ድጋፍ';

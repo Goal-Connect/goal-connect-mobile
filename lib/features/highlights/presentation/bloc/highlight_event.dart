@@ -8,20 +8,20 @@ abstract class HighlightEvent extends Equatable {
 }
 
 class GetHighlightsFeedEvent extends HighlightEvent {
-  final String? position;
-  final String? region;
+  final List<String>? positions;
+  final List<String>? regions;
   final int? minAge;
   final int? maxAge;
 
   const GetHighlightsFeedEvent({
-    this.position,
-    this.region,
+    this.positions,
+    this.regions,
     this.minAge,
     this.maxAge,
   });
 
   @override
-  List<Object?> get props => [position, region, minAge, maxAge];
+  List<Object?> get props => [positions, regions, minAge, maxAge];
 }
 
 class GetPlayerHighlightsEvent extends HighlightEvent {

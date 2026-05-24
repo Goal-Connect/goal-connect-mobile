@@ -39,11 +39,11 @@
 
   "onboardingPage2Title": "Performance Insights for ",
   "onboardingPage2Highlight": "Scouting",
-  "onboardingPage2Description": "Advanced video analysis that breaks down your performance for professional scouts globally.",
+  "onboardingPage2Description": "Performance insights for scouts about the player.",
 
   "onboardingPage3Title": "Bridge to your ",
   "onboardingPage3Highlight": "Dreams",
-  "onboardingPage3Description": "Connecting local talent directly with academies and international scouts. Your journey starts here.",
+  "onboardingPage3Description": "Connecting local talent directly with academies and scouts. Your journey starts here.",
 
   "loginHeadlineLine1": "Connect Young Stars",
   "loginHeadlineLine2Prefix": "With Their ",
@@ -344,9 +344,19 @@
   },
 
   "savedPlayersTitle": "Saved players",
+  "savedPlayersSubtitle": "Players you're tracking",
+  "savedPlayersCount": "{count, plural, one{1 saved} other{{count} saved}}",
+  "@savedPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "savedPlayersEmptyTitle": "No saved players yet",
   "savedPlayersEmptySubtitle": "Bookmark players from search to keep them here for quick access.",
   "savedPlayersRemoveTooltip": "Remove from saved",
+  "savedPlayersStatHighlights": "Highlights",
+  "savedPlayersStatFollowers": "Followers",
+  "savedPlayersStatLikes": "Likes",
 
   "playerProfileVideos": "Videos",
   "playerProfileGoals": "Goals",
@@ -443,7 +453,9 @@
   "settingsLanguageEnglish": "English",
   "settingsLanguageAmharic": "አማርኛ",
   "settingsPrivacyPolicy": "Privacy Policy",
+  "settingsPrivacyPolicyDescription": "How we collect, use, and protect your data.",
   "settingsTermsOfService": "Terms of Service",
+  "settingsTermsOfServiceDescription": "The rules and conditions for using the app.",
   "settingsHelpSupport": "Help & Support",
   "settingsAbout": "About GoalConnect",
   "settingsAboutBody": "GoalConnect is a platform that connects Ethiopian footballers with scouts, academies, and clubs across the country. Players can share match highlights, showcase their stats and playing style, and grow a profile that scouts can discover. Scouts can filter talent by position, region, and age, save players they like, and reach out directly through in-app chat. Our goal is simple: open more doors for the next generation of football talent.",

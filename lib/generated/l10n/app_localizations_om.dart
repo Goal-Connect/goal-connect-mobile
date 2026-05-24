@@ -92,7 +92,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get onboardingPage2Description =>
-      'Xinxala viidiyoo guddaa raawwii kee ispoortii barbaadduu beekamoo addunyaa hundaaf addaan baasu.';
+      'Ispoortii barbaaddotaaf hubannoo raawwii waa\'ee taphataa.';
 
   @override
   String get onboardingPage3Title => 'Gara Abjuu Keetiitti ';
@@ -102,7 +102,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get onboardingPage3Description =>
-      'Dandeettii naannoo kallattiidhaan akkaadaamiiwwanii fi ispoortii barbaaddota addunyaa waliin walqabsiisuu. Imala kee asitti jalqaba.';
+      'Dandeettii naannoo kallattiidhaan akkaadaamiiwwanii fi ispoortii barbaaddota waliin walqabsiisuu. Imala kee asitti jalqaba.';
 
   @override
   String get loginHeadlineLine1 => 'Urjiilee Dargaggoo Walqabsiisi';
@@ -722,6 +722,20 @@ class AppLocalizationsOm extends AppLocalizations {
   String get savedPlayersTitle => 'Taphattoota kuufaman';
 
   @override
+  String get savedPlayersSubtitle => 'Taphattoota hordofaa jirtu';
+
+  @override
+  String savedPlayersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kuufaman',
+      one: '1 kuufame',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get savedPlayersEmptyTitle => 'Ammaaf taphataan kuufame hin jiru';
 
   @override
@@ -730,6 +744,15 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get savedPlayersRemoveTooltip => 'Kuufamaa irraa haqi';
+
+  @override
+  String get savedPlayersStatHighlights => 'Calaqqeewwan';
+
+  @override
+  String get savedPlayersStatFollowers => 'Hordoftoota';
+
+  @override
+  String get savedPlayersStatLikes => 'Jaalalaa';
 
   @override
   String get playerProfileVideos => 'Viidiyoowwan';
@@ -983,7 +1006,15 @@ class AppLocalizationsOm extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Imaammata Dhuunfaa';
 
   @override
+  String get settingsPrivacyPolicyDescription =>
+      'Akkaataa odeeffannoo kee itti walitti qabnu, itti fayyadamnuu fi itti eegnu.';
+
+  @override
   String get settingsTermsOfService => 'Haalota Tajaajilaa';
+
+  @override
+  String get settingsTermsOfServiceDescription =>
+      'Seerotaa fi haalota appii kana itti fayyadamuuf barbaachisan.';
 
   @override
   String get settingsHelpSupport => 'Gargaarsa fi Deeggarsa';

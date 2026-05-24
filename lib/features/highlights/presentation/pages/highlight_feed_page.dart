@@ -63,8 +63,8 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
     _lastAppliedPreference = pref;
     context.read<HighlightBloc>().add(
           GetHighlightsFeedEvent(
-            position: pref?.firstPosition,
-            region: pref?.firstRegion,
+            positions: pref?.positions,
+            regions: pref?.regions,
             minAge: pref?.minAge,
             maxAge: pref?.maxAge,
           ),
@@ -78,8 +78,8 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
     _lastAppliedPreference = pref;
     context.read<HighlightBloc>().add(
           GetHighlightsFeedEvent(
-            position: pref?.firstPosition,
-            region: pref?.firstRegion,
+            positions: pref?.positions,
+            regions: pref?.regions,
             minAge: pref?.minAge,
             maxAge: pref?.maxAge,
           ),
@@ -107,8 +107,8 @@ class _HighlightFeedPageState extends State<HighlightFeedPage> {
     final pref = _lastAppliedPreference;
     context.read<HighlightBloc>().add(
           GetHighlightsFeedEvent(
-            position: pref?.firstPosition,
-            region: pref?.firstRegion,
+            positions: pref?.positions,
+            regions: pref?.regions,
             minAge: pref?.minAge,
             maxAge: pref?.maxAge,
           ),

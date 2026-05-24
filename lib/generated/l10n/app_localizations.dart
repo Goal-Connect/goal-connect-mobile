@@ -265,7 +265,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPage2Description.
   ///
   /// In en, this message translates to:
-  /// **'Advanced video analysis that breaks down your performance for professional scouts globally.'**
+  /// **'Performance insights for scouts about the player.'**
   String get onboardingPage2Description;
 
   /// No description provided for @onboardingPage3Title.
@@ -283,7 +283,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPage3Description.
   ///
   /// In en, this message translates to:
-  /// **'Connecting local talent directly with academies and international scouts. Your journey starts here.'**
+  /// **'Connecting local talent directly with academies and scouts. Your journey starts here.'**
   String get onboardingPage3Description;
 
   /// No description provided for @loginHeadlineLine1.
@@ -1402,6 +1402,18 @@ abstract class AppLocalizations {
   /// **'Saved players'**
   String get savedPlayersTitle;
 
+  /// No description provided for @savedPlayersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Players you\'re tracking'**
+  String get savedPlayersSubtitle;
+
+  /// No description provided for @savedPlayersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 saved} other{{count} saved}}'**
+  String savedPlayersCount(int count);
+
   /// No description provided for @savedPlayersEmptyTitle.
   ///
   /// In en, this message translates to:
@@ -1419,6 +1431,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove from saved'**
   String get savedPlayersRemoveTooltip;
+
+  /// No description provided for @savedPlayersStatHighlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlights'**
+  String get savedPlayersStatHighlights;
+
+  /// No description provided for @savedPlayersStatFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get savedPlayersStatFollowers;
+
+  /// No description provided for @savedPlayersStatLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes'**
+  String get savedPlayersStatLikes;
 
   /// No description provided for @playerProfileVideos.
   ///
@@ -1912,11 +1942,23 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get settingsPrivacyPolicy;
 
+  /// No description provided for @settingsPrivacyPolicyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How we collect, use, and protect your data.'**
+  String get settingsPrivacyPolicyDescription;
+
   /// No description provided for @settingsTermsOfService.
   ///
   /// In en, this message translates to:
   /// **'Terms of Service'**
   String get settingsTermsOfService;
+
+  /// No description provided for @settingsTermsOfServiceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The rules and conditions for using the app.'**
+  String get settingsTermsOfServiceDescription;
 
   /// No description provided for @settingsHelpSupport.
   ///

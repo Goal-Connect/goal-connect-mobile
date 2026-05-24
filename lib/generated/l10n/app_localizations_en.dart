@@ -92,7 +92,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingPage2Description =>
-      'Advanced video analysis that breaks down your performance for professional scouts globally.';
+      'Performance insights for scouts about the player.';
 
   @override
   String get onboardingPage3Title => 'Bridge to your ';
@@ -102,7 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingPage3Description =>
-      'Connecting local talent directly with academies and international scouts. Your journey starts here.';
+      'Connecting local talent directly with academies and scouts. Your journey starts here.';
 
   @override
   String get loginHeadlineLine1 => 'Connect Young Stars';
@@ -711,6 +711,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedPlayersTitle => 'Saved players';
 
   @override
+  String get savedPlayersSubtitle => 'Players you\'re tracking';
+
+  @override
+  String savedPlayersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saved',
+      one: '1 saved',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get savedPlayersEmptyTitle => 'No saved players yet';
 
   @override
@@ -719,6 +733,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savedPlayersRemoveTooltip => 'Remove from saved';
+
+  @override
+  String get savedPlayersStatHighlights => 'Highlights';
+
+  @override
+  String get savedPlayersStatFollowers => 'Followers';
+
+  @override
+  String get savedPlayersStatLikes => 'Likes';
 
   @override
   String get playerProfileVideos => 'Videos';
@@ -971,7 +994,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Privacy Policy';
 
   @override
+  String get settingsPrivacyPolicyDescription =>
+      'How we collect, use, and protect your data.';
+
+  @override
   String get settingsTermsOfService => 'Terms of Service';
+
+  @override
+  String get settingsTermsOfServiceDescription =>
+      'The rules and conditions for using the app.';
 
   @override
   String get settingsHelpSupport => 'Help & Support';

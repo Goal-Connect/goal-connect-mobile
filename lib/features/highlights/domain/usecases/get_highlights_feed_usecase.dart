@@ -9,14 +9,14 @@ class GetHighlightsFeedUsecase {
   GetHighlightsFeedUsecase(this.repository);
 
   Future<Either<Failure, List<Highlight>>> call({
-    String? position,
-    String? region,
+    List<String>? positions,
+    List<String>? regions,
     int? minAge,
     int? maxAge,
   }) {
     return repository.getHighlightsFeed(
-      position: position,
-      region: region,
+      positions: positions,
+      regions: regions,
       minAge: minAge,
       maxAge: maxAge,
     );

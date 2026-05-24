@@ -68,30 +68,7 @@ class _ChatListPageState extends State<ChatListPage> {
                     letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  AppLocalizations.of(context).chatListSubtitle,
-                  style: TextStyle(
-                    color: isDark ? Colors.white30 : Colors.black38,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
               ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primaryGreen.withOpacity(0.12),
-            ),
-            child: CircleAvatar(
-              radius: 22,
-              backgroundColor:
-                  isDark ? const Color(0xFF1A1A22) : Colors.white,
-              child: const Icon(Icons.person_rounded,
-                  color: AppColors.primaryGreen, size: 22),
             ),
           ),
         ],

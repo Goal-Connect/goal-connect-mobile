@@ -33,11 +33,11 @@
 
   "onboardingPage2Title": "Hubannoo Raawwii ",
   "onboardingPage2Highlight": "Ispoortii Barbaaduuf",
-  "onboardingPage2Description": "Xinxala viidiyoo guddaa raawwii kee ispoortii barbaadduu beekamoo addunyaa hundaaf addaan baasu.",
+  "onboardingPage2Description": "Ispoortii barbaaddotaaf hubannoo raawwii waa'ee taphataa.",
 
   "onboardingPage3Title": "Gara Abjuu Keetiitti ",
   "onboardingPage3Highlight": "Riqicha",
-  "onboardingPage3Description": "Dandeettii naannoo kallattiidhaan akkaadaamiiwwanii fi ispoortii barbaaddota addunyaa waliin walqabsiisuu. Imala kee asitti jalqaba.",
+  "onboardingPage3Description": "Dandeettii naannoo kallattiidhaan akkaadaamiiwwanii fi ispoortii barbaaddota waliin walqabsiisuu. Imala kee asitti jalqaba.",
 
   "loginHeadlineLine1": "Urjiilee Dargaggoo Walqabsiisi",
   "loginHeadlineLine2Prefix": "Abjuu ",
@@ -338,9 +338,19 @@
   },
 
   "savedPlayersTitle": "Taphattoota kuufaman",
+  "savedPlayersSubtitle": "Taphattoota hordofaa jirtu",
+  "savedPlayersCount": "{count, plural, one{1 kuufame} other{{count} kuufaman}}",
+  "@savedPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "savedPlayersEmptyTitle": "Ammaaf taphataan kuufame hin jiru",
   "savedPlayersEmptySubtitle": "Daddaffiidhaan argachuuf barbaaduu irraa taphattoota mallatteessi.",
   "savedPlayersRemoveTooltip": "Kuufamaa irraa haqi",
+  "savedPlayersStatHighlights": "Calaqqeewwan",
+  "savedPlayersStatFollowers": "Hordoftoota",
+  "savedPlayersStatLikes": "Jaalalaa",
 
   "playerProfileVideos": "Viidiyoowwan",
   "playerProfileGoals": "Goolii",
@@ -437,7 +447,9 @@
   "settingsLanguageEnglish": "English",
   "settingsLanguageAmharic": "አማርኛ",
   "settingsPrivacyPolicy": "Imaammata Dhuunfaa",
+  "settingsPrivacyPolicyDescription": "Akkaataa odeeffannoo kee itti walitti qabnu, itti fayyadamnuu fi itti eegnu.",
   "settingsTermsOfService": "Haalota Tajaajilaa",
+  "settingsTermsOfServiceDescription": "Seerotaa fi haalota appii kana itti fayyadamuuf barbaachisan.",
   "settingsHelpSupport": "Gargaarsa fi Deeggarsa",
   "settingsAbout": "Waa'ee GoalConnect",
   "settingsAboutBody": "GoalConnect platformii kubbaa miilaa Itoophiyaa skaawutoota, akkaadaamii fi kilaboota biyya keessaa waliin walqunnamsiisuuf hojjetamedha. Taphattoonni qabxiilee tapha isaanii qooduu, istaatistiksii fi haala tapha isaanii agarsiisuu, akkasumas pirofaayilii skaawutoonni argachuu danda'an ijaaruu danda'u. Skaawutoonni dabareedhaan, naannoodhaan fi umuriidhaan dandeettii filachuu, taphattoota jaalatan kuusuu, akkasumas chaatii appii keessaatiin kallattiidhaan dubbisuu danda'u. Galmi keenya salphaadha: dhaloota itti aanaaf carraa kubbaa miilaa caalaa banuu.",

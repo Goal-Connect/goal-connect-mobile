@@ -19,6 +19,7 @@ import 'package:goal_connect/features/profile/domain/entities/scout_preference.d
 import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_bloc.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_event.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_state.dart';
+import 'package:goal_connect/features/profile/presentation/pages/scout_preferences_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/settings_page.dart';
 import 'package:goal_connect/injection_container.dart';
 
@@ -302,14 +303,32 @@ class _CurrentUserProfileView extends StatelessWidget {
       builder: (context, prefState) {
         final pref = prefState.preference;
         final loading = prefState.status == ScoutPreferenceStatus.loading;
-        return _sectionCard(
-          isDark: isDark,
-          title: l.currentUserProfileScoutingPreferences,
-          children: _scoutPreferenceChildren(
-            context: context,
-            textColor: textColor,
-            preference: pref,
-            loading: loading,
+        final bloc = context.read<ScoutPreferenceBloc>();
+        return Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () async {
+              await Navigator.of(context).push(ScoutPreferencesPage.route());
+              if (!context.mounted) return;
+              bloc.add(const ScoutPreferenceLoadRequested());
+            },
+            child: _sectionCard(
+              isDark: isDark,
+              title: l.currentUserProfileScoutingPreferences,
+              trailing: Icon(
+                Icons.chevron_right_rounded,
+                color: textColor.withValues(alpha: 0.45),
+                size: 22,
+              ),
+              children: _scoutPreferenceChildren(
+                context: context,
+                textColor: textColor,
+                preference: pref,
+                loading: loading,
+              ),
+            ),
           ),
         );
       },
@@ -674,6 +693,7 @@ class _CurrentUserProfileView extends StatelessWidget {
     required bool isDark,
     required String title,
     required List<Widget> children,
+    Widget? trailing,
   }) {
     final base = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03);
     return Container(
@@ -698,13 +718,20 @@ class _CurrentUserProfileView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.primaryGreen,
-              fontWeight: FontWeight.w800,
-              fontSize: 14,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.primaryGreen,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              ?trailing,
+            ],
           ),
           const SizedBox(height: 12),
           ...children,

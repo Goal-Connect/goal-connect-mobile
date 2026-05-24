@@ -449,6 +449,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 icon: Icons.shield_outlined,
                 iconColor: AppColors.primaryGreen,
                 label: l.settingsPrivacyPolicy,
+                subtitle: l.settingsPrivacyPolicyDescription,
                 textColor: textColor,
                 onTap: () {},
               ),
@@ -457,14 +458,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 icon: Icons.description_outlined,
                 iconColor: AppColors.accentGold,
                 label: l.settingsTermsOfService,
-                textColor: textColor,
-                onTap: () {},
-              ),
-              Divider(height: 1, indent: 60, color: dividerColor),
-              _buildActionTile(
-                icon: Icons.help_outline_rounded,
-                iconColor: const Color(0xFF6C63FF),
-                label: l.settingsHelpSupport,
+                subtitle: l.settingsTermsOfServiceDescription,
                 textColor: textColor,
                 onTap: () {},
               ),
@@ -531,6 +525,7 @@ class _SettingsPageState extends State<SettingsPage> {
     required IconData icon,
     required Color iconColor,
     required String label,
+    String? subtitle,
     String? trailing,
     required Color textColor,
     required VoidCallback onTap,
@@ -554,13 +549,30 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.gray.withOpacity(0.75),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               if (trailing != null)

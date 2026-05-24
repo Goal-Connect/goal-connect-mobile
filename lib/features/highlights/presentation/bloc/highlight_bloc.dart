@@ -22,8 +22,8 @@ class HighlightBloc extends Bloc<HighlightEvent, HighlightState> {
       emit(HighlightLoading());
 
       final result = await getHighlightsFeed(
-        position: event.position,
-        region: event.region,
+        positions: event.positions,
+        regions: event.regions,
         minAge: event.minAge,
         maxAge: event.maxAge,
       );

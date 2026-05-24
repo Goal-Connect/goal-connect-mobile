@@ -33,8 +33,8 @@ abstract class HighlightRemoteDataSource {
   });
 
   Future<List<HighlightModel>> getHighlightsFeed({
-    String? position,
-    String? region,
+    List<String>? positions,
+    List<String>? regions,
     int? minAge,
     int? maxAge,
   });
@@ -164,8 +164,8 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
 
   @override
   Future<List<HighlightModel>> getHighlightsFeed({
-    String? position,
-    String? region,
+    List<String>? positions,
+    List<String>? regions,
     int? minAge,
     int? maxAge,
   }) async {
@@ -174,11 +174,17 @@ class HighlightRemoteDataSourceImpl implements HighlightRemoteDataSource {
         'page': 1,
         'limit': 20,
       };
-      if (position != null && position.isNotEmpty) {
-        query['position'] = position;
+      final cleanedPositions =
+          positions?.where((p) => p.trim().isNotEmpty).toList();
+      if (cleanedPositions != null && cleanedPositions.isNotEmpty) {
+        // Dio encodes List<String> as repeated query params (?position=a&position=b),
+        // which matches the /videos/feed contract.
+        query['position'] = cleanedPositions;
       }
-      if (region != null && region.isNotEmpty) {
-        query['region'] = region;
+      final cleanedRegions =
+          regions?.where((r) => r.trim().isNotEmpty).toList();
+      if (cleanedRegions != null && cleanedRegions.isNotEmpty) {
+        query['region'] = cleanedRegions;
       }
       if (minAge != null) query['minAge'] = minAge;
       if (maxAge != null) query['maxAge'] = maxAge;
@@ -457,16 +463,20 @@ class MockHighlightRemoteDataSource implements HighlightRemoteDataSource {
 
   @override
   Future<List<HighlightModel>> getHighlightsFeed({
-    String? position,
-    String? region,
+    List<String>? positions,
+    List<String>? regions,
     int? minAge,
     int? maxAge,
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
     Iterable<HighlightModel> result = _highlights;
-    if (position != null && position.isNotEmpty) {
+    final cleanedPositions = positions
+        ?.where((p) => p.trim().isNotEmpty)
+        .map((p) => p.toLowerCase())
+        .toList();
+    if (cleanedPositions != null && cleanedPositions.isNotEmpty) {
       result = result.where(
-        (h) => h.player.position.toLowerCase() == position.toLowerCase(),
+        (h) => cleanedPositions.contains(h.player.position.toLowerCase()),
       );
     }
     if (minAge != null) {

@@ -33,11 +33,11 @@
 
   "onboardingPage2Title": "ለስካውቲንግ የተሰራ ",
   "onboardingPage2Highlight": "የብቃት ትንታኔ",
-  "onboardingPage2Description": "የእርስዎን አፈጻጸም ለሙያዊ ስካውቶች በዓለም አቀፍ ደረጃ የሚያቀርብ የላቀ የቪዲዮ ትንታኔ።",
+  "onboardingPage2Description": "ለስካውቶች ስለ ተጫዋቹ የአፈጻጸም ግንዛቤዎች።",
 
   "onboardingPage3Title": "ወደ ህልምዎ ",
   "onboardingPage3Highlight": "ድልድይ",
-  "onboardingPage3Description": "የአካባቢውን ተሰጥኦ ከአካዳሚዎች እና ከዓለም አቀፍ ስካውቶች ጋር በቀጥታ ማገናኘት። ጉዞዎ የሚጀምረው ከዚህ ነው።",
+  "onboardingPage3Description": "የአካባቢውን ተሰጥኦ ከአካዳሚዎች እና ከስካውቶች ጋር በቀጥታ ማገናኘት። ጉዞዎ የሚጀምረው ከዚህ ነው።",
 
   "loginHeadlineLine1": "ወጣት ኮከቦችን ያገናኙ",
   "loginHeadlineLine2Prefix": "ከ",
@@ -338,9 +338,19 @@
   },
 
   "savedPlayersTitle": "የተቀመጡ ተጫዋቾች",
+  "savedPlayersSubtitle": "የምትከታተላቸው ተጫዋቾች",
+  "savedPlayersCount": "{count, plural, one{1 ተቀምጧል} other{{count} ተቀምጠዋል}}",
+  "@savedPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "savedPlayersEmptyTitle": "እስካሁን የተቀመጡ ተጫዋቾች የሉም",
   "savedPlayersEmptySubtitle": "ለፈጣን መዳረሻ ከፍለጋ ተጫዋቾችን ይያዙ።",
   "savedPlayersRemoveTooltip": "ከተቀመጡት አስወግድ",
+  "savedPlayersStatHighlights": "ድምቀቶች",
+  "savedPlayersStatFollowers": "ተከታዮች",
+  "savedPlayersStatLikes": "ውዴታዎች",
 
   "playerProfileVideos": "ቪዲዮዎች",
   "playerProfileGoals": "ጎሎች",
@@ -437,7 +447,9 @@
   "settingsLanguageEnglish": "English",
   "settingsLanguageAmharic": "አማርኛ",
   "settingsPrivacyPolicy": "የግላዊነት መመሪያ",
+  "settingsPrivacyPolicyDescription": "ውሂብዎን እንዴት እንደምንሰበስብ፣ እንደምንጠቀምና እንደምንጠብቅ።",
   "settingsTermsOfService": "የአገልግሎት ውሎች",
+  "settingsTermsOfServiceDescription": "መተግበሪያውን ለመጠቀም የሚያስፈልጉ ደንቦችና ሁኔታዎች።",
   "settingsHelpSupport": "እርዳታ እና ድጋፍ",
   "settingsAbout": "ስለ GoalConnect",
   "settingsAboutBody": "GoalConnect የኢትዮጵያ እግር ኳስ ተጫዋቾችን በመላ ሀገሪቱ ካሉ ስካውቶች፣ አካዳሚዎች እና ክለቦች ጋር የሚያገናኝ መድረክ ነው። ተጫዋቾች የጨዋታ ድምቀቶችን ማካፈል፣ ስታቲስቲክሳቸውን እና የጨዋታ ስልታቸውን ማሳየት እና ስካውቶች ሊያገኙት የሚችሉትን ፕሮፋይል ማሳደግ ይችላሉ። ስካውቶች ተሰጥኦን በቦታ፣ በክልል እና በዕድሜ ማጣራት፣ የሚወዷቸውን ተጫዋቾች ማስቀመጥ እና በመተግበሪያው ውስጥ ባለው ቻት በቀጥታ ማግኘት ይችላሉ። ግባችን ቀላል ነው፡ ለቀጣዩ ትውልድ የእግር ኳስ ተሰጥኦ የበለጠ በሮችን መክፈት።",
