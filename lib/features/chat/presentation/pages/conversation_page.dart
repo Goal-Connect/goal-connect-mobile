@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../generated/l10n/app_localizations.dart';
@@ -450,11 +451,15 @@ class _ConversationPageState extends State<ConversationPage> {
                   children: [
                     if (showDateHeader)
                       _buildDateHeader(msg.createdAt, isDark),
-                    MessageBubble(
-                      message: msg,
-                      isMine: isMine,
-                      showAvatar: showAvatar,
-                      avatarUrl: widget.conversation.participantImage,
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onLongPress: () => _openMessageActions(msg, isMine),
+                      child: MessageBubble(
+                        message: msg,
+                        isMine: isMine,
+                        showAvatar: showAvatar,
+                        avatarUrl: widget.conversation.participantImage,
+                      ),
                     ),
                   ],
                 );
@@ -462,6 +467,77 @@ class _ConversationPageState extends State<ConversationPage> {
             );
           },
         );
+  }
+
+  Future<void> _openMessageActions(Message msg, bool isMine) async {
+    // Pending messages have a synthetic id and can't be edited/deleted on the
+    // server yet — only offer Copy.
+    final isPending = msg.id.startsWith('pending_');
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _MessageActionSheet(
+        canModify: isMine && !isPending,
+        onCopy: () async {
+          Navigator.of(sheetContext).pop();
+          await Clipboard.setData(ClipboardData(text: msg.text));
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context).chatMessageCopied),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
+        onEdit: () {
+          Navigator.of(sheetContext).pop();
+          _editMessage(msg);
+        },
+        onDelete: () {
+          Navigator.of(sheetContext).pop();
+          _confirmDeleteMessage(msg);
+        },
+      ),
+    );
+  }
+
+  Future<void> _editMessage(Message msg) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (_) => _EditMessageDialog(initialText: msg.text),
+    );
+    if (result == null || result.isEmpty || result == msg.text) return;
+    if (!mounted) return;
+    context.read<ChatBloc>().add(
+          EditMessageEvent(messageId: msg.id, newContent: result),
+        );
+  }
+
+  Future<void> _confirmDeleteMessage(Message msg) async {
+    final l = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l.chatMessageDeleteTitle),
+        content: Text(l.chatMessageDeleteConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l.commonDelete,
+              style: const TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    if (!mounted) return;
+    context.read<ChatBloc>().add(DeleteMessageEvent(msg.id));
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
@@ -665,6 +741,166 @@ class _SendingIndicator extends StatelessWidget {
           shape: BoxShape.circle,
         ),
       ),
+    );
+  }
+}
+
+class _MessageActionSheet extends StatelessWidget {
+  final bool canModify;
+  final VoidCallback onCopy;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _MessageActionSheet({
+    required this.canModify,
+    required this.onCopy,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF14141C) : Colors.white;
+    final textColor = isDark ? Colors.white : AppColors.lightText;
+    final l = AppLocalizations.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 12, 8, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              _ActionTile(
+                icon: Icons.copy_rounded,
+                label: l.chatMessageActionCopy,
+                color: textColor,
+                onTap: onCopy,
+              ),
+              if (canModify) ...[
+                _ActionTile(
+                  icon: Icons.edit_rounded,
+                  label: l.chatMessageActionEdit,
+                  color: textColor,
+                  onTap: onEdit,
+                ),
+                _ActionTile(
+                  icon: Icons.delete_outline_rounded,
+                  label: l.chatMessageActionDelete,
+                  color: Colors.redAccent,
+                  onTap: onDelete,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EditMessageDialog extends StatefulWidget {
+  final String initialText;
+  const _EditMessageDialog({required this.initialText});
+
+  @override
+  State<_EditMessageDialog> createState() => _EditMessageDialogState();
+}
+
+class _EditMessageDialogState extends State<_EditMessageDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialText);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l.chatMessageEditTitle),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLines: 5,
+        minLines: 1,
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          hintText: l.chatConversationInputHint,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.commonCancel),
+        ),
+        TextButton(
+          onPressed: () =>
+              Navigator.of(context).pop(_controller.text.trim()),
+          child: Text(l.commonSave),
+        ),
+      ],
     );
   }
 }

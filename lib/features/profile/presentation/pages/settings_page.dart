@@ -451,7 +451,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 label: l.settingsPrivacyPolicy,
                 subtitle: l.settingsPrivacyPolicyDescription,
                 textColor: textColor,
-                onTap: () {},
+                onTap: () => _openLegalSheet(
+                  context,
+                  isDark: isDark,
+                  title: l.settingsPrivacyPolicy,
+                  body: l.settingsPrivacyPolicyBody,
+                ),
               ),
               Divider(height: 1, indent: 60, color: dividerColor),
               _buildActionTile(
@@ -460,7 +465,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 label: l.settingsTermsOfService,
                 subtitle: l.settingsTermsOfServiceDescription,
                 textColor: textColor,
-                onTap: () {},
+                onTap: () => _openLegalSheet(
+                  context,
+                  isDark: isDark,
+                  title: l.settingsTermsOfService,
+                  body: l.settingsTermsOfServiceBody,
+                ),
               ),
               Divider(height: 1, indent: 60, color: dividerColor),
               _buildActionTile(
@@ -518,6 +528,20 @@ class _SettingsPageState extends State<SettingsPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _AboutSheet(isDark: isDark, textColor: textColor),
+    );
+  }
+
+  Future<void> _openLegalSheet(
+    BuildContext context, {
+    required bool isDark,
+    required String title,
+    required String body,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LegalSheet(isDark: isDark, title: title, body: body),
     );
   }
 
@@ -979,6 +1003,92 @@ class _UpdatePasswordSheetState extends State<_UpdatePasswordSheet> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LegalSheet extends StatelessWidget {
+  final bool isDark;
+  final String title;
+  final String body;
+
+  const _LegalSheet({
+    required this.isDark,
+    required this.title,
+    required this.body,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final sheetBg = isDark ? const Color(0xFF14141C) : Colors.white;
+    final textColor = isDark ? Colors.white : AppColors.lightText;
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: sheetBg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 8),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: textColor.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  child: Text(
+                    body,
+                    style: TextStyle(
+                      color: textColor.withOpacity(0.85),
+                      fontSize: 14,
+                      height: 1.55,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

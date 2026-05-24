@@ -594,6 +594,28 @@ class AppLocalizationsOm extends AppLocalizations {
   String get chatConversationInputHint => 'Ergaa barreessi…';
 
   @override
+  String get chatMessageActionCopy => 'Garagalchi';
+
+  @override
+  String get chatMessageActionEdit => 'Sirreessi';
+
+  @override
+  String get chatMessageActionDelete => 'Haqi';
+
+  @override
+  String get chatMessageCopied => 'Ergaan garagalfameera';
+
+  @override
+  String get chatMessageEditTitle => 'Ergaa sirreessi';
+
+  @override
+  String get chatMessageDeleteTitle => 'Ergaa haqi';
+
+  @override
+  String get chatMessageDeleteConfirm =>
+      'Ergaan kun haasaa kana keessaa nama hundaaf ni haqama.';
+
+  @override
   String get chatConversationStartTitle => 'Mari\'achuu jalqabi';
 
   @override
@@ -1010,11 +1032,19 @@ class AppLocalizationsOm extends AppLocalizations {
       'Akkaataa odeeffannoo kee itti walitti qabnu, itti fayyadamnuu fi itti eegnu.';
 
   @override
+  String get settingsPrivacyPolicyBody =>
+      'Goal Connect dhuunfaa kee ni kabaja.\n\nMaal akka walitti qabnu\nYeroo akkaawuntii uumtu odeeffannoo nuuf kennitu (maqaa, imeelii, gahee, suuraa profaayilii), waan ol kaaftu (viidiyoo agarsiisaa, ibsa gabaabaa, ergaa) fi odeeffannoo fayyadamaa bu’uuraa tajaajilicha geggeessuuf nu barbaachisu ni walitti qabna.\n\nAkkamitti itti fayyadamna\nOdeeffannoon kee Goal Connect geggeessuuf, profaayilii fi agarsiisawwan kee fayyadamtoota biroof mul’isuuf, ergaa taphattootaa fi scoutota gidduutti dabarsuuf, feeda scouting dhuunfaa hojjechiisuuf fi platform nageenya isaa eeguuf hojiirra oola.\n\nWaliin qoodu\nOdeeffannoo dhuunfaa kee hin gurgurru. Profaayilii fi agarsiisawwan taphattootaa fayyadamtoota galmaa’an biroof ni mul’atu. Ergaawwan kallattii nama lamaan keessa jiraniif qofa mul’atu.\n\nFilannoowwan kee\nAgarsiisawwan kee fi ergaawwan kee gulaaluu yookin haquu, profaayilii kee haaromsuu yookin akkaawuntiin kee akka haqamu gaafachuu ni dandeessa.\n\nNu qunnamuu\nGaaffii dhuunfaaf qaama nu qunnamuu kutaa Waa’ee jalatti tarreeffame fayyadami.';
+
+  @override
   String get settingsTermsOfService => 'Haalota Tajaajilaa';
 
   @override
   String get settingsTermsOfServiceDescription =>
       'Seerotaa fi haalota appii kana itti fayyadamuuf barbaachisan.';
+
+  @override
+  String get settingsTermsOfServiceBody =>
+      'Baga gara Goal Connect dhufte.\n\nAppii fayyadamuu\nGoal Connect taphattoota kubbaa miilaa scoutota fi akkaadaamiiwwan waliin walqunnamsiisa. Biyya kee keessatti odeeffannoon kee akka qophaa’u eeyyamuuf umurii gaheessa qabaachuu qabda. Odeeffannoo seensa kee dhoksaadhaan eegi.\n\nWaan kee\nAgarsiisawwan, suuraawwan fi ergaawwan ol kaaftu kan kee taʼanii itti fufu. Goal Connect waan kana qabachuuf, mul’isuuf fi fayyadamtoota biroof dhiyeessuuf hayyama murtaaʼaa nuuf kennita.\n\nFayyadama fudhatamu\nWaan mirga qoodu hin qabne hin ol kaaʼin. Scoutota, akkaadaamiiwwan yookin taphattoota biroo hin rakkisin, fakkeessitee hin dhiyaatin, ergaa hin sobsiisin. Sirna ergaa hin badisiisin. Akkaawuntiiwwan seerota kana cabsan keessaa qabiyyee haquu yookin akkaawuntii ugguruu dandeenya.\n\nItti gaafatamummaa\nGoal Connect platform akkuma jirutti dhiyeessa. Yaaliis taʼe walii galtee yookin mallattoo waliigaltee dhugaa hin waadaa galu. Walqunnamtii fayyadamtootaa platform alaa keessatti hin gaafatamnu.\n\nJijjiirama\nMaddi yeroo guddatuu ka’u haalota kana haaromsuu dandeenya. Erga haaromsame booda appiicha itti fufte fayyadamuu jechuun haalota haaromsame fudhattee jechuudha.';
 
   @override
   String get settingsHelpSupport => 'Gargaarsa fi Deeggarsa';

@@ -114,6 +114,20 @@ class MessageBubble extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (message.edited) ...[
+                        Text(
+                          'edited',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                            color: isMine
+                                ? Colors.black.withOpacity(0.35)
+                                : AppColors.gray.withOpacity(0.5),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                      ],
                       Text(
                         _formatTime(message.createdAt),
                         style: TextStyle(

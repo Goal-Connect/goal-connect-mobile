@@ -112,3 +112,20 @@ class MarkConversationReadEvent extends ChatEvent {
   @override
   List<Object?> get props => [peerUserId];
 }
+
+/// User invoked Edit on one of their own messages.
+class EditMessageEvent extends ChatEvent {
+  final String messageId;
+  final String newContent;
+  const EditMessageEvent({required this.messageId, required this.newContent});
+  @override
+  List<Object?> get props => [messageId, newContent];
+}
+
+/// User invoked Delete on one of their own messages.
+class DeleteMessageEvent extends ChatEvent {
+  final String messageId;
+  const DeleteMessageEvent(this.messageId);
+  @override
+  List<Object?> get props => [messageId];
+}

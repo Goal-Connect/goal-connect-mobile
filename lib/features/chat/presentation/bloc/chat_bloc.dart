@@ -41,6 +41,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatSocketMessagesReadEvent>(_onMessagesRead);
     on<TypingNotifiedEvent>(_onTypingNotified);
     on<MarkConversationReadEvent>(_onMarkRead);
+    on<EditMessageEvent>(_onEditMessage);
+    on<DeleteMessageEvent>(_onDeleteMessage);
 
     _socketSub = _socket.onMessageReceived.listen((raw) {
       _log('rx message:received', raw);
@@ -288,21 +290,45 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final id = (raw['_id'] ?? raw['id'])?.toString();
     final newContent = (raw['content'] ?? raw['text'])?.toString();
     if (id == null || id.isEmpty || newContent == null) return;
-    final next = cur.messages.map((m) {
-      if (m.id != id) return m;
-      return Message(
-        id: m.id,
-        conversationId: m.conversationId,
-        senderId: m.senderId,
-        receiverId: m.receiverId,
-        senderName: m.senderName,
-        text: newContent,
-        createdAt: m.createdAt,
-        isRead: m.isRead,
-        isMine: m.isMine,
-      );
-    }).toList();
+    final next = cur.messages
+        .map((m) => m.id == id ? m.copyWith(text: newContent, edited: true) : m)
+        .toList();
     emit(MessagesLoaded(conversationId: cur.conversationId, messages: next));
+  }
+
+  Future<void> _onEditMessage(
+    EditMessageEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    _log('edit message', {'id': event.messageId, 'len': event.newContent.length});
+    final cur = state;
+    if (cur is MessagesLoaded) {
+      // Optimistic: update locally so the bubble reflects the new text right
+      // away. The server's `message:edited` echo will reconcile the canonical
+      // value (and confirm `edited: true`).
+      final next = cur.messages
+          .map((m) => m.id == event.messageId
+              ? m.copyWith(text: event.newContent, edited: true)
+              : m)
+          .toList();
+      emit(cur.copyWith(messages: next));
+    }
+    _socket.emitEdit(messageId: event.messageId, newContent: event.newContent);
+  }
+
+  Future<void> _onDeleteMessage(
+    DeleteMessageEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    _log('delete message', {'id': event.messageId});
+    final cur = state;
+    if (cur is MessagesLoaded) {
+      // Optimistic remove; server echoes `message:deleted` which is a no-op
+      // once it's already gone locally.
+      final next = cur.messages.where((m) => m.id != event.messageId).toList();
+      emit(cur.copyWith(messages: next));
+    }
+    _socket.emitDelete(messageId: event.messageId);
   }
 
   Future<void> _onSocketDeleted(
@@ -343,20 +369,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final cur = state;
     if (cur is! MessagesLoaded) return;
     final ids = event.messageIds.toSet();
-    final next = cur.messages.map((m) {
-      if (!ids.contains(m.id) || m.isRead) return m;
-      return Message(
-        id: m.id,
-        conversationId: m.conversationId,
-        senderId: m.senderId,
-        receiverId: m.receiverId,
-        senderName: m.senderName,
-        text: m.text,
-        createdAt: m.createdAt,
-        isRead: true,
-        isMine: m.isMine,
-      );
-    }).toList();
+    final next = cur.messages
+        .map((m) =>
+            !ids.contains(m.id) || m.isRead ? m : m.copyWith(isRead: true))
+        .toList();
     emit(cur.copyWith(messages: next));
   }
 

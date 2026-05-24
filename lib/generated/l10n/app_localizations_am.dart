@@ -577,6 +577,27 @@ class AppLocalizationsAm extends AppLocalizations {
   String get chatConversationInputHint => 'መልዕክት ይጻፉ…';
 
   @override
+  String get chatMessageActionCopy => 'ቅዳ';
+
+  @override
+  String get chatMessageActionEdit => 'አርትዕ';
+
+  @override
+  String get chatMessageActionDelete => 'ሰርዝ';
+
+  @override
+  String get chatMessageCopied => 'መልዕክት ተቀድቷል';
+
+  @override
+  String get chatMessageEditTitle => 'መልዕክት አርትዕ';
+
+  @override
+  String get chatMessageDeleteTitle => 'መልዕክት ሰርዝ';
+
+  @override
+  String get chatMessageDeleteConfirm => 'ይህ መልዕክት ከውይይቱ ሁሉ ይወገዳል።';
+
+  @override
   String get chatConversationStartTitle => 'ውይይት ይጀምሩ';
 
   @override
@@ -989,11 +1010,19 @@ class AppLocalizationsAm extends AppLocalizations {
       'ውሂብዎን እንዴት እንደምንሰበስብ፣ እንደምንጠቀምና እንደምንጠብቅ።';
 
   @override
+  String get settingsPrivacyPolicyBody =>
+      'ጎል ኮኔክት የእርስዎን ግላዊነት ያከብራል።\n\nየምንሰበስበው\nመለያ ሲፈጥሩ የሚሰጡንን መረጃ (ስም፣ ኢሜል፣ ሚና፣ የመገለጫ ፎቶ)፣ የሚሰቅሉትን ይዘት (የክንዋኔ ቪዲዮዎች፣ መግለጫዎች፣ መልዕክቶች)፣ እና አገልግሎቱን ለማስኬድ የሚያስፈልገንን መሠረታዊ የአጠቃቀም ውሂብ እንሰበስባለን።\n\nእንዴት እንደምንጠቀምበት\nመረጃዎ ለመለያዎ እና ለክንዋኔዎችዎ መታየት፣ በተጫዋቾችና በስካውቶች መካከል ለሚደረግ መልዕክት መለዋወጥ፣ ለግል የተበጁ የስካውቲንግ ፊዶችን ለማቅረብ እና መድረኩን ደህንነቱ የተጠበቀ ለማድረግ ይውላል።\n\nማጋራት\nየግል ውሂብዎን አንሸጥም። የተጫዋች መገለጫዎችና ክንዋኔዎች በዲዛይኑ መሰረት ለሌሎች የተመዘገቡ ተጠቃሚዎች ይታያሉ። ቀጥተኛ መልዕክቶች ለተሳታፊዎች ብቻ ይታያሉ።\n\nምርጫዎችዎ\nክንዋኔዎችዎንና መልዕክቶችዎን ማረም ወይም መሰረዝ፣ መገለጫዎን ማዘመን ወይም መለያዎ እንዲሰረዝ መጠየቅ ይችላሉ።\n\nማግኘት\nለግላዊነት ጥያቄዎች በስለ ክፍል ውስጥ የተዘረዘረውን አድራሻ ያግኙ።';
+
+  @override
   String get settingsTermsOfService => 'የአገልግሎት ውሎች';
 
   @override
   String get settingsTermsOfServiceDescription =>
       'መተግበሪያውን ለመጠቀም የሚያስፈልጉ ደንቦችና ሁኔታዎች።';
+
+  @override
+  String get settingsTermsOfServiceBody =>
+      'ወደ ጎል ኮኔክት እንኳን ደህና መጡ።\n\nመተግበሪያውን መጠቀም\nጎል ኮኔክት የእግር ኳስ ተጫዋቾችን ከስካውቶችና አካዳሚዎች ጋር ያገናኛል። በአገርዎ ውስጥ ውሂብዎ እንዲሰራ ለመፍቀድ በቂ ዕድሜ ሊኖርዎት ይገባል። የመግቢያ መረጃዎን በሚስጥር ይያዙ።\n\nይዘትዎ\nየሚሰቅሉት ክንዋኔዎች፣ ፎቶዎችና መልዕክቶች ባለቤትነት የእርስዎ ሆኖ ይቆያል። በመስቀልዎ ለጎል ኮኔክት ይዘቱን እንዲያቆይ፣ እንዲያሳይና ለሌሎች ተጠቃሚዎች እንዲደርስ የተወሰነ ፍቃድ ይሰጡናል።\n\nተቀባይነት ያለው አጠቃቀም\nየማጋራት መብት የሌለዎትን ይዘት አይስቅሉ። ስካውቶችን፣ አካዳሚዎችን ወይም ሌሎች ተጫዋቾችን ማንገላታት፣ መምሰል ወይም ማታለል አይፈቀድም። የመልዕክት ስርዓቱን አላግባብ አይጠቀሙ። እነዚህን ደንቦች የሚጥሱ መለያዎችን ይዘት ልናስወግድ ወይም ማገድ እንችላለን።\n\nተጠያቂነት\nጎል ኮኔክት መድረኩን እንዳለ ያቀርባል። ምንም ዓይነት ምርጫ፣ ውል ወይም ፊርማ ዋስትና አንሰጥም።\n\nለውጦች\nምርቱ ሲያድግ እነዚህን ውሎች ልናዘምን እንችላለን። ከዝመና በኋላ መተግበሪያውን መጠቀምዎን ሲቀጥሉ የተዘመኑትን ውሎች እንደተቀበሉ ይቆጠራል።';
 
   @override
   String get settingsHelpSupport => 'እርዳታ እና ድጋፍ';

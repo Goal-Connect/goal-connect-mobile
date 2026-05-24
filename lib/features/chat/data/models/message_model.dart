@@ -11,6 +11,7 @@ class MessageModel extends Message {
     required super.createdAt,
     super.isRead,
     super.isMine,
+    super.edited,
   });
 
   factory MessageModel.fromApiMap(
@@ -43,6 +44,7 @@ class MessageModel extends Message {
           : DateTime.now(),
       isRead: json['isRead'] == true,
       isMine: isMine,
+      edited: json['edited'] == true || json['isEdited'] == true,
     );
   }
 

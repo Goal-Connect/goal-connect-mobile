@@ -1186,6 +1186,48 @@ abstract class AppLocalizations {
   /// **'Type a message…'**
   String get chatConversationInputHint;
 
+  /// No description provided for @chatMessageActionCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get chatMessageActionCopy;
+
+  /// No description provided for @chatMessageActionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get chatMessageActionEdit;
+
+  /// No description provided for @chatMessageActionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get chatMessageActionDelete;
+
+  /// No description provided for @chatMessageCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Message copied'**
+  String get chatMessageCopied;
+
+  /// No description provided for @chatMessageEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit message'**
+  String get chatMessageEditTitle;
+
+  /// No description provided for @chatMessageDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete message'**
+  String get chatMessageDeleteTitle;
+
+  /// No description provided for @chatMessageDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This message will be removed for everyone in this conversation.'**
+  String get chatMessageDeleteConfirm;
+
   /// No description provided for @chatConversationStartTitle.
   ///
   /// In en, this message translates to:
@@ -1948,6 +1990,12 @@ abstract class AppLocalizations {
   /// **'How we collect, use, and protect your data.'**
   String get settingsPrivacyPolicyDescription;
 
+  /// No description provided for @settingsPrivacyPolicyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Connect respects your privacy.\n\nWhat we collect\nWe collect the information you provide when you create an account (name, email, role, profile photo), the content you upload (highlight videos, captions, messages), and basic usage data needed to keep the service running.\n\nHow we use it\nYour information is used to operate Goal Connect: to show your profile and highlights to other users, to deliver messages between players and scouts, to power personalized scouting feeds, and to keep the platform safe.\n\nSharing\nWe do not sell your personal data. Player profiles and highlights are visible to other authenticated users by design. Direct messages are visible only to the participants.\n\nYour choices\nYou can edit or delete your highlights and messages, update your profile, or request account deletion from the app. Sign out anytime to stop sharing further activity.\n\nContact\nFor privacy questions or data requests, contact the Goal Connect team via the address listed in About.'**
+  String get settingsPrivacyPolicyBody;
+
   /// No description provided for @settingsTermsOfService.
   ///
   /// In en, this message translates to:
@@ -1959,6 +2007,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The rules and conditions for using the app.'**
   String get settingsTermsOfServiceDescription;
+
+  /// No description provided for @settingsTermsOfServiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Goal Connect.\n\nUsing the app\nGoal Connect connects football players with scouts and academies. You must be old enough to consent to processing of your data in your country. Keep your login credentials private.\n\nYour content\nYou keep ownership of the highlights, photos, and messages you upload. By uploading you grant Goal Connect a limited license to host, display, and deliver that content to other users of the platform as part of the normal operation of the app.\n\nAcceptable use\nDo not upload content you do not have the right to share. Do not harass, impersonate, or attempt to deceive scouts, academies, or other players. Do not abuse the messaging system. We may remove content or suspend accounts that violate these rules.\n\nLiability\nGoal Connect provides the platform as-is. We do not guarantee a tryout, contract, or signing of any kind. Goal Connect is not responsible for off-platform interactions between users.\n\nChanges\nWe may update these terms as the product evolves. Continued use of the app after an update means you accept the updated terms.'**
+  String get settingsTermsOfServiceBody;
 
   /// No description provided for @settingsHelpSupport.
   ///
