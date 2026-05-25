@@ -27,7 +27,6 @@ import 'package:goal_connect/features/chat/presentation/pages/chat_list_page.dar
 import 'package:goal_connect/features/profile/presentation/pages/players_search_page.dart';
 import 'package:goal_connect/features/profile/presentation/pages/saved_players_page.dart';
 import 'package:goal_connect/features/notifications/presentation/bloc/announcements_bloc.dart';
-import 'package:goal_connect/features/notifications/presentation/widgets/announcements_polling_host.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/saved_players_bloc.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/saved_players_event.dart';
 import 'package:goal_connect/features/auth/presentation/pages/current_user_profile_page.dart';
@@ -94,15 +93,13 @@ class App extends StatelessWidget {
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                home: AnnouncementsPollingHost(
-                  child: BlocBuilder<OnboardingBloc, OnboardingState>(
-                    builder: (context, onboardingState) {
-                      if (onboardingState is OnboardingNotShown) {
-                        return const OnboardingPage();
-                      }
-                      return const MainPage();
-                    },
-                  ),
+                home: BlocBuilder<OnboardingBloc, OnboardingState>(
+                  builder: (context, onboardingState) {
+                    if (onboardingState is OnboardingNotShown) {
+                      return const OnboardingPage();
+                    }
+                    return const MainPage();
+                  },
                 ),
               );
             },

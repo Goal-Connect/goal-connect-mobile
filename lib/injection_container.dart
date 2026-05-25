@@ -29,10 +29,8 @@ import 'features/auth/domain/usecases/update_password_usecase.dart';
 import 'features/auth/presentation/bloc/player_application_bloc.dart';
 
 // ── Notifications ─────────────────────────────────────────────────────────────
-import 'core/services/local_notifications_service.dart';
 import 'features/notifications/data/datasources/notifications_remote_datasource.dart';
 import 'features/notifications/data/repositories/notifications_repository_impl.dart';
-import 'features/notifications/data/services/announcements_poller.dart';
 import 'features/notifications/domain/repositories/notifications_repository.dart';
 import 'features/notifications/domain/usecases/get_broadcasts_usecase.dart';
 import 'features/notifications/domain/usecases/mark_notification_read_usecase.dart';
@@ -198,15 +196,6 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => GetBroadcastsUsecase(sl()));
   sl.registerLazySingleton(() => MarkNotificationReadUsecase(sl()));
-  sl.registerLazySingleton<LocalNotificationsService>(
-    () => LocalNotificationsService.instance,
-  );
-  sl.registerLazySingleton<AnnouncementsPoller>(
-    () => AnnouncementsPoller(
-      getBroadcasts: sl(),
-      notifier: sl(),
-    ),
-  );
   sl.registerFactory<AnnouncementsBloc>(
     () => AnnouncementsBloc(
       getBroadcasts: sl(),
