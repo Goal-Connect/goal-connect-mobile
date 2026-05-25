@@ -54,7 +54,7 @@
   "loginOr": "ወይም",
   "loginCreateScoutAccount": "የስካውት መለያ ይፍጠሩ",
 
-  "scoutRegisterAppBarTitle": "የስካውት መለያ ይፍጠሩ",
+  "scoutRegisterAppBarTitle": "የስካውት መለያ ያመልክቱ",
   "scoutRegisterStepOf": "ደረጃ {current} ከ {total}",
   "@scoutRegisterStepOf": {
     "placeholders": {
@@ -100,7 +100,7 @@
   "scoutRegisterUploadLicence": "የፈቃድ ፎቶ ይጫኑ",
   "scoutRegisterChangeLicence": "የፈቃድ ፎቶ ይቀይሩ",
   "scoutRegisterPhotoSelected": "ፎቶ ተመርጧል",
-  "scoutRegisterSubmit": "የስካውት መለያ ይፍጠሩ",
+  "scoutRegisterSubmit": "ያመልክቱ",
 
   "highlightsCreateTitle": "ድምቀት ይፍጠሩ",
   "highlightsCreateSubtitle": "ለስካውቶች ምርጥ እንቅስቃሴዎችዎን ያሳዩ",
@@ -146,8 +146,8 @@
   "videoOptionsEditSubtitle": "ርዕስ፣ መግለጫ፣ ግላዊነት፣ የልምምድ ዓይነት",
   "videoOptionsDelete": "ቪዲዮ አጥፋ",
   "videoOptionsDeleteSubtitle": "ከጎል ኮኔክት አስወግድ",
-  "videoOptionsSave": "ቪዲዮ አስቀምጥ",
-  "videoOptionsSaveSubtitle": "ወደ ተቀመጠው ስብስብዎ ያክሉ",
+  "videoOptionsSave": "ተጫዋች አስቀምጥ",
+  "videoOptionsSaveSubtitle": "ይህን ተጫዋች ወደ ተቀመጠው ዝርዝርዎ ያክሉ",
   "videoOptionsCopyLink": "አገናኝ ይቅዱ",
   "videoOptionsCopyLinkSubtitle": "በአገናኝ ያጋሩ",
   "videoOptionsDownload": "አውርድ",
@@ -183,7 +183,7 @@
     }
   },
   "videoOptionsLinkCopied": "አገናኝ ተቀድቷል",
-  "videoOptionsVideoSaved": "ቪዲዮ ተቀምጧል",
+  "videoOptionsVideoSaved": "ተጫዋች ተቀምጧል",
   "videoOptionsShowFewer": "እንደዚህ ያሉትን በመቀነስ እናሳያለን",
   "videoOptionsReportSubmitted": "ሪፖርት ቀርቧል",
 
@@ -308,6 +308,23 @@
   },
   "searchNoMatchFilters": "ከተመረጡት ማጣሪያዎች ጋር የሚስማማ ተጫዋች የለም።",
   "searchPlayersSection": "ተጫዋቾች",
+
+  "searchTabPlayers": "ተጫዋቾች",
+  "searchTabAcademies": "አካዳሚዎች",
+  "academiesSearchHint": "አካዳሚዎችን ይፈልጉ…",
+  "academiesNoResults": "ከፍለጋዎ ጋር የሚዛመድ አካዳሚ የለም።",
+  "academiesEmpty": "እስካሁን የተፈቀደ አካዳሚ የለም።",
+  "academiesLoadFailed": "አካዳሚዎችን መጫን አልተቻለም። ለመሞከር ይንኩ።",
+  "academiesPlayersCount": "{count, plural, =0{እስካሁን ተጫዋች የለም} =1{1 ተጫዋች} other{{count} ተጫዋቾች}}",
+  "@academiesPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "academiesMessage": "መልዕክት ላክ",
+  "academiesChatUnavailable": "ይህ አካዳሚ ገና አግባብ ያለ ባለቤት የለውም።",
+  "academiesRegionAll": "ሁሉም ክልሎች",
+  "academiesRegionFilterTitle": "በክልል አጣራ",
 
   "filtersTitle": "ተጫዋቾችን አጣራ",
   "filtersPosition": "ቦታ",

@@ -20,10 +20,23 @@ import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/create_scout_account_usecase.dart';
 import 'features/auth/domain/usecases/get_cached_user_usecase.dart';
 import 'features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'features/auth/domain/usecases/list_academies_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/forgot_password_usecase.dart';
 import 'features/auth/domain/usecases/logout_usecase.dart';
+import 'features/auth/domain/usecases/submit_player_application_usecase.dart';
 import 'features/auth/domain/usecases/update_password_usecase.dart';
+import 'features/auth/presentation/bloc/player_application_bloc.dart';
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+import 'core/services/local_notifications_service.dart';
+import 'features/notifications/data/datasources/notifications_remote_datasource.dart';
+import 'features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'features/notifications/data/services/announcements_poller.dart';
+import 'features/notifications/domain/repositories/notifications_repository.dart';
+import 'features/notifications/domain/usecases/get_broadcasts_usecase.dart';
+import 'features/notifications/domain/usecases/mark_notification_read_usecase.dart';
+import 'features/notifications/presentation/bloc/announcements_bloc.dart';
 
 // ── Onboarding ────────────────────────────────────────────────────────────────
 import 'features/onboarding/data/datasources/onboarding_local_datasource.dart';
@@ -89,6 +102,7 @@ import 'features/profile/domain/usecases/get_saved_players_usecase.dart';
 import 'features/profile/domain/usecases/save_player_usecase.dart';
 import 'features/profile/domain/usecases/unsave_player_usecase.dart';
 import 'features/profile/presentation/bloc/player_profile_bloc.dart';
+import 'features/profile/presentation/bloc/academy_search_bloc.dart';
 import 'features/profile/presentation/bloc/player_search_bloc.dart';
 import 'features/profile/presentation/bloc/saved_players_bloc.dart';
 import 'features/profile/presentation/bloc/scout_preference_bloc.dart';
@@ -166,6 +180,39 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdatePasswordUsecase(sl()));
   sl.registerLazySingleton(() => LogoutUsecase(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUsecase(sl()));
+  sl.registerLazySingleton(() => ListAcademiesUsecase(sl()));
+  sl.registerLazySingleton(() => SubmitPlayerApplicationUsecase(sl()));
+  sl.registerFactory<PlayerApplicationBloc>(
+    () => PlayerApplicationBloc(
+      listAcademies: sl(),
+      submitApplication: sl(),
+    ),
+  );
+
+  // ── Notifications ──────────────────────────────────────────────────────────
+  sl.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(dio: sl()),
+  );
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetBroadcastsUsecase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationReadUsecase(sl()));
+  sl.registerLazySingleton<LocalNotificationsService>(
+    () => LocalNotificationsService.instance,
+  );
+  sl.registerLazySingleton<AnnouncementsPoller>(
+    () => AnnouncementsPoller(
+      getBroadcasts: sl(),
+      notifier: sl(),
+    ),
+  );
+  sl.registerFactory<AnnouncementsBloc>(
+    () => AnnouncementsBloc(
+      getBroadcasts: sl(),
+      markRead: sl(),
+    ),
+  );
 
   // ── Onboarding ──────────────────────────────────────────────────────────────
   sl.registerLazySingleton<OnboardingLocalDataSource>(
@@ -281,6 +328,9 @@ Future<void> init() async {
   );
   sl.registerFactory(
     () => PlayerSearchBloc(listPlayers: sl()),
+  );
+  sl.registerFactory(
+    () => AcademySearchBloc(listAcademies: sl()),
   );
 
   // ── Saved Players (scout) ─────────────────────────────────────────────────

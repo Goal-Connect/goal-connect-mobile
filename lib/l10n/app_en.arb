@@ -58,9 +58,9 @@
   "loginForgotPassword": "Forgot Password?",
   "loginButton": "LOGIN TO ACCOUNT",
   "loginOr": "OR",
-  "loginCreateScoutAccount": "Create scout account",
+  "loginCreateScoutAccount": "Apply for the scout",
 
-  "scoutRegisterAppBarTitle": "Create scout account",
+  "scoutRegisterAppBarTitle": "Apply for scout account",
   "scoutRegisterStepOf": "Step {current} of {total}",
   "@scoutRegisterStepOf": {
     "placeholders": {
@@ -106,7 +106,7 @@
   "scoutRegisterUploadLicence": "Upload licence photo",
   "scoutRegisterChangeLicence": "Change licence photo",
   "scoutRegisterPhotoSelected": "Photo selected",
-  "scoutRegisterSubmit": "CREATE SCOUT ACCOUNT",
+  "scoutRegisterSubmit": "APPLY",
 
   "highlightsCreateTitle": "Create Highlight",
   "highlightsCreateSubtitle": "Show scouts your best moves",
@@ -152,8 +152,8 @@
   "videoOptionsEditSubtitle": "Title, description, privacy, drill type",
   "videoOptionsDelete": "Delete video",
   "videoOptionsDeleteSubtitle": "Remove from Goal Connect",
-  "videoOptionsSave": "Save Video",
-  "videoOptionsSaveSubtitle": "Add to your saved collection",
+  "videoOptionsSave": "Save Player",
+  "videoOptionsSaveSubtitle": "Add this player to your saved list",
   "videoOptionsCopyLink": "Copy Link",
   "videoOptionsCopyLinkSubtitle": "Share via link",
   "videoOptionsDownload": "Download",
@@ -189,7 +189,7 @@
     }
   },
   "videoOptionsLinkCopied": "Link copied",
-  "videoOptionsVideoSaved": "Video saved",
+  "videoOptionsVideoSaved": "Player saved",
   "videoOptionsShowFewer": "We'll show fewer like this",
   "videoOptionsReportSubmitted": "Report submitted",
 
@@ -314,6 +314,23 @@
   },
   "searchNoMatchFilters": "No players match the selected filters.",
   "searchPlayersSection": "Players",
+
+  "searchTabPlayers": "Players",
+  "searchTabAcademies": "Academies",
+  "academiesSearchHint": "Search academies…",
+  "academiesNoResults": "No academies match your search.",
+  "academiesEmpty": "No approved academies yet.",
+  "academiesLoadFailed": "Could not load academies. Tap to retry.",
+  "academiesPlayersCount": "{count, plural, =0{No players yet} =1{1 player} other{{count} players}}",
+  "@academiesPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "academiesMessage": "Message",
+  "academiesChatUnavailable": "This academy has no contactable owner yet.",
+  "academiesRegionAll": "All regions",
+  "academiesRegionFilterTitle": "Filter by region",
 
   "filtersTitle": "Filter players",
   "filtersPosition": "Position",
@@ -498,5 +515,80 @@
   "scoutPreferencesSave": "Save preferences",
   "scoutPreferencesClear": "Clear preferences",
   "scoutPreferencesSaved": "Preferences saved",
-  "scoutPreferencesCleared": "Preferences cleared"
+  "scoutPreferencesCleared": "Preferences cleared",
+
+  "loginApplyAsPlayer": "Apply for the player",
+
+  "playerAppAppBarTitle": "Apply as a player",
+  "playerAppStepOf": "Step {current} of {total}",
+  "@playerAppStepOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "playerAppStep1Title": "About you",
+  "playerAppStep1Subtitle": "Tell us who you are so the academy can identify you.",
+  "playerAppStep2Title": "Where you live",
+  "playerAppStep2Subtitle": "Helps scouts and academies reach you for trials.",
+  "playerAppStep3Title": "Your football info",
+  "playerAppStep3Subtitle": "Pick your positions and the academy you're applying to.",
+  "playerAppFullName": "Full name",
+  "playerAppEmail": "Email",
+  "playerAppNationalId": "National ID / FAN number",
+  "playerAppAge": "Age",
+  "playerAppPhone": "Phone number",
+  "playerAppAddress": "Address",
+  "playerAppRegion": "Region",
+  "playerAppCountry": "Country",
+  "playerAppPrimaryPosition": "Primary position",
+  "playerAppSecondaryPosition": "Secondary position (optional)",
+  "playerAppAcademy": "Academy you're applying to",
+  "playerAppAcademyPlaceholder": "Tap to choose an academy",
+  "playerAppAcademySearchHint": "Search by name or region",
+  "playerAppAcademyEmpty": "No academies match your search.",
+  "playerAppAcademiesLoading": "Loading academies…",
+  "playerAppAcademiesEmpty": "Could not load academies.",
+  "playerAppAdditionalInfo": "Anything else? (optional)",
+  "playerAppAdditionalInfoHint": "e.g. previous clubs, achievements, jersey preference",
+  "playerAppContinue": "Continue",
+  "playerAppBack": "Back",
+  "playerAppSubmit": "SUBMIT APPLICATION",
+  "playerAppRetry": "Retry",
+  "playerAppFieldRequired": "{field} is required",
+  "@playerAppFieldRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+  "playerAppEmailInvalid": "Enter a valid email",
+  "playerAppAgeInvalid": "Enter a valid age",
+  "playerAppAgeOutOfRange": "Age must be between 10 and 60",
+  "playerAppErrorPickPrimary": "Please pick a primary position.",
+  "playerAppErrorPickAcademy": "Please pick an academy.",
+  "playerAppErrorPositionsMustDiffer": "Secondary position must differ from primary.",
+  "playerAppSubmittedTitle": "Application submitted",
+  "playerAppSubmittedBody": "Thanks! We'll review your application and reach out to {email} once it's approved.",
+  "@playerAppSubmittedBody": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "playerAppSubmittedClose": "Got it",
+
+  "announcementsTitle": "Announcements",
+  "announcementsLoadError": "Could not load announcements",
+  "announcementsRetry": "Retry",
+  "announcementsUntitled": "Announcement",
+  "announcementsEmptyTitle": "Nothing here yet",
+  "announcementsEmptyBody": "Important updates from Goal Connect will show up on this page.",
+  "announcementsDismiss": "Dismiss",
+  "announcementsMarkAsRead": "Mark as read",
+
+  "aiPerformanceTitle": "AI performance",
+  "aiPerformanceBadge": "LIVE",
+  "aiPerformanceDistance": "Distance covered",
+  "aiPerformanceDistanceUnit": "m",
+  "aiPerformanceTopSpeed": "Top speed",
+  "aiPerformanceSpeedUnit": "km/h"
 }

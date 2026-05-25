@@ -4,8 +4,11 @@ import 'package:goal_connect/features/auth/data/datasources/auth_remote_data_sou
 import 'package:goal_connect/features/auth/data/datasources/auth_token_local_datasource.dart';
 import 'package:goal_connect/features/auth/data/datasources/auth_user_local_datasource.dart';
 import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
+import 'package:goal_connect/features/auth/data/models/player_application_model.dart';
 import 'package:goal_connect/features/chat/data/datasources/conversation_local_datasource.dart';
 import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
+import 'package:goal_connect/features/auth/domain/entities/academy.dart';
+import 'package:goal_connect/features/auth/domain/entities/player_application.dart';
 import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -133,6 +136,39 @@ class AuthRepositoryImpl implements AuthRepository {
     if (user == null) return null;
     final profile = await userCache.readCachedProfile();
     return CurrentUserData(user: user, profile: profile);
+  }
+
+  @override
+  Future<Either<Failure, PlayerApplicationReceipt>> submitPlayerApplication(
+    PlayerApplication application,
+  ) async {
+    try {
+      final payload = PlayerApplicationModel.fromEntity(application);
+      final receipt = await remoteDataSource.submitPlayerApplication(payload);
+      return Right(receipt);
+    } on AuthApiException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (_) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Academy>>> listAcademies({
+    String? search,
+    String? region,
+  }) async {
+    try {
+      final list = await remoteDataSource.listAcademies(
+        search: search,
+        region: region,
+      );
+      return Right(list);
+    } on AuthApiException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (_) {
+      return Left(ServerFailure());
+    }
   }
 
   @override

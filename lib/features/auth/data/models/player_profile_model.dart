@@ -29,6 +29,7 @@ class PlayerProfileModel extends PlayerProfile {
     super.totalMatches,
     super.totalMinutesPlayed,
     super.disciplinaryRecord,
+    super.aiPerformance,
   });
 
   /// Parses the `profile` object from `/auth/me` response (or cached form).
@@ -39,6 +40,15 @@ class PlayerProfileModel extends PlayerProfile {
       discRecord = DisciplinaryRecord(
         yellowCards: _toInt(disc['yellowCards']) ?? 0,
         redCards: _toInt(disc['redCards']) ?? 0,
+      );
+    }
+
+    final ai = json['aiPerformance'];
+    AiPerformance aiPerf = const AiPerformance();
+    if (ai is Map) {
+      aiPerf = AiPerformance(
+        distanceCovered: _toNum(ai['distanceCovered']) ?? 0,
+        topSpeed: _toNum(ai['topSpeed']) ?? 0,
       );
     }
 
@@ -70,6 +80,7 @@ class PlayerProfileModel extends PlayerProfile {
       totalMatches: _toInt(json['totalMatches']) ?? 0,
       totalMinutesPlayed: _toInt(json['totalMinutesPlayed']) ?? 0,
       disciplinaryRecord: discRecord,
+      aiPerformance: aiPerf,
     );
   }
 
@@ -105,6 +116,10 @@ class PlayerProfileModel extends PlayerProfile {
         'yellowCards': disciplinaryRecord.yellowCards,
         'redCards': disciplinaryRecord.redCards,
       },
+      'aiPerformance': {
+        'distanceCovered': aiPerformance.distanceCovered,
+        'topSpeed': aiPerformance.topSpeed,
+      },
     };
   }
 
@@ -113,6 +128,12 @@ class PlayerProfileModel extends PlayerProfile {
     if (v is int) return v;
     if (v is num) return v.toInt();
     return int.tryParse(v.toString());
+  }
+
+  static num? _toNum(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    return num.tryParse(v.toString());
   }
 
   static DateTime? _toDate(dynamic v) {

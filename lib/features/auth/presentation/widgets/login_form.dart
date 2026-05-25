@@ -6,6 +6,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../pages/forgot_password_page.dart';
+import '../pages/player_application_page.dart';
 import '../pages/scout_register_page.dart';
 
 class LoginForm extends StatefulWidget {
@@ -220,6 +221,43 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   label: Text(
                     l.loginCreateScoutAccount,
+                    style: const TextStyle(
+                      color: AppColors.primaryGreen,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: AppColors.primaryGreen.withOpacity(0.4),
+                      width: 1.4,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: loading
+                      ? null
+                      : () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const PlayerApplicationPage(),
+                            ),
+                          );
+                        },
+                  icon: const Icon(
+                    Icons.sports_soccer_rounded,
+                    color: AppColors.primaryGreen,
+                    size: 20,
+                  ),
+                  label: Text(
+                    l.loginApplyAsPlayer,
                     style: const TextStyle(
                       color: AppColors.primaryGreen,
                       fontWeight: FontWeight.w700,

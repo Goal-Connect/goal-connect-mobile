@@ -236,38 +236,61 @@ class _CommentSheetState extends State<CommentSheet>
         if (state is CommentsLoaded) comments = state.comments;
 
         if (comments.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.04),
-                    shape: BoxShape.circle,
+          // LayoutBuilder + scroll view so the empty state can fit any
+          // height — when the keyboard opens (`Replying to ...` focused on
+          // an empty thread) the available area shrinks and a non-scrolling
+          // Center used to overflow by exactly the missing pixels.
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                controller: scrollController,
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.04),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                                Icons.chat_bubble_outline_rounded,
+                                color: Colors.white24,
+                                size: 40),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            AppLocalizations.of(context).commentsEmptyTitle,
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            AppLocalizations.of(context).commentsEmptySubtitle,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.3),
+                              fontSize: 13,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: const Icon(Icons.chat_bubble_outline_rounded,
-                      color: Colors.white24, size: 40),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  AppLocalizations.of(context).commentsEmptyTitle,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  AppLocalizations.of(context).commentsEmptySubtitle,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.3),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           );
         }
 
@@ -478,19 +501,21 @@ class _CommentTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        comment.username,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                    if (comment.username.isNotEmpty)
+                      Flexible(
+                        child: Text(
+                          comment.username,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
                     if (comment.userRole != null) ...[
-                      const SizedBox(width: 6),
+                      if (comment.username.isNotEmpty)
+                        const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),

@@ -326,21 +326,6 @@ class _SavedPlayerCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Accent strip at the top for visual interest.
-              Container(
-                height: 4,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.primaryGreen,
-                      Color(0xFF27AE60),
-                    ],
-                  ),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(18),
-                  ),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(14, 14, 10, 14),
                 child: Row(
@@ -364,7 +349,7 @@ class _SavedPlayerCard extends StatelessWidget {
                                   style: TextStyle(
                                     color: textColor,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     letterSpacing: -0.2,
                                   ),
                                 ),
@@ -384,7 +369,7 @@ class _SavedPlayerCard extends StatelessWidget {
                               style: const TextStyle(
                                 color: AppColors.primaryGreen,
                                 fontWeight: FontWeight.w900,
-                                fontSize: 13,
+                                fontSize: 11,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -401,14 +386,9 @@ class _SavedPlayerCard extends StatelessWidget {
                 ),
               ),
               if (_hasStatLine) ...[
-                Divider(
-                  height: 1,
-                  color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.04),
-                ),
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      const EdgeInsets.fromLTRB(14, 0, 14, 12),
                   child: Row(
                     children: [
                       Expanded(
@@ -558,7 +538,7 @@ class _StatCell extends StatelessWidget {
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.w800,
-            fontSize: 14,
+            fontSize: 12,
             letterSpacing: -0.2,
           ),
         ),
@@ -567,7 +547,7 @@ class _StatCell extends StatelessWidget {
           label.toUpperCase(),
           style: TextStyle(
             color: AppColors.gray.withValues(alpha: 0.75),
-            fontSize: 9.5,
+            fontSize: 8.5,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.7,
           ),

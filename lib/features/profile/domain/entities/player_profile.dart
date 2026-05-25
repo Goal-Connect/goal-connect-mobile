@@ -1,4 +1,9 @@
+import 'package:goal_connect/features/auth/domain/entities/player_profile.dart'
+    show AiPerformance;
 import 'player_stats.dart';
+
+export 'package:goal_connect/features/auth/domain/entities/player_profile.dart'
+    show AiPerformance;
 
 class PlayerProfile {
   final String id;
@@ -39,6 +44,7 @@ class PlayerProfile {
   final String nationality;
   final List<String> playingStyleTags;
   final List<String> clubHistory;
+  final AiPerformance aiPerformance;
 
   PlayerProfile({
     required this.id,
@@ -75,6 +81,7 @@ class PlayerProfile {
     this.nationality = '',
     this.playingStyleTags = const [],
     this.clubHistory = const [],
+    this.aiPerformance = const AiPerformance(),
   });
 
   bool get isPlayer => role == 'player';

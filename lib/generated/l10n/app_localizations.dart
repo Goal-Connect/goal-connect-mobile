@@ -367,13 +367,13 @@ abstract class AppLocalizations {
   /// No description provided for @loginCreateScoutAccount.
   ///
   /// In en, this message translates to:
-  /// **'Create scout account'**
+  /// **'Apply for the scout'**
   String get loginCreateScoutAccount;
 
   /// No description provided for @scoutRegisterAppBarTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create scout account'**
+  /// **'Apply for scout account'**
   String get scoutRegisterAppBarTitle;
 
   /// No description provided for @scoutRegisterStepOf.
@@ -583,7 +583,7 @@ abstract class AppLocalizations {
   /// No description provided for @scoutRegisterSubmit.
   ///
   /// In en, this message translates to:
-  /// **'CREATE SCOUT ACCOUNT'**
+  /// **'APPLY'**
   String get scoutRegisterSubmit;
 
   /// No description provided for @highlightsCreateTitle.
@@ -751,13 +751,13 @@ abstract class AppLocalizations {
   /// No description provided for @videoOptionsSave.
   ///
   /// In en, this message translates to:
-  /// **'Save Video'**
+  /// **'Save Player'**
   String get videoOptionsSave;
 
   /// No description provided for @videoOptionsSaveSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Add to your saved collection'**
+  /// **'Add this player to your saved list'**
   String get videoOptionsSaveSubtitle;
 
   /// No description provided for @videoOptionsCopyLink.
@@ -853,7 +853,7 @@ abstract class AppLocalizations {
   /// No description provided for @videoOptionsVideoSaved.
   ///
   /// In en, this message translates to:
-  /// **'Video saved'**
+  /// **'Player saved'**
   String get videoOptionsVideoSaved;
 
   /// No description provided for @videoOptionsShowFewer.
@@ -1335,6 +1335,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Players'**
   String get searchPlayersSection;
+
+  /// No description provided for @searchTabPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get searchTabPlayers;
+
+  /// No description provided for @searchTabAcademies.
+  ///
+  /// In en, this message translates to:
+  /// **'Academies'**
+  String get searchTabAcademies;
+
+  /// No description provided for @academiesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search academies…'**
+  String get academiesSearchHint;
+
+  /// No description provided for @academiesNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No academies match your search.'**
+  String get academiesNoResults;
+
+  /// No description provided for @academiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No approved academies yet.'**
+  String get academiesEmpty;
+
+  /// No description provided for @academiesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load academies. Tap to retry.'**
+  String get academiesLoadFailed;
+
+  /// No description provided for @academiesPlayersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No players yet} =1{1 player} other{{count} players}}'**
+  String academiesPlayersCount(int count);
+
+  /// No description provided for @academiesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get academiesMessage;
+
+  /// No description provided for @academiesChatUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This academy has no contactable owner yet.'**
+  String get academiesChatUnavailable;
+
+  /// No description provided for @academiesRegionAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All regions'**
+  String get academiesRegionAll;
+
+  /// No description provided for @academiesRegionFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by region'**
+  String get academiesRegionFilterTitle;
 
   /// No description provided for @filtersTitle.
   ///
@@ -2205,6 +2271,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preferences cleared'**
   String get scoutPreferencesCleared;
+
+  /// No description provided for @loginApplyAsPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply for the player'**
+  String get loginApplyAsPlayer;
+
+  /// No description provided for @playerAppAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply as a player'**
+  String get playerAppAppBarTitle;
+
+  /// No description provided for @playerAppStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String playerAppStepOf(int current, int total);
+
+  /// No description provided for @playerAppStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get playerAppStep1Title;
+
+  /// No description provided for @playerAppStep1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us who you are so the academy can identify you.'**
+  String get playerAppStep1Subtitle;
+
+  /// No description provided for @playerAppStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Where you live'**
+  String get playerAppStep2Title;
+
+  /// No description provided for @playerAppStep2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Helps scouts and academies reach you for trials.'**
+  String get playerAppStep2Subtitle;
+
+  /// No description provided for @playerAppStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your football info'**
+  String get playerAppStep3Title;
+
+  /// No description provided for @playerAppStep3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your positions and the academy you\'re applying to.'**
+  String get playerAppStep3Subtitle;
+
+  /// No description provided for @playerAppFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get playerAppFullName;
+
+  /// No description provided for @playerAppEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get playerAppEmail;
+
+  /// No description provided for @playerAppNationalId.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID / FAN number'**
+  String get playerAppNationalId;
+
+  /// No description provided for @playerAppAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get playerAppAge;
+
+  /// No description provided for @playerAppPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get playerAppPhone;
+
+  /// No description provided for @playerAppAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get playerAppAddress;
+
+  /// No description provided for @playerAppRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get playerAppRegion;
+
+  /// No description provided for @playerAppCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get playerAppCountry;
+
+  /// No description provided for @playerAppPrimaryPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary position'**
+  String get playerAppPrimaryPosition;
+
+  /// No description provided for @playerAppSecondaryPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary position (optional)'**
+  String get playerAppSecondaryPosition;
+
+  /// No description provided for @playerAppAcademy.
+  ///
+  /// In en, this message translates to:
+  /// **'Academy you\'re applying to'**
+  String get playerAppAcademy;
+
+  /// No description provided for @playerAppAcademyPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to choose an academy'**
+  String get playerAppAcademyPlaceholder;
+
+  /// No description provided for @playerAppAcademySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or region'**
+  String get playerAppAcademySearchHint;
+
+  /// No description provided for @playerAppAcademyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No academies match your search.'**
+  String get playerAppAcademyEmpty;
+
+  /// No description provided for @playerAppAcademiesLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading academies…'**
+  String get playerAppAcademiesLoading;
+
+  /// No description provided for @playerAppAcademiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load academies.'**
+  String get playerAppAcademiesEmpty;
+
+  /// No description provided for @playerAppAdditionalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything else? (optional)'**
+  String get playerAppAdditionalInfo;
+
+  /// No description provided for @playerAppAdditionalInfoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. previous clubs, achievements, jersey preference'**
+  String get playerAppAdditionalInfoHint;
+
+  /// No description provided for @playerAppContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get playerAppContinue;
+
+  /// No description provided for @playerAppBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get playerAppBack;
+
+  /// No description provided for @playerAppSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'SUBMIT APPLICATION'**
+  String get playerAppSubmit;
+
+  /// No description provided for @playerAppRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get playerAppRetry;
+
+  /// No description provided for @playerAppFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} is required'**
+  String playerAppFieldRequired(String field);
+
+  /// No description provided for @playerAppEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get playerAppEmailInvalid;
+
+  /// No description provided for @playerAppAgeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid age'**
+  String get playerAppAgeInvalid;
+
+  /// No description provided for @playerAppAgeOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Age must be between 10 and 60'**
+  String get playerAppAgeOutOfRange;
+
+  /// No description provided for @playerAppErrorPickPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pick a primary position.'**
+  String get playerAppErrorPickPrimary;
+
+  /// No description provided for @playerAppErrorPickAcademy.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pick an academy.'**
+  String get playerAppErrorPickAcademy;
+
+  /// No description provided for @playerAppErrorPositionsMustDiffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary position must differ from primary.'**
+  String get playerAppErrorPositionsMustDiffer;
+
+  /// No description provided for @playerAppSubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Application submitted'**
+  String get playerAppSubmittedTitle;
+
+  /// No description provided for @playerAppSubmittedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! We\'ll review your application and reach out to {email} once it\'s approved.'**
+  String playerAppSubmittedBody(String email);
+
+  /// No description provided for @playerAppSubmittedClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get playerAppSubmittedClose;
+
+  /// No description provided for @announcementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get announcementsTitle;
+
+  /// No description provided for @announcementsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load announcements'**
+  String get announcementsLoadError;
+
+  /// No description provided for @announcementsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get announcementsRetry;
+
+  /// No description provided for @announcementsUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcement'**
+  String get announcementsUntitled;
+
+  /// No description provided for @announcementsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get announcementsEmptyTitle;
+
+  /// No description provided for @announcementsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Important updates from Goal Connect will show up on this page.'**
+  String get announcementsEmptyBody;
+
+  /// No description provided for @announcementsDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get announcementsDismiss;
+
+  /// No description provided for @announcementsMarkAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get announcementsMarkAsRead;
+
+  /// No description provided for @aiPerformanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI performance'**
+  String get aiPerformanceTitle;
+
+  /// No description provided for @aiPerformanceBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get aiPerformanceBadge;
+
+  /// No description provided for @aiPerformanceDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance covered'**
+  String get aiPerformanceDistance;
+
+  /// No description provided for @aiPerformanceDistanceUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get aiPerformanceDistanceUnit;
+
+  /// No description provided for @aiPerformanceTopSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top speed'**
+  String get aiPerformanceTopSpeed;
+
+  /// No description provided for @aiPerformanceSpeedUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'km/h'**
+  String get aiPerformanceSpeedUnit;
 }
 
 class _AppLocalizationsDelegate

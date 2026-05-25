@@ -147,7 +147,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get loginCreateScoutAccount => 'Herrega ispoortii barbaaduu uumi';
 
   @override
-  String get scoutRegisterAppBarTitle => 'Herrega ispoortii barbaaduu uumi';
+  String get scoutRegisterAppBarTitle => 'Herrega ispoortii barbaaduu iyyadhu';
 
   @override
   String scoutRegisterStepOf(int current, int total) {
@@ -262,7 +262,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get scoutRegisterPhotoSelected => 'Suuraan filatame';
 
   @override
-  String get scoutRegisterSubmit => 'HERREGA ISPOORTII BARBAADUU UUMI';
+  String get scoutRegisterSubmit => 'IYYADHU';
 
   @override
   String get highlightsCreateTitle => 'Calaqqee Uumi';
@@ -359,10 +359,11 @@ class AppLocalizationsOm extends AppLocalizations {
   String get videoOptionsDeleteSubtitle => 'Goal Connect irraa haqi';
 
   @override
-  String get videoOptionsSave => 'Viidiyoo kuusi';
+  String get videoOptionsSave => 'Taphataa Kuusi';
 
   @override
-  String get videoOptionsSaveSubtitle => 'Kuusaa kee kuufame irratti dabali';
+  String get videoOptionsSaveSubtitle =>
+      'Taphataa kana tarree kuufame keessatti dabali';
 
   @override
   String get videoOptionsCopyLink => 'Linkii fudhi';
@@ -419,7 +420,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get videoOptionsLinkCopied => 'Linkiin fudhatame';
 
   @override
-  String get videoOptionsVideoSaved => 'Viidiyoon kuufame';
+  String get videoOptionsVideoSaved => 'Taphataan kuufame';
 
   @override
   String get videoOptionsShowFewer => 'Akkasii xinnoo siif agarsiisna';
@@ -682,6 +683,52 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get searchPlayersSection => 'Taphattoota';
+
+  @override
+  String get searchTabPlayers => 'Taphattoota';
+
+  @override
+  String get searchTabAcademies => 'Akkaadaamiiwwan';
+
+  @override
+  String get academiesSearchHint => 'Akkaadaamiiwwan barbaadi…';
+
+  @override
+  String get academiesNoResults =>
+      'Akkaadaamiin barbaada kee waliin walqabatu hin jiru.';
+
+  @override
+  String get academiesEmpty =>
+      'Hanga ammaatti akkaadaamiin mirkanaa\'e hin jiru.';
+
+  @override
+  String get academiesLoadFailed =>
+      'Akkaadaamiiwwan fe\'uun hin danda\'amne. Irra deebi\'iiti yaali.';
+
+  @override
+  String academiesPlayersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Taphattoota $count',
+      one: 'Taphataa 1',
+      zero: 'Hanga ammaatti taphataan hin jiru',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get academiesMessage => 'Ergaa ergi';
+
+  @override
+  String get academiesChatUnavailable =>
+      'Akkaadaamiin kun ammaaf abbaa qunnamamuu hin qabu.';
+
+  @override
+  String get academiesRegionAll => 'Naannolee hunda';
+
+  @override
+  String get academiesRegionFilterTitle => 'Naannoodhaan calali';
 
   @override
   String get filtersTitle => 'Taphattoota qulqulleessi';
@@ -1143,4 +1190,181 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get scoutPreferencesCleared => 'Filannoon haqame';
+
+  @override
+  String get loginApplyAsPlayer => 'Apply for the player';
+
+  @override
+  String get playerAppAppBarTitle => 'Apply as a player';
+
+  @override
+  String playerAppStepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get playerAppStep1Title => 'About you';
+
+  @override
+  String get playerAppStep1Subtitle =>
+      'Tell us who you are so the academy can identify you.';
+
+  @override
+  String get playerAppStep2Title => 'Where you live';
+
+  @override
+  String get playerAppStep2Subtitle =>
+      'Helps scouts and academies reach you for trials.';
+
+  @override
+  String get playerAppStep3Title => 'Your football info';
+
+  @override
+  String get playerAppStep3Subtitle =>
+      'Pick your positions and the academy you\'re applying to.';
+
+  @override
+  String get playerAppFullName => 'Full name';
+
+  @override
+  String get playerAppEmail => 'Email';
+
+  @override
+  String get playerAppNationalId => 'National ID / FAN number';
+
+  @override
+  String get playerAppAge => 'Age';
+
+  @override
+  String get playerAppPhone => 'Phone number';
+
+  @override
+  String get playerAppAddress => 'Address';
+
+  @override
+  String get playerAppRegion => 'Region';
+
+  @override
+  String get playerAppCountry => 'Country';
+
+  @override
+  String get playerAppPrimaryPosition => 'Primary position';
+
+  @override
+  String get playerAppSecondaryPosition => 'Secondary position (optional)';
+
+  @override
+  String get playerAppAcademy => 'Academy you\'re applying to';
+
+  @override
+  String get playerAppAcademyPlaceholder => 'Tap to choose an academy';
+
+  @override
+  String get playerAppAcademySearchHint => 'Search by name or region';
+
+  @override
+  String get playerAppAcademyEmpty => 'No academies match your search.';
+
+  @override
+  String get playerAppAcademiesLoading => 'Loading academies…';
+
+  @override
+  String get playerAppAcademiesEmpty => 'Could not load academies.';
+
+  @override
+  String get playerAppAdditionalInfo => 'Anything else? (optional)';
+
+  @override
+  String get playerAppAdditionalInfoHint =>
+      'e.g. previous clubs, achievements, jersey preference';
+
+  @override
+  String get playerAppContinue => 'Continue';
+
+  @override
+  String get playerAppBack => 'Back';
+
+  @override
+  String get playerAppSubmit => 'SUBMIT APPLICATION';
+
+  @override
+  String get playerAppRetry => 'Retry';
+
+  @override
+  String playerAppFieldRequired(String field) {
+    return '$field is required';
+  }
+
+  @override
+  String get playerAppEmailInvalid => 'Enter a valid email';
+
+  @override
+  String get playerAppAgeInvalid => 'Enter a valid age';
+
+  @override
+  String get playerAppAgeOutOfRange => 'Age must be between 10 and 60';
+
+  @override
+  String get playerAppErrorPickPrimary => 'Please pick a primary position.';
+
+  @override
+  String get playerAppErrorPickAcademy => 'Please pick an academy.';
+
+  @override
+  String get playerAppErrorPositionsMustDiffer =>
+      'Secondary position must differ from primary.';
+
+  @override
+  String get playerAppSubmittedTitle => 'Application submitted';
+
+  @override
+  String playerAppSubmittedBody(String email) {
+    return 'Thanks! We\'ll review your application and reach out to $email once it\'s approved.';
+  }
+
+  @override
+  String get playerAppSubmittedClose => 'Got it';
+
+  @override
+  String get announcementsTitle => 'Announcements';
+
+  @override
+  String get announcementsLoadError => 'Could not load announcements';
+
+  @override
+  String get announcementsRetry => 'Retry';
+
+  @override
+  String get announcementsUntitled => 'Announcement';
+
+  @override
+  String get announcementsEmptyTitle => 'Nothing here yet';
+
+  @override
+  String get announcementsEmptyBody =>
+      'Important updates from Goal Connect will show up on this page.';
+
+  @override
+  String get announcementsDismiss => 'Dismiss';
+
+  @override
+  String get announcementsMarkAsRead => 'Mark as read';
+
+  @override
+  String get aiPerformanceTitle => 'AI performance';
+
+  @override
+  String get aiPerformanceBadge => 'LIVE';
+
+  @override
+  String get aiPerformanceDistance => 'Distance covered';
+
+  @override
+  String get aiPerformanceDistanceUnit => 'm';
+
+  @override
+  String get aiPerformanceTopSpeed => 'Top speed';
+
+  @override
+  String get aiPerformanceSpeedUnit => 'km/h';
 }

@@ -33,7 +33,9 @@ class CommentModel extends Comment {
     final id = (json['_id'] ?? json['id'])?.toString() ?? '';
     final userRaw = json['user'];
     var userId = '';
-    var username = 'User';
+    // Empty when the populated user has no fullName — the UI hides the row
+    // rather than show a misleading generic placeholder.
+    var username = '';
     String? profileImage;
     String? userRole;
     if (userRaw is Map) {
@@ -48,7 +50,7 @@ class CommentModel extends Comment {
       username = pick(u['fullName']) ??
           pick(u['username']) ??
           pick(u['name']) ??
-          'User';
+          '';
       profileImage = u['profileImageUrl'] as String? ?? u['profileImage'] as String?;
       userRole = u['role'] as String?;
     } else if (userRaw is String) {

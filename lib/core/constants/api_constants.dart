@@ -11,6 +11,14 @@ abstract final class ApiConstants {
   static const String authLogout = '/auth/logout';
   static const String authForgotPassword = '/auth/forgot-password';
 
+  /// `POST /auth/player-application` — submit a player application (no login).
+  /// See docs/features/player_application.md.
+  static const String authPlayerApplication = '/auth/player-application';
+
+  /// `GET /academies` — list approved academies (paginated; supports
+  /// `search` and `region` query params).
+  static const String academies = '/academies';
+
   static const String videos = '/videos';
 
   /// `PATCH/DELETE /videos/{id}` — pass id when calling Dio.
@@ -69,6 +77,16 @@ abstract final class ApiConstants {
   /// `GET /messages` — list of conversations with the current user
   /// (peer user + last message + unreadCount). Sending is socket-only.
   static const String messages = '/messages';
+
+  /// `GET /notifications` — current user's notifications. Each item has
+  /// `type` ("broadcast", etc.); broadcasts include `metadata.broadcastTitle`
+  /// and `metadata.broadcastBody`.
+  static const String notifications = '/notifications';
+
+  /// `PUT /notifications/{id}/read` — mark a notification as read (used
+  /// for both reading and dismissing broadcasts).
+  static String notificationReadPath(String notificationId) =>
+      '/notifications/$notificationId/read';
 
   /// `GET /messages/{userId}` — full thread with that user (oldest first).
   static String messagesWithUserPath(String userId) => '/messages/$userId';

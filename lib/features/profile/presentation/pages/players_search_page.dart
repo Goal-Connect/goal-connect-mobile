@@ -5,24 +5,55 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../generated/l10n/app_localizations.dart';
+import '../../../../injection_container.dart';
+import '../../../auth/domain/entities/academy.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../chat/domain/entities/conversation.dart';
+import '../../../chat/presentation/pages/conversation_page.dart';
 import '../../domain/entities/player_profile.dart';
+import '../bloc/academy_search_bloc.dart';
+import '../bloc/academy_search_event.dart';
+import '../bloc/academy_search_state.dart';
 import '../bloc/player_search_bloc.dart';
 import '../bloc/player_search_event.dart';
 import '../bloc/player_search_state.dart';
 import 'player_profile_page.dart';
 
+enum _SearchView { players, academies }
+
 /// Discover tab: horizontal player strip + search via `GET /api/players`.
-class PlayersSearchPage extends StatefulWidget {
+///
+/// For scouts the page also exposes an Academies tab backed by
+/// `GET /academies`, which lets them start a direct chat with the academy
+/// owner.
+class PlayersSearchPage extends StatelessWidget {
   const PlayersSearchPage({super.key});
 
   @override
-  State<PlayersSearchPage> createState() => _PlayersSearchPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider<AcademySearchBloc>(
+      create: (_) => sl<AcademySearchBloc>(),
+      child: const _PlayersSearchView(),
+    );
+  }
 }
 
-class _PlayersSearchPageState extends State<PlayersSearchPage> {
+class _PlayersSearchView extends StatefulWidget {
+  const _PlayersSearchView();
+
+  @override
+  State<_PlayersSearchView> createState() => _PlayersSearchPageState();
+}
+
+class _PlayersSearchPageState extends State<_PlayersSearchView> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _academySearchController =
+      TextEditingController();
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
+  Timer? _academyDebounce;
+  _SearchView _view = _SearchView.players;
 
   @override
   void initState() {
@@ -42,7 +73,9 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _academyDebounce?.cancel();
     _searchController.dispose();
+    _academySearchController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -53,6 +86,53 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
       if (!mounted) return;
       context.read<PlayerSearchBloc>().add(PlayerSearchQuerySubmitted(value));
     });
+  }
+
+  void _onAcademySearchChanged(String value) {
+    _academyDebounce?.cancel();
+    _academyDebounce = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+      context.read<AcademySearchBloc>().add(AcademySearchQueryChanged(value));
+    });
+  }
+
+  void _setView(_SearchView view) {
+    if (_view == view) return;
+    setState(() => _view = view);
+    if (view == _SearchView.academies) {
+      // Trigger the first fetch lazily, only when the scout opens the tab.
+      context
+          .read<AcademySearchBloc>()
+          .add(const AcademySearchLoadRequested());
+    }
+  }
+
+  void _openAcademyChat(BuildContext context, Academy academy) {
+    final peerId = academy.userId;
+    if (peerId == null || peerId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context).academiesChatUnavailable,
+          ),
+        ),
+      );
+      return;
+    }
+    final conversation = Conversation(
+      id: peerId,
+      participantId: peerId,
+      participantName: academy.name,
+      participantImage: null,
+      participantRole: 'academy',
+      lastMessage: '',
+      updatedAt: DateTime.now(),
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ConversationPage(conversation: conversation),
+      ),
+    );
   }
 
   Future<void> _openFilters(BuildContext context) async {
@@ -85,6 +165,10 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
     final isDark = theme.brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF0A0A12) : AppColors.lightBg;
 
+    final authState = context.watch<AuthBloc>().state;
+    final isScout = authState is AuthAuthenticated &&
+        authState.user.role.toLowerCase() == 'scout';
+
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
@@ -99,6 +183,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
             }
           },
           builder: (context, state) {
+            final showingAcademies = isScout && _view == _SearchView.academies;
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
@@ -114,6 +199,20 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                     ),
                   ),
                 ),
+                if (isScout)
+                  SliverToBoxAdapter(
+                    child: _SearchTabBar(
+                      view: _view,
+                      onChanged: _setView,
+                      isDark: isDark,
+                    ),
+                  ),
+                if (showingAcademies) ...[
+                  SliverToBoxAdapter(
+                    child: _buildAcademySearchField(context, isDark),
+                  ),
+                  ..._buildAcademiesSlivers(context, isDark),
+                ] else ...[
                 SliverToBoxAdapter(
                   child: _buildSearchField(context, isDark, state),
                 ),
@@ -237,6 +336,7 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
                       ),
                     ),
                   ),
+                ],
               ],
             );
           },
@@ -345,6 +445,434 @@ class _PlayersSearchPageState extends State<PlayersSearchPage> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => PlayerProfilePage(playerId: playerId),
+      ),
+    );
+  }
+
+  // ── Academies (scout-only) ──────────────────────────────────────────────
+
+  Widget _buildAcademySearchField(BuildContext context, bool isDark) {
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _academySearchController,
+        builder: (context, value, _) {
+          return TextField(
+            controller: _academySearchController,
+            onChanged: _onAcademySearchChanged,
+            style: TextStyle(
+              color: isDark ? Colors.white : AppColors.lightText,
+            ),
+            decoration: InputDecoration(
+              hintText: l.academiesSearchHint,
+              prefixIcon: const Icon(Icons.school_rounded,
+                  color: AppColors.primaryGreen),
+              filled: true,
+              fillColor: isDark
+                  ? Colors.white.withOpacity(0.06)
+                  : Colors.black.withOpacity(0.04),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: value.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded),
+                      onPressed: () {
+                        _academySearchController.clear();
+                        _onAcademySearchChanged('');
+                      },
+                    )
+                  : null,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  List<Widget> _buildAcademiesSlivers(BuildContext context, bool isDark) {
+    final l = AppLocalizations.of(context);
+    return [
+      BlocBuilder<AcademySearchBloc, AcademySearchState>(
+        builder: (context, state) {
+          if (state.loading && state.academies.isEmpty) {
+            return const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+            );
+          }
+          if (state.errorMessage != null && state.academies.isEmpty) {
+            return SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: GestureDetector(
+                    onTap: () => context
+                        .read<AcademySearchBloc>()
+                        .add(const AcademySearchRefreshed()),
+                    child: Text(
+                      l.academiesLoadFailed,
+                      style: TextStyle(
+                        color: AppColors.gray.withOpacity(0.85),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+          if (state.academies.isEmpty) {
+            return SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    state.query.isNotEmpty
+                        ? l.academiesNoResults
+                        : l.academiesEmpty,
+                    style: TextStyle(
+                      color: AppColors.gray.withOpacity(0.85),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            );
+          }
+          return SliverPadding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final academy = state.academies[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: _AcademyTile(
+                      academy: academy,
+                      isDark: isDark,
+                      onMessage: () => _openAcademyChat(context, academy),
+                    ),
+                  );
+                },
+                childCount: state.academies.length,
+              ),
+            ),
+          );
+        },
+      ),
+    ];
+  }
+}
+
+class _SearchTabBar extends StatelessWidget {
+  final _SearchView view;
+  final ValueChanged<_SearchView> onChanged;
+  final bool isDark;
+
+  const _SearchTabBar({
+    required this.view,
+    required this.onChanged,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final trackColor = isDark
+        ? Colors.white.withOpacity(0.05)
+        : Colors.black.withOpacity(0.04);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: trackColor,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          children: [
+            Expanded(
+              child: _SegmentButton(
+                label: l.searchTabPlayers,
+                icon: Icons.sports_soccer_rounded,
+                selected: view == _SearchView.players,
+                onTap: () => onChanged(_SearchView.players),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: _SegmentButton(
+                label: l.searchTabAcademies,
+                icon: Icons.school_rounded,
+                selected: view == _SearchView.academies,
+                onTap: () => onChanged(_SearchView.academies),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SegmentButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  const _SegmentButton({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primaryGreen : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primaryGreen.withOpacity(0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected
+                  ? Colors.black
+                  : (isDark ? Colors.white70 : AppColors.gray),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected
+                    ? Colors.black
+                    : (isDark ? Colors.white : AppColors.lightText),
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AcademyTile extends StatelessWidget {
+  final Academy academy;
+  final bool isDark;
+  final VoidCallback onMessage;
+
+  const _AcademyTile({
+    required this.academy,
+    required this.isDark,
+    required this.onMessage,
+  });
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final textColor = isDark ? Colors.white : AppColors.lightText;
+    final base = (isDark ? Colors.white : Colors.black).withOpacity(0.03);
+    final border = (isDark ? Colors.white : Colors.black).withOpacity(0.06);
+
+    final subtitle = <String>[
+      if (academy.region != null) academy.region!,
+      if (academy.woreda != null) academy.woreda!,
+    ].join(' · ');
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryGreen.withOpacity(isDark ? 0.12 : 0.08),
+            base,
+            base,
+          ],
+          stops: const [0.0, 0.55, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _AcademyAvatar(initials: _initials(academy.name)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      academy.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.primaryGreen.withOpacity(0.9),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.groups_rounded,
+                          size: 14,
+                          color: AppColors.gray.withOpacity(0.85),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          l.academiesPlayersCount(academy.playerCount),
+                          style: TextStyle(
+                            color: AppColors.gray.withOpacity(0.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 42,
+            child: ElevatedButton.icon(
+              onPressed: onMessage,
+              icon: const Icon(Icons.chat_bubble_rounded, size: 16),
+              label: Text(
+                l.academiesMessage,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+                foregroundColor: Colors.black,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AcademyAvatar extends StatelessWidget {
+  final String initials;
+  const _AcademyAvatar({required this.initials});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF3DDB85),
+            AppColors.primaryGreen,
+            Color(0xFF1F8F4E),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryGreen.withOpacity(0.35),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w900,
+          fontSize: 18,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import '../../../auth/presentation/pages/login_page.dart';
 import '../../domain/entities/highlight.dart';
 import '../../../../generated/l10n/app_localizations.dart';
 import '../../../../injection_container.dart';
+import '../../domain/usecases/get_comments_usecase.dart';
 import '../../domain/usecases/toggle_like_highlight_usecase.dart';
 import 'glass_snack_bar.dart';
 import 'video_overlay_content.dart';
@@ -40,6 +41,11 @@ class _VideoFeedItemState extends State<VideoFeedItem>
   bool _showHeart = false;
   bool _seededLike = false;
 
+  /// Per-session cache of the last fetched comment count, keyed by video id.
+  /// Avoids re-hitting `GET /videos/{id}/comments` every time the same item
+  /// is rebuilt while scrolling the feed.
+  static final Map<String, int> _countCache = <String, int>{};
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -58,7 +64,14 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     WidgetsBinding.instance.addObserver(this);
     _isLiked = false;
     _likeCount = widget.highlight.likes;
-    _commentCount = widget.highlight.commentCount;
+    // Prefer the cached count from a prior fetch in this session, then the
+    // value the feed payload supplied. If both are zero we'll lazy-fetch
+    // below — the feed endpoint currently omits the count.
+    final cached = _countCache[widget.highlight.id];
+    _commentCount = cached ?? widget.highlight.commentCount;
+    if (_commentCount == 0) {
+      _maybeFetchCommentCount();
+    }
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
@@ -82,6 +95,30 @@ class _VideoFeedItemState extends State<VideoFeedItem>
     _controller.dispose();
     _rotationController.dispose();
     super.dispose();
+  }
+
+  /// Lazily fetch the comment count from `GET /videos/{id}/comments` because
+  /// the videos list endpoint currently doesn't include it. Cached per id so
+  /// scrolling back doesn't re-fetch.
+  Future<void> _maybeFetchCommentCount() async {
+    final id = widget.highlight.id;
+    if (id.isEmpty || id == 'unknown') return;
+    final result = await sl<GetCommentsUsecase>()(id);
+    if (!mounted) return;
+    result.fold(
+      (_) {/* network/auth error — leave at 0, comments sheet will retry */},
+      (comments) {
+        // Sum top-level + replies so the badge matches what the user sees.
+        var total = comments.length;
+        for (final c in comments) {
+          total += c.replies.length;
+        }
+        _countCache[id] = total;
+        if (total != _commentCount) {
+          setState(() => _commentCount = total);
+        }
+      },
+    );
   }
 
   @override
@@ -230,6 +267,7 @@ class _VideoFeedItemState extends State<VideoFeedItem>
           onLikeTap: _toggleLike,
           onOptionsTap: () {},
           onCommentCountChanged: (n) {
+            _countCache[widget.highlight.id] = n;
             if (!mounted || n == _commentCount) return;
             setState(() => _commentCount = n);
           },

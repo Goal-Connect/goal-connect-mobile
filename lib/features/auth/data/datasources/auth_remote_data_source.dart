@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:goal_connect/core/constants/api_constants.dart';
+import 'package:goal_connect/features/auth/data/models/academy_model.dart';
 import 'package:goal_connect/features/auth/data/models/auth_remote_session.dart';
+import 'package:goal_connect/features/auth/data/models/player_application_model.dart';
 import 'package:goal_connect/features/auth/data/models/player_profile_model.dart';
 import 'package:goal_connect/features/auth/data/models/scout_account_registration_model.dart';
 import 'package:goal_connect/features/auth/data/models/scout_profile_model.dart';
@@ -46,6 +48,20 @@ abstract class AuthRemoteDataSource {
   /// `POST /auth/forgot-password` — request a password reset email.
   /// Always returns HTTP 200 (anti-enumeration). Returns the server message.
   Future<String> forgotPassword(String email);
+
+  /// `POST /auth/player-application` — submit a player application.
+  /// No token is issued; the applicant must wait for academy approval.
+  Future<PlayerApplicationReceiptModel> submitPlayerApplication(
+    PlayerApplicationModel application,
+  );
+
+  /// `GET /academies` — list approved academies, with optional search/region
+  /// filters. Returns the first page (server default limit) — adequate for
+  /// the application-form picker today.
+  Future<List<AcademyModel>> listAcademies({
+    String? search,
+    String? region,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -197,6 +213,82 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
       return 'If an account with that email exists, '
           'a password reset link has been sent.';
+    } on DioException catch (e) {
+      throw AuthApiException(
+        _messageFromDio(e),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<PlayerApplicationReceiptModel> submitPlayerApplication(
+    PlayerApplicationModel application,
+  ) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiConstants.authPlayerApplication,
+        data: application.toRequestJson(),
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw AuthApiException('Invalid response from server');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw AuthApiException(
+          map['message'] as String? ?? 'Application failed',
+        );
+      }
+      final data = map['data'];
+      if (data is! Map) {
+        throw AuthApiException('Invalid response from server');
+      }
+      return PlayerApplicationReceiptModel.fromJson(
+        Map<String, dynamic>.from(data),
+      );
+    } on DioException catch (e) {
+      throw AuthApiException(
+        _messageFromDio(e),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<List<AcademyModel>> listAcademies({
+    String? search,
+    String? region,
+  }) async {
+    try {
+      final query = <String, dynamic>{};
+      if (search != null && search.trim().isNotEmpty) {
+        query['search'] = search.trim();
+      }
+      if (region != null && region.trim().isNotEmpty) {
+        query['region'] = region.trim();
+      }
+      final response = await _dio.get<dynamic>(
+        ApiConstants.academies,
+        queryParameters: query.isEmpty ? null : query,
+      );
+      final body = response.data;
+      if (body is! Map) {
+        throw AuthApiException('Invalid response from server');
+      }
+      final map = Map<String, dynamic>.from(body);
+      if (map['success'] != true) {
+        throw AuthApiException(
+          map['message'] as String? ?? 'Could not load academies',
+        );
+      }
+      final data = map['data'];
+      if (data is! List) return const [];
+      return data
+          .whereType<Map>()
+          .map((m) => AcademyModel.fromJson(Map<String, dynamic>.from(m)))
+          .where((a) => a.id.isNotEmpty)
+          .toList();
     } on DioException catch (e) {
       throw AuthApiException(
         _messageFromDio(e),

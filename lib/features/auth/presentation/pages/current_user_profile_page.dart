@@ -15,6 +15,8 @@ import 'package:goal_connect/features/highlights/presentation/bloc/highlight_eve
 import 'package:goal_connect/features/highlights/presentation/bloc/highlight_state.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/single_highlight_page.dart';
 import 'package:goal_connect/features/highlights/presentation/pages/upload_highlight_page.dart';
+import 'package:goal_connect/features/notifications/presentation/widgets/profile_bell_button.dart';
+import 'package:goal_connect/features/profile/presentation/widgets/ai_metric_icons.dart';
 import 'package:goal_connect/features/profile/domain/entities/scout_preference.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_bloc.dart';
 import 'package:goal_connect/features/profile/presentation/bloc/scout_preference_event.dart';
@@ -150,7 +152,17 @@ class _CurrentUserProfileView extends StatelessWidget {
               ),
             ),
       actions: [
-        if (embeddedInShell)
+        if (embeddedInShell) ...[
+          Padding(
+            padding: const EdgeInsets.only(right: 4, top: 8, bottom: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: const ProfileBellButton(),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 4, top: 8, bottom: 8),
             child: Container(
@@ -193,6 +205,7 @@ class _CurrentUserProfileView extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: _ProfileHeaderArt(
@@ -254,6 +267,8 @@ class _CurrentUserProfileView extends StatelessWidget {
         ),
         const SizedBox(height: 20),
       ],
+      _aiPerformanceCard(context, isDark, p),
+      const SizedBox(height: 16),
       _statsRow(context, isDark, p),
       const SizedBox(height: 20),
       _playerDetailsCard(context, isDark, textColor, p),
@@ -464,6 +479,116 @@ class _CurrentUserProfileView extends StatelessWidget {
         _infoRow(l.currentUserProfileRole, user.role, textColor),
         if (user.fullName.isNotEmpty) _infoRow(l.currentUserProfileName, user.fullName, textColor),
       ],
+    );
+  }
+
+  Widget _aiPerformanceCard(BuildContext context, bool isDark, PlayerProfile p) {
+    final l = AppLocalizations.of(context);
+    final ai = p.aiPerformance;
+    final distance = ai.distanceCovered;
+    // Show whole meters when integer, one decimal otherwise.
+    final distanceStr = distance == distance.toInt()
+        ? distance.toInt().toString()
+        : distance.toStringAsFixed(1);
+    final speed = ai.topSpeed;
+    final speedStr = speed == speed.toInt()
+        ? speed.toInt().toString()
+        : speed.toStringAsFixed(1);
+
+    return Row(
+      children: [
+        _aiMetricTile(
+          isDark: isDark,
+          iconWidget: const RunningIcon(),
+          value: distanceStr,
+          unit: l.aiPerformanceDistanceUnit,
+          label: l.aiPerformanceDistance,
+        ),
+        const SizedBox(width: 10),
+        _aiMetricTile(
+          isDark: isDark,
+          iconWidget: const SpeedometerIcon(),
+          value: speedStr,
+          unit: l.aiPerformanceSpeedUnit,
+          label: l.aiPerformanceTopSpeed,
+        ),
+      ],
+    );
+  }
+
+  Widget _aiMetricTile({
+    required bool isDark,
+    required Widget iconWidget,
+    required String value,
+    required String unit,
+    required String label,
+  }) {
+    final base = (isDark ? Colors.black : Colors.white).withValues(alpha: 0.35);
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        decoration: BoxDecoration(
+          color: base,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.primaryGreen.withValues(alpha: isDark ? 0.25 : 0.18),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: 36, height: 36, child: iconWidget),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : AppColors.lightText,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        unit,
+                        style: const TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: (isDark ? Colors.white : AppColors.lightText)
+                          .withValues(alpha: 0.65),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

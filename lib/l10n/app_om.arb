@@ -54,7 +54,7 @@
   "loginOr": "YKN",
   "loginCreateScoutAccount": "Herrega ispoortii barbaaduu uumi",
 
-  "scoutRegisterAppBarTitle": "Herrega ispoortii barbaaduu uumi",
+  "scoutRegisterAppBarTitle": "Herrega ispoortii barbaaduu iyyadhu",
   "scoutRegisterStepOf": "Tarkaanfii {current} / {total}",
   "@scoutRegisterStepOf": {
     "placeholders": {
@@ -100,7 +100,7 @@
   "scoutRegisterUploadLicence": "Suuraa hayyamaa ol kaa'i",
   "scoutRegisterChangeLicence": "Suuraa hayyamaa jijjiiri",
   "scoutRegisterPhotoSelected": "Suuraan filatame",
-  "scoutRegisterSubmit": "HERREGA ISPOORTII BARBAADUU UUMI",
+  "scoutRegisterSubmit": "IYYADHU",
 
   "highlightsCreateTitle": "Calaqqee Uumi",
   "highlightsCreateSubtitle": "Ispoortii barbaaddotaaf sochii kee gaarii agarsiisi",
@@ -146,8 +146,8 @@
   "videoOptionsEditSubtitle": "Mata-duree, ibsa, dhuunfaa, gosa shaakalii",
   "videoOptionsDelete": "Viidiyoo balleessi",
   "videoOptionsDeleteSubtitle": "Goal Connect irraa haqi",
-  "videoOptionsSave": "Viidiyoo kuusi",
-  "videoOptionsSaveSubtitle": "Kuusaa kee kuufame irratti dabali",
+  "videoOptionsSave": "Taphataa Kuusi",
+  "videoOptionsSaveSubtitle": "Taphataa kana tarree kuufame keessatti dabali",
   "videoOptionsCopyLink": "Linkii fudhi",
   "videoOptionsCopyLinkSubtitle": "Linkiin qoodi",
   "videoOptionsDownload": "Buufadhu",
@@ -183,7 +183,7 @@
     }
   },
   "videoOptionsLinkCopied": "Linkiin fudhatame",
-  "videoOptionsVideoSaved": "Viidiyoon kuufame",
+  "videoOptionsVideoSaved": "Taphataan kuufame",
   "videoOptionsShowFewer": "Akkasii xinnoo siif agarsiisna",
   "videoOptionsReportSubmitted": "Gabaasni dhiyaate",
 
@@ -308,6 +308,23 @@
   },
   "searchNoMatchFilters": "Taphataan qulqulleessitoota filataman waliin walsimu hin jiru.",
   "searchPlayersSection": "Taphattoota",
+
+  "searchTabPlayers": "Taphattoota",
+  "searchTabAcademies": "Akkaadaamiiwwan",
+  "academiesSearchHint": "Akkaadaamiiwwan barbaadi…",
+  "academiesNoResults": "Akkaadaamiin barbaada kee waliin walqabatu hin jiru.",
+  "academiesEmpty": "Hanga ammaatti akkaadaamiin mirkanaa'e hin jiru.",
+  "academiesLoadFailed": "Akkaadaamiiwwan fe'uun hin danda'amne. Irra deebi'iiti yaali.",
+  "academiesPlayersCount": "{count, plural, =0{Hanga ammaatti taphataan hin jiru} =1{Taphataa 1} other{Taphattoota {count}}}",
+  "@academiesPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "academiesMessage": "Ergaa ergi",
+  "academiesChatUnavailable": "Akkaadaamiin kun ammaaf abbaa qunnamamuu hin qabu.",
+  "academiesRegionAll": "Naannolee hunda",
+  "academiesRegionFilterTitle": "Naannoodhaan calali",
 
   "filtersTitle": "Taphattoota qulqulleessi",
   "filtersPosition": "Iddoo",

@@ -112,10 +112,32 @@ class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
         );
       }
       final raw = map['data'];
-      if (raw is! Map) {
+      // Server may return either:
+      //   • a single object (canonical POST response), or
+      //   • the full list of comments (some backend versions echo GET).
+      // Both shapes mean success — pick the matching/newest comment.
+      Map<String, dynamic>? created;
+      if (raw is Map) {
+        created = Map<String, dynamic>.from(raw);
+      } else if (raw is List && raw.isNotEmpty) {
+        final maps = raw
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList();
+        // Prefer the comment whose text matches what we just sent — robust
+        // against ordering / clock skew.
+        created = maps.firstWhere(
+          (m) {
+            final t = m['text'];
+            return t is String && t == text;
+          },
+          orElse: () => maps.first,
+        );
+      }
+      if (created == null) {
         throw CommentApiException('Invalid comment response');
       }
-      return CommentModel.fromApiMap(Map<String, dynamic>.from(raw));
+      return CommentModel.fromApiMap(created);
     } on DioException catch (e) {
       throw CommentApiException(_messageFromDio(e));
     }

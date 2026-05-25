@@ -39,8 +39,8 @@ class FancyGlassButton extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 curve: Curves.easeOut,
-                height: 48,
-                width: 48,
+                height: 58,
+                width: 58,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: bgColor,

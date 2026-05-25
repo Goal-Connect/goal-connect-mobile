@@ -1,6 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:goal_connect/core/error/fialures.dart';
+import 'package:goal_connect/features/auth/domain/entities/academy.dart';
 import 'package:goal_connect/features/auth/domain/entities/current_user_profile.dart';
+import 'package:goal_connect/features/auth/domain/entities/player_application.dart';
 import 'package:goal_connect/features/auth/domain/entities/scout_account_registration.dart';
 import 'package:goal_connect/features/auth/domain/entities/user.dart';
 
@@ -40,4 +42,17 @@ abstract class AuthRepository {
   /// `POST /auth/forgot-password` — server always returns 200 to avoid
   /// user enumeration. Returns the server's user-facing message on success.
   Future<Either<Failure, String>> forgotPassword(String email);
+
+  /// `POST /auth/player-application` — submit a new player application.
+  /// Returns the server receipt on success.
+  Future<Either<Failure, PlayerApplicationReceipt>> submitPlayerApplication(
+    PlayerApplication application,
+  );
+
+  /// `GET /academies` — list approved academies for the application form
+  /// picker. Optional case-insensitive search/region filters.
+  Future<Either<Failure, List<Academy>>> listAcademies({
+    String? search,
+    String? region,
+  });
 }

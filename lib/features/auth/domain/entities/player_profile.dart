@@ -8,6 +8,23 @@ class DisciplinaryRecord {
   });
 }
 
+/// Tracked AI metrics from `/auth/me` `profile.aiPerformance`. Only the
+/// metrics surfaced in the UI are modeled here.
+class AiPerformance {
+  /// Meters covered in tracked sessions.
+  final num distanceCovered;
+
+  /// Top recorded speed (km/h, per server).
+  final num topSpeed;
+
+  const AiPerformance({
+    this.distanceCovered = 0,
+    this.topSpeed = 0,
+  });
+
+  bool get isEmpty => distanceCovered == 0 && topSpeed == 0;
+}
+
 class PlayerProfile {
   final String id;
   final String userId;
@@ -36,6 +53,7 @@ class PlayerProfile {
   final int totalMatches;
   final int totalMinutesPlayed;
   final DisciplinaryRecord disciplinaryRecord;
+  final AiPerformance aiPerformance;
 
   const PlayerProfile({
     required this.id,
@@ -65,6 +83,7 @@ class PlayerProfile {
     this.totalMatches = 0,
     this.totalMinutesPlayed = 0,
     this.disciplinaryRecord = const DisciplinaryRecord(),
+    this.aiPerformance = const AiPerformance(),
   });
 
   int? get ageYears {

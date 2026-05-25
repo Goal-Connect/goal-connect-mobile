@@ -9,6 +9,7 @@ import '../../../highlights/presentation/bloc/highlight_bloc.dart';
 import '../../../highlights/presentation/bloc/highlight_event.dart';
 import '../../../highlights/presentation/bloc/highlight_state.dart';
 import '../../../highlights/presentation/pages/single_highlight_page.dart';
+import '../../../notifications/presentation/widgets/profile_bell_button.dart';
 import '../../domain/entities/player_profile.dart';
 import '../../domain/entities/player_stats.dart';
 import '../bloc/player_profile_bloc.dart';
@@ -19,6 +20,7 @@ import '../bloc/saved_players_event.dart';
 import '../bloc/saved_players_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../widgets/ai_metric_icons.dart';
 import '../widgets/stats_hexagon.dart';
 import '../widgets/info_chip.dart';
 import 'settings_page.dart';
@@ -181,7 +183,17 @@ class _PlayerProfileView extends StatelessWidget {
               ),
             ),
       actions: [
-        if (embeddedInShell)
+        if (embeddedInShell) ...[
+          Padding(
+            padding: const EdgeInsets.only(right: 4, top: 8, bottom: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: const ProfileBellButton(),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 4, top: 8, bottom: 8),
             child: Container(
@@ -214,6 +226,7 @@ class _PlayerProfileView extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: _PlayerProfileHeaderArt(
@@ -262,6 +275,8 @@ class _PlayerProfileView extends StatelessWidget {
             const SizedBox(height: 24),
           ],
           if (profile.isPlayer && profile.stats != null) ...[
+            _buildAiPerformanceCard(context, profile, isDark),
+            const SizedBox(height: 20),
             _buildPlayerInfo(context, profile, isDark, textColor),
             const SizedBox(height: 24),
             if (profile.playingStyleTags.isNotEmpty) ...[
@@ -282,6 +297,117 @@ class _PlayerProfileView extends StatelessWidget {
           _buildHighlightsSection(context, isDark, textColor),
           const SizedBox(height: 40),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAiPerformanceCard(
+      BuildContext context, PlayerProfile profile, bool isDark) {
+    final l = AppLocalizations.of(context);
+    final ai = profile.aiPerformance;
+    final distance = ai.distanceCovered;
+    final distanceStr = distance == distance.toInt()
+        ? distance.toInt().toString()
+        : distance.toStringAsFixed(1);
+    final speed = ai.topSpeed;
+    final speedStr = speed == speed.toInt()
+        ? speed.toInt().toString()
+        : speed.toStringAsFixed(1);
+
+    return Row(
+      children: [
+        _aiMetricTile(
+          isDark: isDark,
+          iconWidget: const RunningIcon(),
+          value: distanceStr,
+          unit: l.aiPerformanceDistanceUnit,
+          label: l.aiPerformanceDistance,
+        ),
+        const SizedBox(width: 10),
+        _aiMetricTile(
+          isDark: isDark,
+          iconWidget: const SpeedometerIcon(),
+          value: speedStr,
+          unit: l.aiPerformanceSpeedUnit,
+          label: l.aiPerformanceTopSpeed,
+        ),
+      ],
+    );
+  }
+
+  Widget _aiMetricTile({
+    required bool isDark,
+    required Widget iconWidget,
+    required String value,
+    required String unit,
+    required String label,
+  }) {
+    final base = (isDark ? Colors.black : Colors.white).withValues(alpha: 0.35);
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        decoration: BoxDecoration(
+          color: base,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color:
+                AppColors.primaryGreen.withValues(alpha: isDark ? 0.25 : 0.18),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: 36, height: 36, child: iconWidget),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : AppColors.lightText,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        unit,
+                        style: const TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: (isDark ? Colors.white : AppColors.lightText)
+                          .withValues(alpha: 0.65),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1187,3 +1313,4 @@ class _ScoutSaveProfileButton extends StatelessWidget {
     );
   }
 }
+

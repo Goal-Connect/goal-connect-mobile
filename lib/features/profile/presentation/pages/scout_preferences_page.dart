@@ -42,9 +42,20 @@ class _ScoutPreferencesView extends StatefulWidget {
 class _ScoutPreferencesViewState extends State<_ScoutPreferencesView> {
   static const _positionOptions = <String>[
     'Goalkeeper',
-    'Defender',
-    'Midfielder',
-    'Forward',
+    'Sweeper Keeper',
+    'Center Back',
+    'Left Center Back',
+    'Right Center Back',
+    'Full Back',
+    'Wing Back',
+    'Defensive Midfielder',
+    'Central Midfielder',
+    'Attacking Midfielder',
+    'Wide Midfielder',
+    'Winger',
+    'Inside Forward',
+    'Striker',
+    'False 9',
   ];
 
   final _regionInputController = TextEditingController();

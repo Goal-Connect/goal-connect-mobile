@@ -60,6 +60,25 @@ class HighlightModel extends Highlight {
     return int.tryParse(likesCountRaw?.toString() ?? '') ?? 0;
   }
 
+  /// Comment count is sent under different keys across endpoints
+  /// (`commentsCount`, `commentCount`, sometimes a populated `comments`
+  /// array). Try each in turn — fall back to zero.
+  static int _parseCommentCount(Map<String, dynamic> json) {
+    final candidates = <dynamic>[
+      json['commentsCount'],
+      json['commentCount'],
+      json['comments_count'],
+    ];
+    for (final c in candidates) {
+      if (c is int) return c;
+      final n = int.tryParse(c?.toString() ?? '');
+      if (n != null) return n;
+    }
+    final comments = json['comments'];
+    if (comments is List) return comments.length;
+    return 0;
+  }
+
   /// One item from `GET /videos/feed` (wrapped `video` + `player` + `academy`).
   factory HighlightModel.fromFeedItemMap(Map<String, dynamic> json) {
     final videoRaw = json['video'];
@@ -123,9 +142,9 @@ class HighlightModel extends Highlight {
       caption: caption,
       likes: likeCount,
       likedUserIds: likedIds,
-      commentCount: int.tryParse(v['commentsCount']?.toString() ?? '') ??
-          int.tryParse(json['commentsCount']?.toString() ?? '') ??
-          0,
+      commentCount: _parseCommentCount(v) != 0
+          ? _parseCommentCount(v)
+          : _parseCommentCount(json),
       createdAt: createdAt,
       description: description.isEmpty ? null : description,
       privacy: v['privacy'] as String?,
@@ -180,7 +199,7 @@ class HighlightModel extends Highlight {
       caption: caption,
       likes: likesCount,
       likedUserIds: likedIds,
-      commentCount: 0,
+      commentCount: _parseCommentCount(json),
       createdAt: createdAt,
       description: description.isEmpty ? null : description,
       privacy: json['privacy'] as String?,

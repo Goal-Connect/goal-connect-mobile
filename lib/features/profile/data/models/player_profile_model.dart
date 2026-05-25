@@ -37,6 +37,7 @@ class PlayerProfileModel extends PlayerProfile {
     super.nationality = '',
     super.playingStyleTags = const [],
     super.clubHistory = const [],
+    super.aiPerformance = const AiPerformance(),
   });
 
   factory PlayerProfileModel.fromJson(Map<String, dynamic> json) {
@@ -219,6 +220,7 @@ class PlayerProfileModel extends PlayerProfile {
       totalLikes: totalLikes,
       isFollowing: isFollowing,
       stats: stats,
+      aiPerformance: _parseAiPerformance(prof?['aiPerformance']),
     );
   }
 
@@ -299,6 +301,7 @@ class PlayerProfileModel extends PlayerProfile {
       nationality: p['nationality'] as String? ?? '',
       playingStyleTags: tags,
       clubHistory: clubs,
+      aiPerformance: _parseAiPerformance(p['aiPerformance']),
     );
   }
 
@@ -310,6 +313,23 @@ class PlayerProfileModel extends PlayerProfile {
           .toList();
     }
     return const [];
+  }
+
+  /// Picks `distanceCovered` and `topSpeed` out of `profile.aiPerformance`.
+  /// Other keys (e.g. `assignmentsCount`) are intentionally ignored — only
+  /// the two metrics surfaced in the UI are modeled.
+  static AiPerformance _parseAiPerformance(dynamic raw) {
+    if (raw is! Map) return const AiPerformance();
+    final m = Map<String, dynamic>.from(raw);
+    num toNum(dynamic v) {
+      if (v == null) return 0;
+      if (v is num) return v;
+      return num.tryParse(v.toString()) ?? 0;
+    }
+    return AiPerformance(
+      distanceCovered: toNum(m['distanceCovered']),
+      topSpeed: toNum(m['topSpeed']),
+    );
   }
 
   static int _asInt(dynamic a, dynamic b, int fallback) {
