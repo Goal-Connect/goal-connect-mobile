@@ -480,7 +480,7 @@ class _CommentTile extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        '@${comment.username}',
+                        comment.username,
                         style: const TextStyle(
                           color: Colors.white70,
                           fontWeight: FontWeight.w700,

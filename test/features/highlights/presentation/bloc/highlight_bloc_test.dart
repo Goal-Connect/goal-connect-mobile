@@ -71,8 +71,8 @@ void main() {
   group('GetHighlightsFeedEvent', () {
     test('emits [HighlightLoading, HighlightLoaded] on success', () async {
       when(() => mockGetFeed(
-            position: any(named: 'position'),
-            region: any(named: 'region'),
+            positions: any(named: 'positions'),
+            regions: any(named: 'regions'),
             minAge: any(named: 'minAge'),
             maxAge: any(named: 'maxAge'),
           )).thenAnswer((_) async => Right(tHighlights));
@@ -92,8 +92,8 @@ void main() {
 
     test('emits [HighlightLoading, HighlightError] on failure', () async {
       when(() => mockGetFeed(
-            position: any(named: 'position'),
-            region: any(named: 'region'),
+            positions: any(named: 'positions'),
+            regions: any(named: 'regions'),
             minAge: any(named: 'minAge'),
             maxAge: any(named: 'maxAge'),
           )).thenAnswer((_) async => Left(ServerFailure()));

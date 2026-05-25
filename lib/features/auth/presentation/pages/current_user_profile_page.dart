@@ -1500,3 +1500,4 @@ class _RadarPainter extends CustomPainter {
       old.textColor != textColor ||
       old.spokes != spokes;
 }
+

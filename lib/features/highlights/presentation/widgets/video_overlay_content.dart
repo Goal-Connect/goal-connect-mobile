@@ -125,7 +125,7 @@ class VideoOverlayContent extends StatelessWidget {
           ),
 
           SizedBox(
-            width: 64,
+            width: 56,
             child: SingleChildScrollView(
               reverse: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -147,30 +147,31 @@ class VideoOverlayContent extends StatelessWidget {
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primaryGreen.withOpacity(0.4),
-                              blurRadius: 15,
-                              spreadRadius: 2,
+                              blurRadius: 14,
+                              spreadRadius: 1.5,
                             ),
                           ],
                         ),
                         child: Hero(
                           tag: 'avatar_${highlight.player.id}',
                           child: CircleAvatar(
-                            radius: 24,
+                            radius: 20,
                             backgroundColor: Colors.black,
-                            backgroundImage: NetworkImage(highlight.player.profileImage),
+                            backgroundImage:
+                                NetworkImage(highlight.player.profileImage),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   _LikeButton(
                     isLiked: isLiked,
                     likeCount: likeCount,
                     onTap: onLikeTap,
                     formatCount: _formatCount,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
                   FancyGlassButton(
                     icon: Icons.chat_bubble_rounded,
                     label: _formatCount(commentCount),
@@ -178,11 +179,21 @@ class VideoOverlayContent extends StatelessWidget {
                     isPulsing: true,
                     onTap: () => _openComments(context, highlight.id),
                   ),
-                  const SizedBox(height: 14),
-                  const SizedBox(height: 14),
-                  _MoreOptionsButton(
-                    highlight: highlight,
-                    onBottomSheetOpened: onBottomSheetOpened,
+                  const SizedBox(height: 12),
+                  HighlightDownloadButton(highlight: highlight),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, authState) {
+                      final isScout = authState is AuthAuthenticated &&
+                          authState.user.role.toLowerCase() == 'scout';
+                      if (!isScout) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: _MoreOptionsButton(
+                          highlight: highlight,
+                          onBottomSheetOpened: onBottomSheetOpened,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -256,6 +267,108 @@ class VideoOverlayContent extends StatelessWidget {
   }
 }
 
+/// Sidebar download button. Exposes its [VideoDownloader] dependency so
+/// widget tests can inject a fake; production callers omit it and get the
+/// real downloader.
+@visibleForTesting
+class HighlightDownloadButton extends StatefulWidget {
+  final Highlight highlight;
+  final VideoDownloader? downloader;
+
+  const HighlightDownloadButton({
+    super.key,
+    required this.highlight,
+    this.downloader,
+  });
+
+  @override
+  State<HighlightDownloadButton> createState() =>
+      _HighlightDownloadButtonState();
+}
+
+class _HighlightDownloadButtonState extends State<HighlightDownloadButton> {
+  late final VideoDownloader _downloader =
+      widget.downloader ?? VideoDownloader();
+  bool _downloading = false;
+  double _progress = 0;
+
+  Future<void> _onTap() async {
+    if (_downloading) return;
+    final l = AppLocalizations.of(context);
+    final videoUrl = widget.highlight.videoUrl;
+    if (videoUrl.isEmpty) {
+      GlassSnackBar.show(
+        context,
+        l.downloadUnavailable,
+        isError: true,
+        accent: AppColors.habeshaRed,
+      );
+      return;
+    }
+
+    setState(() {
+      _downloading = true;
+      _progress = 0;
+    });
+    GlassSnackBar.show(
+      context,
+      l.downloadInProgress,
+      accent: AppColors.primaryGreen,
+    );
+
+    try {
+      await _downloader.downloadToGallery(
+        videoUrl,
+        album: 'Goal Connect',
+        onProgress: (p) {
+          if (mounted) setState(() => _progress = p);
+        },
+      );
+      if (!mounted) return;
+      GlassSnackBar.show(
+        context,
+        l.downloadSavedToGallery,
+        accent: AppColors.primaryGreen,
+      );
+    } on VideoDownloadException catch (e) {
+      if (!mounted) return;
+      GlassSnackBar.show(
+        context,
+        e.message,
+        isError: true,
+        accent: AppColors.habeshaRed,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      GlassSnackBar.show(
+        context,
+        l.downloadCouldNotDownload,
+        isError: true,
+        accent: AppColors.habeshaRed,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _downloading = false;
+          _progress = 0;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FancyGlassButton(
+      icon: _downloading
+          ? Icons.downloading_rounded
+          : Icons.download_rounded,
+      label: _downloading ? '${(_progress * 100).round()}%' : '',
+      color: Colors.tealAccent,
+      onTap: _onTap,
+    );
+  }
+}
+
 class _MoreOptionsButton extends StatelessWidget {
   final Highlight highlight;
   final void Function(Future<void> sheetFuture) onBottomSheetOpened;
@@ -304,73 +417,10 @@ class _HighlightActionSheet extends StatefulWidget {
 }
 
 class _HighlightActionSheetState extends State<_HighlightActionSheet> {
-  final VideoDownloader _downloader = VideoDownloader();
-  bool _downloading = false;
-
   bool get _isScout {
     final auth = context.read<AuthBloc>().state;
     return auth is AuthAuthenticated &&
         auth.user.role.toLowerCase() == 'scout';
-  }
-
-  Future<void> _onDownload() async {
-    if (_downloading) return;
-    final l = AppLocalizations.of(context);
-    final videoUrl = widget.highlight.videoUrl;
-    if (videoUrl.isEmpty) {
-      _toast(l.downloadUnavailable, isError: true);
-      return;
-    }
-
-    setState(() => _downloading = true);
-    final messengerContext = context;
-    Navigator.of(context).pop();
-    GlassSnackBar.show(
-      messengerContext,
-      l.downloadInProgress,
-      accent: AppColors.primaryGreen,
-    );
-
-    try {
-      await _downloader.downloadToGallery(
-        videoUrl,
-        album: 'Goal Connect',
-      );
-      if (messengerContext.mounted) {
-        GlassSnackBar.show(
-          messengerContext,
-          l.downloadSavedToGallery,
-          accent: AppColors.primaryGreen,
-        );
-      }
-    } on VideoDownloadException catch (e) {
-      if (messengerContext.mounted) {
-        GlassSnackBar.show(
-          messengerContext,
-          e.message,
-          isError: true,
-          accent: AppColors.habeshaRed,
-        );
-      }
-    } catch (_) {
-      if (messengerContext.mounted) {
-        GlassSnackBar.show(
-          messengerContext,
-          l.downloadCouldNotDownload,
-          isError: true,
-          accent: AppColors.habeshaRed,
-        );
-      }
-    }
-  }
-
-  void _toast(String message, {bool isError = false}) {
-    GlassSnackBar.show(
-      context,
-      message,
-      isError: isError,
-      accent: isError ? AppColors.habeshaRed : AppColors.primaryGreen,
-    );
   }
 
   Future<void> _onReport() async {
@@ -435,15 +485,6 @@ class _HighlightActionSheetState extends State<_HighlightActionSheet> {
               ),
             ),
             Divider(height: 1, color: Colors.white.withValues(alpha: 0.06)),
-            _HighlightActionTile(
-              icon: _downloading
-                  ? Icons.downloading_rounded
-                  : Icons.download_rounded,
-              color: Colors.tealAccent,
-              label: l.videoOptionsDownload,
-              subtitle: l.videoOptionsDownloadSubtitle,
-              onTap: _onDownload,
-            ),
             if (_isScout) ...[
               BlocBuilder<SavedPlayersBloc, SavedPlayersState>(
                 builder: (context, state) {

@@ -104,27 +104,40 @@ class PlayerProfileRemoteDataSourceImpl implements PlayerProfileRemoteDataSource
     String? sortOrder,
     String? meta,
   }) async {
+    final searchTrimmed = search?.trim();
+    final hasQuery = searchTrimmed != null && searchTrimmed.isNotEmpty;
+
+    final positionTrimmed = position?.trim();
+    final footTrimmed = strongFoot?.trim();
+    final hasFilters = (positionTrimmed != null && positionTrimmed.isNotEmpty) ||
+        (footTrimmed != null && footTrimmed.isNotEmpty) ||
+        minAge != null ||
+        maxAge != null ||
+        minHeight != null ||
+        maxHeight != null;
+
+    // The new contract says: do NOT use `/players?search=` for new UI. So
+    // route every actual search/filter call through `/players/search` and
+    // keep `/players` only for the no-query browse case.
+    if (hasQuery || hasFilters) {
+      return _searchPlayers(
+        page: page,
+        limit: limit,
+        query: searchTrimmed ?? '',
+        positionCategory: positionTrimmed,
+        strongFoot: footTrimmed,
+        minAge: minAge,
+        maxAge: maxAge,
+        minHeight: minHeight,
+        maxHeight: maxHeight,
+      );
+    }
+
     try {
       final params = <String, dynamic>{
         'page': page,
         'limit': limit,
       };
-      final searchTrimmed = search?.trim();
-      if (searchTrimmed != null && searchTrimmed.isNotEmpty) {
-        params['search'] = searchTrimmed;
-      }
-      final positionTrimmed = position?.trim();
-      if (positionTrimmed != null && positionTrimmed.isNotEmpty) {
-        params['position'] = positionTrimmed.toLowerCase();
-      }
-      final footTrimmed = strongFoot?.trim();
-      if (footTrimmed != null && footTrimmed.isNotEmpty) {
-        params['strongFoot'] = footTrimmed.toLowerCase();
-      }
-      if (minAge != null) params['minAge'] = minAge;
-      if (maxAge != null) params['maxAge'] = maxAge;
-      if (minHeight != null) params['minHeight'] = minHeight;
-      if (maxHeight != null) params['maxHeight'] = maxHeight;
       final sortByTrimmed = sortBy?.trim();
       if (sortByTrimmed != null && sortByTrimmed.isNotEmpty) {
         params['sortBy'] = sortByTrimmed;
@@ -142,40 +155,90 @@ class PlayerProfileRemoteDataSourceImpl implements PlayerProfileRemoteDataSource
         ApiConstants.players,
         queryParameters: params,
       );
-      final body = response.data;
-      if (body is! Map) {
-        throw PlayerProfileApiException('Invalid players list response');
-      }
-      final map = Map<String, dynamic>.from(body);
-      if (map['success'] != true) {
-        throw PlayerProfileApiException(
-          map['message'] as String? ?? 'Failed to load players',
-        );
-      }
-      final raw = map['data'];
-      final list = raw is List ? raw : <dynamic>[];
-      final players = list
-          .whereType<Map>()
-          .map((e) => PlayerProfileModel.fromListDocument(
-                Map<String, dynamic>.from(e),
-              ))
-          .toList();
-
-      final pageNum = (map['page'] as num?)?.toInt() ?? page;
-      final pagesNum = (map['pages'] as num?)?.toInt() ?? 1;
-      final totalNum = (map['total'] as num?)?.toInt() ?? players.length;
-      final countNum = (map['count'] as num?)?.toInt() ?? players.length;
-
-      return PlayersListResult(
-        players: players,
-        page: pageNum,
-        pages: pagesNum,
-        total: totalNum,
-        count: countNum,
-      );
+      return _parseListBody(response.data, fallbackPage: page);
     } on DioException catch (e) {
       throw PlayerProfileApiException(_messageFromDio(e));
     }
+  }
+
+  /// Calls `GET /players/search` with the new smart-search contract.
+  /// Uses a long receive timeout because the first semantic search after
+  /// the backend has been idle can take up to ~180s.
+  Future<PlayersListResult> _searchPlayers({
+    required int page,
+    required int limit,
+    required String query,
+    String? positionCategory,
+    String? strongFoot,
+    int? minAge,
+    int? maxAge,
+    int? minHeight,
+    int? maxHeight,
+  }) async {
+    try {
+      final params = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+        'mode': 'auto',
+      };
+      if (query.isNotEmpty) params['q'] = query;
+      if (positionCategory != null && positionCategory.isNotEmpty) {
+        params['positionCategory'] = positionCategory.toLowerCase();
+      }
+      if (strongFoot != null && strongFoot.isNotEmpty) {
+        params['strongFoot'] = strongFoot.toLowerCase();
+      }
+      if (minAge != null) params['minAge'] = minAge;
+      if (maxAge != null) params['maxAge'] = maxAge;
+      if (minHeight != null) params['minHeight'] = minHeight;
+      if (maxHeight != null) params['maxHeight'] = maxHeight;
+
+      final response = await _dio.get<dynamic>(
+        ApiConstants.playersSearch,
+        queryParameters: params,
+        options: Options(
+          receiveTimeout: const Duration(seconds: 180),
+        ),
+      );
+      return _parseListBody(response.data, fallbackPage: page);
+    } on DioException catch (e) {
+      throw PlayerProfileApiException(_messageFromDio(e));
+    }
+  }
+
+  /// Parses the `{ success, data, page, pages, total, count }` envelope
+  /// shared by `/players` and `/players/search`.
+  PlayersListResult _parseListBody(dynamic body, {required int fallbackPage}) {
+    if (body is! Map) {
+      throw PlayerProfileApiException('Invalid players list response');
+    }
+    final map = Map<String, dynamic>.from(body);
+    if (map['success'] != true) {
+      throw PlayerProfileApiException(
+        map['message'] as String? ?? 'Failed to load players',
+      );
+    }
+    final raw = map['data'];
+    final list = raw is List ? raw : <dynamic>[];
+    final players = list
+        .whereType<Map>()
+        .map((e) => PlayerProfileModel.fromListDocument(
+              Map<String, dynamic>.from(e),
+            ))
+        .toList();
+
+    final pageNum = (map['page'] as num?)?.toInt() ?? fallbackPage;
+    final pagesNum = (map['pages'] as num?)?.toInt() ?? 1;
+    final totalNum = (map['total'] as num?)?.toInt() ?? players.length;
+    final countNum = (map['count'] as num?)?.toInt() ?? players.length;
+
+    return PlayersListResult(
+      players: players,
+      page: pageNum,
+      pages: pagesNum,
+      total: totalNum,
+      count: countNum,
+    );
   }
 
   @override

@@ -40,6 +40,15 @@ abstract final class ApiConstants {
   /// `GET /players/{id}` — path only; pass id when calling Dio.
   static String playerPath(String playerId) => '/players/$playerId';
 
+  /// `GET /players/search` — smart search (name / hybrid / semantic) with
+  /// the new filter contract. Returns `{ data, page, pages, total, meta }`.
+  /// Prefer this over `/players?search=` for any search UI.
+  static const String playersSearch = '/players/search';
+
+  /// `GET /players/suggest` — autocomplete; returns `suggestions.names[]`
+  /// and `suggestions.didYouMean`. Debounce client-side (~300ms).
+  static const String playersSuggest = '/players/suggest';
+
   /// `GET /players/{id}/videos` (see README).
   static String playerVideosPath(String playerId) =>
       '/players/$playerId/videos';

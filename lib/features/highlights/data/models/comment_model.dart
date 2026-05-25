@@ -39,11 +39,22 @@ class CommentModel extends Comment {
     if (userRaw is Map) {
       final u = Map<String, dynamic>.from(userRaw);
       userId = (u['_id'] ?? u['id'])?.toString() ?? '';
-      username = u['fullName'] as String? ??
-          u['username'] as String? ??
+      // Treat empty strings as missing — Mongo populate sometimes returns
+      // empty `fullName` for users that never set one.
+      String? pick(dynamic v) {
+        if (v is String && v.trim().isNotEmpty) return v.trim();
+        return null;
+      }
+      username = pick(u['fullName']) ??
+          pick(u['username']) ??
+          pick(u['name']) ??
           'User';
       profileImage = u['profileImageUrl'] as String? ?? u['profileImage'] as String?;
       userRole = u['role'] as String?;
+    } else if (userRaw is String) {
+      // Server returned the comment without populating the user (just an
+      // ObjectId). Keep the id so other features can still resolve it.
+      userId = userRaw;
     }
 
     final likesRaw = json['likes'];

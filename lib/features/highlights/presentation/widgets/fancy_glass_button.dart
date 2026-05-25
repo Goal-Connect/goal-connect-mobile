@@ -39,8 +39,8 @@ class FancyGlassButton extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 curve: Curves.easeOut,
-                height: 56,
-                width: 56,
+                height: 48,
+                width: 48,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: bgColor,
@@ -55,7 +55,7 @@ class FancyGlassButton extends StatelessWidget {
                         ]
                       : [],
                 ),
-                child: Icon(icon, color: iconColor, size: 28),
+                child: Icon(icon, color: iconColor, size: 27),
               ),
             ),
           ),
@@ -65,7 +65,7 @@ class FancyGlassButton extends StatelessWidget {
           label,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
           ),
